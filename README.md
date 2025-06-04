@@ -47,12 +47,12 @@ This project is released under the **Apache License 2.0**, promoting open innova
 
 ## 👥 Contributors
 
-* Alex Norta (Tallinn University, Dymaxion OÜ)
+* Alex Norta (Tallinn University)
 * Sowelu Avanzo (University of Torino)
 * Sunday Aroh (Tallinn University)
 * Alexandr Kormiltsyn (Tallinn University)
 * Indrek Ibrus (Tallinn University, Baltic Film, Media and Arts School)
-* Andres Kõne (Tallinn University)
+* Andres Kõnno (Tallinn University)
 
 ## 🌍 Acknowledgements
 
