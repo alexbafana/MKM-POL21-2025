@@ -36,7 +36,7 @@ The project follows the **Design Science Research (DSR)** methodology and involv
 ## 🛠 Technologies Used
 
 * **Solidity**, **Ethereum**
-* **ANTLR**, **Python**, **XPath**
+* **Python**, **XPath**
 * **XML/XSD for model structure**
 * **OriginTrail DKG v8**
 * **RDF, OWL, SPARQL**
