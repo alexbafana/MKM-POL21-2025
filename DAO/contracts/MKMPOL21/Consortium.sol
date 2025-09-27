@@ -17,7 +17,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFractio
 import "./interfaces/IPermissionManager.sol";
 
 
-contract Consortium is Governor, GovernorSettings, GovernorVotes, GovernorVotesQuorumFraction , IPermissionManager {
+contract Consortium is Governor, GovernorSettings, GovernorVotes, GovernorVotesQuorumFraction  {
 
     // State variables
     IPermissionManager public permissionManager;
@@ -31,7 +31,7 @@ contract Consortium is Governor, GovernorSettings, GovernorVotes, GovernorVotesQ
     mapping(uint256 => Proposal) public proposals; // Track the status of proposals
 
     // Constructor
-    constructor(IVotes _token,, address _permissionManager, uint256 _challengePeriod)
+    constructor(IVotes _token, address _permissionManager, uint256 _challengePeriod)
         Governor(Consortium)
         GovernorSettings(7200 /* 1 day */, 50400 /* 1 week */, 0)
         GovernorVotes(_token)
@@ -46,7 +46,7 @@ contract Consortium is Governor, GovernorSettings, GovernorVotes, GovernorVotesQ
         override
         returns (uint256)
     {
-        require(permissionManager.canPropose(msg.sender, 18), "User cannot propose");
+        require(permissionManager.canPropose(msg.sender, 28), "User cannot propose");
         uint256 proposalId = super.propose(targets, values, calldatas, description);
         // Create a new proposal in pending state, can be vetoed within the challenge period
         proposals[proposalId] = Proposal({
@@ -60,7 +60,7 @@ contract Consortium is Governor, GovernorSettings, GovernorVotes, GovernorVotesQ
 
     // Function to veto a proposal within the challenge period
     function vetoProposal(uint256 proposalId) public {
-        require(permissionManager.canVote(msg.sender, 19), "User cannot vote");
+        require(permissionManager.canVote(msg.sender, 29), "User cannot vote");
         Proposal storage proposal = proposals[proposalId];
         require(!proposal.vetoed, "Proposal already vetoed");
         require(block.timestamp < proposal.creationTime + challengePeriod, "Challenge period expired");

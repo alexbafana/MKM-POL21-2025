@@ -8,21 +8,23 @@ import "./interfaces/IPermissionManager.sol";
 contract MKMPOL21 is IPermissionManager {
     bool internal committee_initialization_blocked;
     mapping(address => uint32) internal roles;
-    uint32[7] internal role_permissions;
-    uint32[7] internal all_roles = [
-        1024, // #0) Super-User -> ID : 0 , control bitmask: 100000
-        1057, // #1) Member_Institution -> ID : 1 , control bitmask: 100001
-        1058, // #2) Ordinary_User -> ID : 2 , control bitmask: 100001
-        3075, // #3) Guardian_Agent -> ID : 3 , control bitmask: 1100000
-        3076, // #4) Data_Extractor_Agent -> ID : 4 , control bitmask: 1100000
+    uint64[9] internal role_permissions;
+    uint32[9] internal all_roles = [
+        1152, // #0) Member_Institution -> ID : 0 , control bitmask: 100100
+        1153, // #1) Ordinary_User -> ID : 1 , control bitmask: 100100
+        3074, // #2) MFSSIA_Guardian_Agent -> ID : 2 , control bitmask: 1100000
+        3075, // #3) Eliza_Data_Extractor_Agent -> ID : 3 , control bitmask: 1100000
+        1156, // #4) Data_Validator -> ID : 4 , control bitmask: 100100
         1029, // #5) MKMPOL21Owner -> ID : 5 , control bitmask: 100000
-        1062 // #6)  Consortium -> ID : 6 , control bitmask: 100001
+        1030, // #6)  Consortium -> ID : 6 , control bitmask: 100000
+        1031, // #7)  Validation_Committee -> ID : 7 , control bitmask: 100000
+        1032 // #8)  Dispute_Resolution_Board -> ID : 8 , control bitmask: 100000
     ];
  //Events
     event RoleRevoked(address indexed user, uint32 indexed role);
     event RoleAssigned(address indexed user, uint32 indexed role);
-    event PermissionGranted(uint32 indexed role, uint32 indexed permission);
-    event PermissionRevoked(uint32 indexed role, uint32 indexed permission);
+    event PermissionGranted(uint32 indexed role, uint64 indexed permission);
+    event PermissionRevoked(uint32 indexed role, uint64 indexed permission);
 
 
 
@@ -35,7 +37,7 @@ contract MKMPOL21 is IPermissionManager {
 
             require(
                 ( // the new role must be a valid one
-                    index_new_role < 7 // checking for "index out of bounds"
+                    index_new_role < 9 // checking for "index out of bounds"
                 )
                 && ( // "check the sender and target user control relation"
                     (allowNullRole_user && (user_role_id == 0)) || // allow to add role if the user doesn't have one
@@ -59,33 +61,39 @@ contract MKMPOL21 is IPermissionManager {
 
 
  
-    modifier hasPermission(address _executor, uint32 _permissionIndex) {
-        require(role_permissions[uint32(roles[_executor] & 31)] & (uint32(1) << _permissionIndex) != 0, "User does not have this permission");
+    modifier hasPermission(address _executor, uint64 _permissionIndex) {
+        require(role_permissions[uint64(roles[_executor] & 31)] & (uint64(1) << _permissionIndex) != 0, "User does not have this permission");
         _;
     }
             
     constructor(
 ) {
-        role_permissions[0] = 32; // #0) Super-User 
+        role_permissions[0] = 13694403466; // #0) Member_Institution 
 
-        role_permissions[1] = 787338; // #1) Member_Institution 
+        role_permissions[1] = 12889096202; // #1) Ordinary_User 
 
-        role_permissions[2] = 10; // #2) Ordinary_User 
+        role_permissions[2] = 26507264; // #2) MFSSIA_Guardian_Agent 
 
-        role_permissions[3] = 30720; // #3) Guardian_Agent 
+        role_permissions[3] = 229376; // #3) Eliza_Data_Extractor_Agent 
 
-        role_permissions[4] = 229376; // #4) Data_Extractor_Agent 
+        role_permissions[4] = 16915628938; // #4) Data_Validator 
 
-        role_permissions[5] = 1048575; // #5) MKMPOL21Owner 
+        role_permissions[5] = 17179869183; // #5) MKMPOL21Owner 
 
-        role_permissions[6] = 1109; // #6) Consortium 
+        role_permissions[6] = 237502512; // #6) Consortium 
+
+        role_permissions[7] = 1088; // #7) Validation_Committee 
+
+        role_permissions[8] = 5; // #8) Dispute_Resolution_Board 
 
 roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
 }
-    function initializeCommittees(address _Consortium) external {
+    function initializeCommittees(address _Consortium, address _Validation_Committee, address _Dispute_Resolution_Board) external {
         require(roles[msg.sender] == all_roles[5], "Only the owner can initialize the Dao");  // MKMPOL21Owner
-    require(committee_initialization_blocked == false && _Consortium != address(0), "Invalid committee initialization");
+    require(committee_initialization_blocked == false && _Consortium != address(0) && _Validation_Committee != address(0) && _Dispute_Resolution_Board != address(0), "Invalid committee initialization");
         roles[_Consortium] = all_roles[0]; // Consortium
+        roles[_Validation_Committee] = all_roles[1]; // Validation_Committee
+        roles[_Dispute_Resolution_Board] = all_roles[2]; // Dispute_Resolution_Board
         committee_initialization_blocked = true;
     }
 
@@ -116,19 +124,19 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
             emit RoleRevoked(_user, _role);
         }
 
-        function grantPermission(uint32 _role, uint32 _permissionIndex) external hasPermission(msg.sender, _permissionIndex) {
+        function grantPermission(uint32 _role, uint64 _permissionIndex) external hasPermission(msg.sender, _permissionIndex) {
             require(canControl(roles[msg.sender], _role), "cannot grant permission, as the control relation is lacking");
-            uint32 new_role_perm_value;
-            new_role_perm_value  = role_permissions[_role & 31 ] | (uint32(1) << _permissionIndex);
+            uint64 new_role_perm_value;
+            new_role_perm_value  = role_permissions[_role & 31 ] | (uint64(1) << _permissionIndex);
             role_permissions[_role & 31 ] = new_role_perm_value;
             
             emit PermissionGranted(_role, _permissionIndex);
         }
 
-        function revokePermission(uint32 _role, uint32  _permissionIndex) external hasPermission(msg.sender, _permissionIndex) {
+        function revokePermission(uint32 _role, uint64  _permissionIndex) external hasPermission(msg.sender, _permissionIndex) {
             require(canControl(roles[msg.sender], _role), "cannot revoke permission, as the control relation is lacking");
-            uint32 new_role_perm_value;
-            new_role_perm_value = role_permissions[_role & 31] & ~(uint32(1) << _permissionIndex);
+            uint64 new_role_perm_value;
+            new_role_perm_value = role_permissions[_role & 31] & ~(uint64(1) << _permissionIndex);
             role_permissions[_role & 31] = new_role_perm_value;
 
             emit PermissionRevoked(_role, _permissionIndex);
@@ -138,8 +146,8 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
             return roles[user];
         }
 
-        function has_permission(address user, uint32 _permissionIndex) external view returns (bool) {
-            if (role_permissions[uint32(roles[user] & 31)] & (uint32(1) << _permissionIndex) != 0){ 
+        function has_permission(address user, uint64 _permissionIndex) external view returns (bool) {
+            if (role_permissions[uint64(roles[user] & 31)] & (uint64(1) << _permissionIndex) != 0){ 
                 return true;
             }else{
                 return false;
@@ -238,13 +246,63 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
         }
                 
 
-            function canVote(address user, uint32 permissionIndex) external view returns (bool) {
-                require(role_permissions[uint32(roles[user] & 31)] & (uint32(1) << permissionIndex) != 0, "User does not have this permission");
+        function onboard_ordinary_user() external hasPermission(msg.sender, 18) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function onboard_institution() external hasPermission(msg.sender, 19) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function remove_ordinary_member() external hasPermission(msg.sender, 20) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function remove_institution() external hasPermission(msg.sender, 21) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function submit_query_to_eliza_agent() external hasPermission(msg.sender, 22) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function Issue_DID() external hasPermission(msg.sender, 23) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function Burn_DID() external hasPermission(msg.sender, 24) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function mint_MKMT() external hasPermission(msg.sender, 25) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function burn_MKMT() external hasPermission(msg.sender, 26) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function distribute_MKMT() external hasPermission(msg.sender, 27) {
+            // TODO: Implement the function logic here
+        }
+                
+
+            function canVote(address user, uint64 permissionIndex) external view returns (bool) {
+                require(role_permissions[uint64(roles[user] & 31)] & (uint64(1) << permissionIndex) != 0, "User does not have this permission");
                 return true;
             }
 
-            function canPropose(address user, uint32 permissionIndex) external view returns (bool) {
-                require(role_permissions[uint32(roles[user] & 31)] & (uint32(1) << permissionIndex) != 0, "User does not have this permission");
+            function canPropose(address user, uint64 permissionIndex) external view returns (bool) {
+                require(role_permissions[uint64(roles[user] & 31)] & (uint64(1) << permissionIndex) != 0, "User does not have this permission");
                 return true;
             }
 }
