@@ -153,42 +153,57 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
                 return false;
             }
         }
-             
-         
+        
+        revisionSession[] revisionSessions;
+        
 
-        function Accept_revision() external hasPermission(msg.sender, 0) {
-            // TODO: Implement the function logic here
+
+        struct revisionSession{
+            address sender;
+            bytes32 data_point_identifier; //keccak256 hash of data point
+            string data_uri;
         }
-                
+        string statute_uri;
+        bytes32 statute_hash;
+
+        function _triggerRevision()internal {
+
+        }
+         
+        function Modify_Statute(/*string memory newUri, bytes32 newHash*/) external hasPermission(msg.sender, 4) {
+                   
+                    // TODO: Implement the function logic here
+
+                }
 
         function request_revision_of_data() external hasPermission(msg.sender, 1) {
             // TODO: Implement the function logic here
         }
-                
-
-        function Propose_Modification_to_revision() external hasPermission(msg.sender, 2) {
+         function Propose_Modification_to_revision() external hasPermission(msg.sender, 2) {
             // TODO: Implement the function logic here
         }
-                
-
+        function Accept_revision() external hasPermission(msg.sender, 0) {
+            //par: revisionSession ID (uint128)
+            // TODO: Implement the function logic here
+        }
         function Accept_modification_to_revision() external hasPermission(msg.sender, 3) {
             // TODO: Implement the function logic here
-        }
+    }   
+
+     function Reject_data_point() external hasPermission(msg.sender, 6) {
+            // TODO: Implement the function logic here
+        }      
+       
                 
 
-        function Modify_Statute() external hasPermission(msg.sender, 4) {
-            // TODO: Implement the function logic here
-        }
-                
+               
 
         function Upgrade_smart_contracts() external hasPermission(msg.sender, 5) {
             // TODO: Implement the function logic here
         }
                 
 
-        function Reject_data_point() external hasPermission(msg.sender, 6) {
-            // TODO: Implement the function logic here
-        }
+       
                 
 
         function edit_data_point_inclusion_proposal() external hasPermission(msg.sender, 7) {
