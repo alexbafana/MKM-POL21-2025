@@ -59,7 +59,6 @@ contract MKMPOL21 is IPermissionManager {
         }
         
 
-
  
     modifier hasPermission(address _executor, uint64 _permissionIndex) {
         require(role_permissions[uint64(roles[_executor] & 31)] & (uint64(1) << _permissionIndex) != 0, "User does not have this permission");
@@ -154,118 +153,10 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
             }
         }
         
-        revisionSession[] revisionSessions;
-        
-
-
-        struct revisionSession{
-            address sender;
-            bytes32 data_point_identifier; //keccak256 hash of data point
-            string data_uri;
-        }
-        string statute_uri;
-        bytes32 statute_hash;
-
-        function _triggerRevision()internal {
-
-        }
-         
-        function Modify_Statute(/*string memory newUri, bytes32 newHash*/) external hasPermission(msg.sender, 4) {
-                   
-                    // TODO: Implement the function logic here
-
-                }
-
-        function request_revision_of_data() external hasPermission(msg.sender, 1) {
-            // TODO: Implement the function logic here
-        }
-         function Propose_Modification_to_revision() external hasPermission(msg.sender, 2) {
-            // TODO: Implement the function logic here
-        }
-        function Accept_revision() external hasPermission(msg.sender, 0) {
-            //par: revisionSession ID (uint128)
-            // TODO: Implement the function logic here
-        }
-        function Accept_modification_to_revision() external hasPermission(msg.sender, 3) {
-            // TODO: Implement the function logic here
-    }   
-
-     function Reject_data_point() external hasPermission(msg.sender, 6) {
-            // TODO: Implement the function logic here
-        }      
-       
-                
-
-               
-
-        function Upgrade_smart_contracts() external hasPermission(msg.sender, 5) {
-            // TODO: Implement the function logic here
-        }
-                
-
-       
-                
-
-        function edit_data_point_inclusion_proposal() external hasPermission(msg.sender, 7) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function submit_data_point_inclusion_proposal() external hasPermission(msg.sender, 8) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function add_metadata() external hasPermission(msg.sender, 9) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function inspect_data_point() external hasPermission(msg.sender, 10) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Access_Challenge_Set() external hasPermission(msg.sender, 11) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Validate_response() external hasPermission(msg.sender, 12) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Access_Challenge_Response() external hasPermission(msg.sender, 13) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Green_light_authentication() external hasPermission(msg.sender, 14) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Retrieve_Data() external hasPermission(msg.sender, 15) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Make_Prediction() external hasPermission(msg.sender, 16) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Notify_Contradiction() external hasPermission(msg.sender, 17) {
-            // TODO: Implement the function logic here
-        }
-                
-
         function onboard_ordinary_user() external hasPermission(msg.sender, 18) {
             // TODO: Implement the function logic here
         }
                 
-
         function onboard_institution() external hasPermission(msg.sender, 19) {
             // TODO: Implement the function logic here
         }
@@ -309,6 +200,78 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
         function distribute_MKMT() external hasPermission(msg.sender, 27) {
             // TODO: Implement the function logic here
         }
+         
+
+    //     function request_revision_of_data() external hasPermission(msg.sender, 1) {
+    //         // TODO: Implement the function logic here
+    //     }
+    //      function Propose_Modification_to_revision() external hasPermission(msg.sender, 2) {
+    //         // TODO: Implement the function logic here
+    //     }
+    //     function Accept_revision() external hasPermission(msg.sender, 0) {
+    //         //par: revisionSession ID (uint128)
+    //         // TODO: Implement the function logic here
+    //     }
+    //     function Accept_modification_to_revision() external hasPermission(msg.sender, 3) {
+    //         // TODO: Implement the function logic here
+    // }   
+
+    //  function Reject_data_point() external hasPermission(msg.sender, 6) {
+    //         // TODO: Implement the function logic here
+    //     }                      
+
+        // function edit_data_point_inclusion_proposal() external hasPermission(msg.sender, 7) {
+        //     // TODO: Implement the function logic here
+        // }
+                
+
+        // function submit_data_point_inclusion_proposal() external hasPermission(msg.sender, 8) {
+        //     // TODO: Implement the function logic here
+        // }
+                
+
+        // function add_metadata() external hasPermission(msg.sender, 9) {
+        //     // TODO: Implement the function logic here
+        // }
+                
+
+        // function inspect_data_point() external hasPermission(msg.sender, 10) {
+        //     // TODO: Implement the function logic here
+        // }
+                
+/*
+        function Access_Challenge_Set() external hasPermission(msg.sender, 11) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function Validate_response() external hasPermission(msg.sender, 12) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function Access_Challenge_Response() external hasPermission(msg.sender, 13) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function Green_light_authentication() external hasPermission(msg.sender, 14) {
+            // TODO: Implement the function logic here
+        }
+        */
+        // function Retrieve_Data() external hasPermission(msg.sender, 15) {
+        //     // TODO: Implement the function logic here
+        // }
+                
+
+        // function Make_Prediction() external hasPermission(msg.sender, 16) {
+        //     // TODO: Implement the function logic here
+        // }
+                
+        // function Notify_Contradiction() external hasPermission(msg.sender, 17) {
+        //     // TODO: Implement the function logic here
+        // }
+
                 
 
             function canVote(address user, uint64 permissionIndex) external view returns (bool) {

@@ -4,11 +4,14 @@ pragma solidity ^0.8.0;
  * @title MKMPOL21
  * @notice Manage the governance of public data
  */
+
 import "./interfaces/IPermissionManager.sol";
+
 contract MKMPOL21 is IPermissionManager {
     bool internal committee_initialization_blocked;
     mapping(address => uint32) internal roles;
     uint64[9] internal role_permissions;
+    string statute_uri;
     uint32[9] internal all_roles = [
         1152, // #0) Member_Institution -> ID : 0 , control bitmask: 100100
         1153, // #1) Ordinary_User -> ID : 1 , control bitmask: 100100
@@ -20,6 +23,7 @@ contract MKMPOL21 is IPermissionManager {
         1031, // #7)  Validation_Committee -> ID : 7 , control bitmask: 100000
         1032 // #8)  Dispute_Resolution_Board -> ID : 8 , control bitmask: 100000
     ];
+    
  //Events
     event RoleRevoked(address indexed user, uint32 indexed role);
     event RoleAssigned(address indexed user, uint32 indexed role);
@@ -154,18 +158,46 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
             }
         }
              
-         
+     /*    
+   function remove_institution(address target_institution_address) external hasPermission(msg.sender, 21) {
+             }
+        */
+
+       function Modify_Statute(string memory new_statute_uri) external hasPermission(msg.sender, 4) {
+            // TODO: Implement the function logic here
+            statute_uri = new_statute_uri;
+        }
+
+        function Issue_DID() external hasPermission(msg.sender, 23) {
+            // TODO: Implement the function logic here
+        }
+                
+        function Burn_DID() external hasPermission(msg.sender, 24) {
+            // TODO: Implement the function logic here
+        }
+                
+        function mint_MKMT() external hasPermission(msg.sender, 25) {
+            // TODO: Implement the function logic here
+        }     
+
+        function burn_MKMT() external hasPermission(msg.sender, 26) {
+            // TODO: Implement the function logic here
+        }
+                
+
+        function distribute_MKMT() external hasPermission(msg.sender, 27) {
+            // TODO: Implement the function logic here
+        }
 
         function Accept_revision() external hasPermission(msg.sender, 0) {
             // TODO: Implement the function logic here
         }
-                
 
         function request_revision_of_data() external hasPermission(msg.sender, 1) {
             // TODO: Implement the function logic here
+
         }
                 
-
         function Propose_Modification_to_revision() external hasPermission(msg.sender, 2) {
             // TODO: Implement the function logic here
         }
@@ -173,13 +205,7 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
 
         function Accept_modification_to_revision() external hasPermission(msg.sender, 3) {
             // TODO: Implement the function logic here
-        }
-                
-
-        function Modify_Statute() external hasPermission(msg.sender, 4) {
-            // TODO: Implement the function logic here
-        }
-                
+        }             
 
         function Upgrade_smart_contracts() external hasPermission(msg.sender, 5) {
             // TODO: Implement the function logic here
@@ -258,42 +284,12 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
 
         function remove_ordinary_member() external hasPermission(msg.sender, 20) {
             // TODO: Implement the function logic here
-        }
-                
+        }                
 
-        function remove_institution() external hasPermission(msg.sender, 21) {
-            // TODO: Implement the function logic here
-        }
+        // function submit_query_to_eliza_agent() external hasPermission(msg.sender, 22) {
+        //     // TODO: Implement the function logic here
+        // }
                 
-
-        function submit_query_to_eliza_agent() external hasPermission(msg.sender, 22) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Issue_DID() external hasPermission(msg.sender, 23) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function Burn_DID() external hasPermission(msg.sender, 24) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function mint_MKMT() external hasPermission(msg.sender, 25) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function burn_MKMT() external hasPermission(msg.sender, 26) {
-            // TODO: Implement the function logic here
-        }
-                
-
-        function distribute_MKMT() external hasPermission(msg.sender, 27) {
-            // TODO: Implement the function logic here
-        }
                 
 
             function canVote(address user, uint64 permissionIndex) external view returns (bool) {
