@@ -13,6 +13,11 @@ contract GADisputeResolution is GA, Ownable {
 
         pm = IPermissionManager(permission_manager);
     }
+     function setPermissionManager(address newPm) external onlyOwner {
+        require(newPm != address(0), "new pm is zero");
+        pm = IPermissionManager(newPm);
+        _transferOwnership(newPm); 
+    } 
 function onboard_ordinary_user() external {
                 require(pm.has_permission(msg.sender, 18));
 
