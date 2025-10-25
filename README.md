@@ -1,100 +1,116 @@
-Here is the revised and extended `README.md` file with **proper integration of DKG**, **MFSSIA**, and **AI integration with DKG v8**, along with updates to the folder structure:
+# 🏗 Scaffold-ETH 2
 
----
+<h4 align="center">
+  <a href="https://docs.scaffoldeth.io">Documentation</a> |
+  <a href="https://scaffoldeth.io">Website</a>
+</h4>
 
-# Decentralized Knowledge Graph for Semantic Media Governance
+🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
 
-This repository contains tools, models, and source code for building a **blockchain-anchored decentralized knowledge graph (DKG)** and a **DAO-governed semantic infrastructure** for media and cultural content. It is developed under the **Estonian MKM-POL21-2025 research initiative**, addressing the need for verifiable, interoperable, and decentralized public data infrastructures in the creative and media sectors.
+⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
 
----
+- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
+- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
+- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
+- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
+- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
 
-## 🔍 Project Overview
+![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
 
-The project integrates the following key components:
+## Requirements
 
-* **Decentralized Knowledge Graph (DKG)**: Creation of a blockchain-based semantic knowledge graph to store, verify, and query RDF-linked cultural datasets.
-* **DAO-ML and Governance**: A graphical modeling and code generation framework (DAO-ML) for defining governance structures as smart contracts.
-* **MFSSIA** (Multi-Factor Challenge Set Self-Sovereign Identity Authentication): Enables secure, sovereign identity validation for access control, content authorship, and voting within the DAO.
-* **AI Integration for DKG v8**: AI agents (e.g., ElizaOS-compatible) will be developed to perform intelligent reasoning, autonomous curation, and trust scoring on DKG data, aligned with OriginTrail's v8 agent-based architecture.
+Before you begin, you need to install the following tools:
 
----
+- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
+- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
+- [Git](https://git-scm.com/downloads)
 
-## 🔧 Key Features
+## Quickstart
 
-* **DAO-ML Modeling Language**: Visual modeling of DAO governance roles, permissions, and organizational hierarchies.
-* **Solidity Code Generation**: Automatic translation of DAO-ML models into smart contracts, optimized for scalability and upgradeability.
-* **Decentralized Knowledge Graph (DKG)**:
+To get started with Scaffold-ETH 2, follow the steps below:
 
-  * Publishing and anchoring RDF-compliant semantic assets on OriginTrail DKG v8.
-  * Use of blockchain hashes to ensure data provenance, verifiability, and interoperability.
-* **MFSSIA**:
+1. Install dependencies if it was skipped in CLI:
 
-  * A blockchain-based authentication layer using configurable challenge sets for access control and identity verification.
-  * Integrates with the DAO and DKG to ensure secure identity-linked transactions.
-* **AI-Driven Curation and Oracles**:
-
-  * Use of ElizaOS agents and reasoning algorithms to semantically enrich datasets, assign trust scores, and automate governance proposals.
-  * Future integration of LLM-based contextual understanding for autonomous knowledge graph validation and expansion.
-
----
-
-## 📁 Repository Structure
-
-```plaintext
-/
-├── /model                  # DAO-ML models (XML)
-├── /generator              # DAO-ML to Solidity translation engine
-├── /ontology               # RDF schemas, OWL ontologies
-├── /dkg                    # Decentralized Knowledge Graph tooling and data
-├── /mfssia                 # Identity challenge model and smart contract integration
-├── /ai_agents              # AI curation tools and ElizaOS-compatible logic
-├── /examples               # Use case models and simulation data
-├── /docs                   # Design science research artifacts and documentation
+```
+cd my-dapp-example
+yarn install
 ```
 
----
+2. Run a local network in the first terminal:
 
-## 🧪 Methodology
+```
+yarn chain
+```
 
-This project follows the **Design Science Research (DSR)** methodology to ensure that all developed artifacts (models, code, ontologies, governance structures) are rigorously grounded in theory and validated through real-world use cases.
+This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
 
-The project integrates:
+3. On a second terminal, deploy the test contract:
 
-* Case study research and stakeholder co-design
-* Formal modeling (DAO-ML, ontologies, grammars)
-* AI-enhanced agent design
-* Blockchain-based verification (smart contracts, RDF anchoring)
+```
+yarn deploy
+```
 
----
+This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
 
-## 🛠 Technologies Used
+4. On a third terminal, start your NextJS app:
 
-* **Solidity**, **Ethereum**, **MetaMask**
-* **ANTLR**, **XPath**, **Python**, **XSD**
-* **RDF**, **OWL**, **SPARQL**
-* **OriginTrail DKG v8**, **ElizaOS**, **Edge Nodes**
-* **MFSSIA model**: Blockchain + off-chain authentication protocols
-* **AI**: LLMs, decision trees, knowledge graph embeddings (planned)
+```
+yarn start
+```
 
----
+Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
 
-## 📜 License
+Run smart contract test with `yarn hardhat:test`
 
-This project is licensed under the **Apache License 2.0**, enabling reuse, extension, and commercial application with patent protection.
+- Edit your smart contracts in `packages/hardhat/contracts`
+- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
+- Edit your deployment scripts in `packages/hardhat/deploy`
 
----
+## 🚀 Setup Ponder Extension
 
-## 👥 Contributors
+This extension allows to use Ponder (https://ponder.sh/) for event indexing on an SE-2 dapp.
 
-* Alex Norta (Tallinn University, Dymaxion OÜ)
-* Sowelu Avanzo (University of Torino)
-* Sunday Aroh (Tallinn University)
-* Alexandr Kormiltsyn (Tallinn University)
-* Indrek Ibrus (Tallinn University, BFM)
-* Andres Kõnno (Tallinn University)
+Ponder is an open-source framework for blockchain application backends. With Ponder, you can rapidly build & deploy an API that serves custom data from smart contracts on any EVM blockchain.
 
----
+### Config
 
-## 🌍 Acknowledgements
+Ponder config (```packages/ponder/ponder.config.ts```) is set automatically from the deployed contracts and using the first blockchain network setup at ```packages/nextjs/scaffold.config.ts```.
 
-This work is funded by the **Estonian Ministry of Economic Affairs and Communications (MKM)** under the **POL21-2025 strategic research framework**. It is carried out in collaboration with a consortium of European creative media faculties and decentralized web technology partners.
+### Design your schema
+
+You can define your Ponder data schema on the file at ```packages/ponder/ponder.schema.ts``` following the Ponder documentation (https://ponder.sh/docs/schema).
+
+### Indexing data
+
+You can index events by adding files to ```packages/ponder/src/``` (https://ponder.sh/docs/indexing/write-to-the-database)
+
+### Start the development server
+
+Run ```yarn ponder:dev``` to start the Ponder development server, for indexing and serving the GraphQL API endpoint at http://localhost:42069
+
+### Query the GraphQL API
+
+With the dev server running, open http://localhost:42069 in your browser to use the GraphiQL interface. GraphiQL is a useful tool for exploring your schema and testing queries during development. (https://ponder.sh/docs/query/graphql)
+
+You can query data on a page using ```@tanstack/react-query```. Check the code at ```packages/nextjs/app/greetings/page.ts``` to get the greetings updates data and show it.
+
+### Deploy
+
+To deploy the Ponder indexer please refer to the Ponder Deploy documentation https://ponder.sh/docs/production/deploy
+
+At **Settings** -> **Deploy** -> you must set **Custom Start Command** to ```yarn ponder:start```.
+
+And then you have to set up the ```NEXT_PUBLIC_PONDER_URL``` env variable on your SE-2 dapp to use the deployed ponder indexer.
+
+
+## Documentation
+
+Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+
+To know more about its features, check out our [website](https://scaffoldeth.io).
+
+## Contributing to Scaffold-ETH 2
+
+We welcome contributions to Scaffold-ETH 2!
+
+Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
