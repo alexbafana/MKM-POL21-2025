@@ -1,44 +1,88 @@
+// packages/hardhat/deploy/00_deploy_your_contract.ts
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract } from "ethers";
 
-/**
- * Deploys a contract named "YourContract" using the deployer account and
- * constructor arguments set to the deployer address
- *
- * @param hre HardhatRuntimeEnvironment object.
- */
-const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  /*
-    On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
+const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+  const { deployments, getNamedAccounts, artifacts, ethers } = hre;
+  const { deploy, execute, log } = deployments;
+  const { deployer } = await getNamedAccounts();
 
-    When deploying to live networks (e.g `yarn deploy --network sepolia`), the deployer account
-    should have sufficient balance to pay for the gas fees for contract creation.
+  const exists = async (name: string) => {
+    try {
+      await artifacts.readArtifact(name);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
-    You can generate a random account with `yarn generate` or `yarn account:import` to import your
-    existing PK which will fill DEPLOYER_PRIVATE_KEY_ENCRYPTED in the .env file (then used on hardhat.config.ts)
-    You can run the `yarn account` command to check your balance in every network.
-  */
-  const { deployer } = await hre.getNamedAccounts();
-  const { deploy } = hre.deployments;
+  log("==== MKMPOL21 DAO: deploy start ====");
 
-  await deploy("YourContract", {
+  // 1) VotingPowerToken (plain ERC20Votes, non-upgradeable)
+  const token = await deploy("VotingPowerToken", {
     from: deployer,
-    // Contract constructor arguments
-    args: [deployer],
+    args: ["MKMPOL Voting Power", "MKMVP", deployer], // name, symbol, initialOwner
     log: true,
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
 
-  // Get the deployed contract to interact with it after deploying.
-  const yourContract = await hre.ethers.getContract<Contract>("YourContract", deployer);
-  console.log("👋 Initial greeting:", await yourContract.greeting());
+  // 2) MKMPOL21 (permission manager) — constructor sets deployer as Owner (index 5)
+  const mkmpm = await deploy("MKMPOL21", {
+    from: deployer,
+    args: [],
+    log: true,
+    autoMine: true,
+  });
+  log(`MKMPOL21 at: ${mkmpm.address}`);
+
+  // 3) Transfer token ownership to MKMPOL21
+  await execute("VotingPowerToken", { from: deployer, log: true }, "transferOwnership", mkmpm.address);
+
+  // 4) Optional governance contracts
+  const challengePeriod = 60 * 60 * 24 * 3; // 3 days
+
+  const deployIfPresent = async (name: string): Promise<string | null> => {
+    if (!(await exists(name))) {
+      log(`Skip: ${name} not found`);
+      return null;
+    }
+    const d = await deploy(name, {
+      from: deployer,
+      args: [token.address, mkmpm.address, challengePeriod],
+      log: true,
+      autoMine: true,
+    });
+    log(`${name} at: ${d.address}`);
+    return d.address;
+    };
+
+  const consortium = await deployIfPresent("Consortium");
+  const validation = await deployIfPresent("Validation_Committee");
+  const dispute    = await deployIfPresent("Dispute_Resolution_Board");
+
+  // 5) Initialize committees ONLY if all three contracts exist
+  if (consortium && validation && dispute) {
+    await execute(
+      "MKMPOL21",
+      { from: deployer, log: true },
+      "initializeCommittees",
+      consortium,
+      validation,
+      dispute
+    );
+    log("Committees initialized.");
+  } else {
+    log("Skipping initializeCommittees — not all committee contracts are deployed. Owner preserved.");
+  }
+
+  // 6) Sanity check: confirm deployer still has Owner (index 5)
+  const mkmp = await ethers.getContractAt("MKMPOL21", mkmpm.address);
+  const rawRole = await mkmp.hasRole(deployer); // uint32 (Ethers v6 returns bigint)
+  const ownerIndex = Number(rawRole) & 31;
+  log(`Deployer ${deployer} role index: ${ownerIndex} (expect 5)`);
+
+  log("==== MKMPOL21 DAO: deploy end ====");
 };
 
-export default deployYourContract;
-
-// Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags YourContract
-deployYourContract.tags = ["YourContract"];
+export default func;
+func.tags = ["MKMPOL21-DAO"];
