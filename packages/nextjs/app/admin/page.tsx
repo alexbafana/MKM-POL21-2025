@@ -1,27 +1,42 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useAccount, useChainId, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { zeroAddress, isAddress } from "viem";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { isAddress, zeroAddress } from "viem";
+import { useAccount, useChainId, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { useDeployedMkmp } from "~~/hooks/useDeployedMkmp";
 
 const MKMP_ABI = [
-  { "inputs":[{"internalType":"address","name":"user","type":"address"}], "name":"hasRole", "outputs":[{"internalType":"uint32","name":"","type":"uint32"}], "stateMutability":"view","type":"function" },
-  { "inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"uint32","name":"_role","type":"uint32"}], "name":"assignRole", "outputs":[], "stateMutability":"nonpayable","type":"function" }
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "hasRole",
+    outputs: [{ internalType: "uint32", name: "", type: "uint32" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "_user", type: "address" },
+      { internalType: "uint32", name: "_role", type: "uint32" },
+    ],
+    name: "assignRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const;
 
 // same mapping you use on-chain
 const ROLES = [
-  { name: "Member_Institution",           value: 1152, index: 0 },
-  { name: "Ordinary_User",                value: 1153, index: 1 },
-  { name: "MFSSIA_Guardian_Agent",        value: 3074, index: 2 },
-  { name: "Eliza_Data_Extractor_Agent",   value: 3075, index: 3 },
-  { name: "Data_Validator",               value: 1156, index: 4 },
-  { name: "MKMPOL21Owner",                value: 1029, index: 5 },
-  { name: "Consortium",                   value: 1030, index: 6 },
-  { name: "Validation_Committee",         value: 1031, index: 7 },
-  { name: "Dispute_Resolution_Board",     value: 1032, index: 8 },
+  { name: "Member_Institution", value: 1152, index: 0 },
+  { name: "Ordinary_User", value: 1153, index: 1 },
+  { name: "MFSSIA_Guardian_Agent", value: 3074, index: 2 },
+  { name: "Eliza_Data_Extractor_Agent", value: 3075, index: 3 },
+  { name: "Data_Validator", value: 1156, index: 4 },
+  { name: "MKMPOL21Owner", value: 1029, index: 5 },
+  { name: "Consortium", value: 1030, index: 6 },
+  { name: "Validation_Committee", value: 1031, index: 7 },
+  { name: "Dispute_Resolution_Board", value: 1032, index: 8 },
 ];
 
 const OWNER_INDEX = 5;
@@ -61,7 +76,7 @@ export default function AdminPage() {
       address: mkmpAddress!,
       abi: MKMP_ABI,
       functionName: "assignRole",
-      args: [to as `0x${string}`, BigInt(roleValue)],
+      args: [to as `0x${string}`, roleValue],
     });
   };
 
@@ -70,10 +85,14 @@ export default function AdminPage() {
     return (
       <div className="p-6 max-w-3xl mx-auto">
         <div className="mb-4">
-          <Link href="/" className="link">← Back to Home</Link>
+          <Link href="/" className="link">
+            ← Back to Home
+          </Link>
         </div>
         <h1 className="text-2xl font-bold mb-2">MKMPOL21 • Admin</h1>
-        <p className="text-warning">MKMPOL21 is not deployed for chain {chainId}. Deploy, restart the app, and retry.</p>
+        <p className="text-warning">
+          MKMPOL21 is not deployed for chain {chainId}. Deploy, restart the app, and retry.
+        </p>
       </div>
     );
   }
@@ -81,11 +100,15 @@ export default function AdminPage() {
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="mb-4">
-        <Link href="/" className="link">← Back to Home</Link>
+        <Link href="/" className="link">
+          ← Back to Home
+        </Link>
       </div>
 
       <h1 className="text-3xl font-bold mb-2">MKMPOL21 • Admin</h1>
-      <p className="opacity-70 mb-6">Contract: <span className="font-mono">{mkmpAddress}</span></p>
+      <p className="opacity-70 mb-6">
+        Contract: <span className="font-mono">{mkmpAddress}</span>
+      </p>
 
       <div className="bg-base-100 rounded-2xl p-5 shadow mb-6">
         <div className="flex items-center justify-between">
@@ -105,8 +128,8 @@ export default function AdminPage() {
       {!isOwner && (
         <div className="alert alert-warning mb-6">
           <span>
-            You are <b>not</b> MKMPOL21Owner (index 5) on this contract.  
-            If you granted OWNER on a previous deployment, re-grant it on this instance.
+            You are <b>not</b> MKMPOL21Owner (index 5) on this contract. If you granted OWNER on a previous deployment,
+            re-grant it on this instance.
           </span>
         </div>
       )}
@@ -151,7 +174,11 @@ export default function AdminPage() {
             {isGranting || isMining ? "Granting..." : "Grant Role"}
           </button>
           <div className="text-sm opacity-70">
-            {selectedRole && <>Granting <b>{selectedRole.name}</b> (value {selectedRole.value})</>}
+            {selectedRole && (
+              <>
+                Granting <b>{selectedRole.name}</b> (value {selectedRole.value})
+              </>
+            )}
           </div>
         </div>
 
@@ -173,8 +200,8 @@ export default function AdminPage() {
       </fieldset>
 
       <p className="text-sm opacity-70">
-        Tip: If this still says you’re not owner, double-check you granted OWNER on **this** MKMPOL21 address
-        (from <code>deployedContracts.ts</code>) and that your wallet is on the same chain (31337).
+        Tip: If this still says you’re not owner, double-check you granted OWNER on **this** MKMPOL21 address (from{" "}
+        <code>deployedContracts.ts</code>) and that your wallet is on the same chain (31337).
       </p>
     </div>
   );

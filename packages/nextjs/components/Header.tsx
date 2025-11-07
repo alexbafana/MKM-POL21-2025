@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
@@ -56,31 +55,14 @@ const DesktopNav = () => {
       ))}
 
       {/* Committees dropdown (desktop) */}
-      <li className="dropdown dropdown-hover">
+      <li className="dropdown dropdown-hover dropdown-end">
         <Link
           href="/committees"
           tabIndex={0}
-          className="py-1.5 px-3 text-sm rounded-full hover:bg-secondary hover:shadow-md cursor-pointer"
+          className={`${pathname.startsWith("/committees") ? "bg-secondary shadow-md" : ""} py-1.5 px-3 text-sm rounded-full hover:bg-secondary hover:shadow-md inline-flex items-center gap-1`}
         >
           {committeesGroup.label}
         </Link>
-        <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 mt-2">
-          {committeesGroup.items.map(({ label, href }) => (
-            <li key={href}>
-              <Link href={href}>{label}</Link>
-            </li>
-          ))}
-        </ul>
-      </li>
-
-      {/* Committees dropdown (desktop) */}
-      <li className="dropdown dropdown-hover">
-        <div
-          tabIndex={0}
-          className="py-1.5 px-3 text-sm rounded-full hover:bg-secondary hover:shadow-md cursor-pointer"
-        >
-          {committeesGroup.label}
-        </div>
         <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 mt-2">
           {committeesGroup.items.map(({ label, href }) => (
             <li key={href}>
@@ -116,7 +98,11 @@ const MobileNav = ({ onSelect }: { onSelect: () => void }) => {
         </li>
       ))}
 
-      <li className="menu-title mt-2">{committeesGroup.label}</li>
+      <li className="menu-title mt-2">
+        <Link href="/committees" className="hover:text-primary">
+          {committeesGroup.label}
+        </Link>
+      </li>
       {committeesGroup.items.map(({ label, href }) => (
         <li key={href}>
           <Link

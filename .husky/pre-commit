@@ -1,1 +1,1 @@
-yarn lint-staged --verbose
+corepack yarn lint-staged --verbose

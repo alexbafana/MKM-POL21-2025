@@ -41,35 +41,30 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   // 4) Optional governance contracts
   const challengePeriod = 60 * 60 * 24 * 3; // 3 days
 
-  const deployIfPresent = async (name: string): Promise<string | null> => {
+  const deployIfPresent = async (name: string, args: any[]): Promise<string | null> => {
     if (!(await exists(name))) {
       log(`Skip: ${name} not found`);
       return null;
     }
     const d = await deploy(name, {
       from: deployer,
-      args: [token.address, mkmpm.address, challengePeriod],
+      args,
       log: true,
       autoMine: true,
     });
     log(`${name} at: ${d.address}`);
     return d.address;
-    };
+  };
 
-  const consortium = await deployIfPresent("Consortium");
-  const validation = await deployIfPresent("Validation_Committee");
-  const dispute    = await deployIfPresent("Dispute_Resolution_Board");
+  // Consortium uses optimistic governance with challenge period (3 args)
+  const consortium = await deployIfPresent("Consortium", [token.address, mkmpm.address, challengePeriod]);
+  // ValidationCommittee and DisputeResolutionBoard use simple majority (2 args)
+  const validation = await deployIfPresent("ValidationCommittee", [token.address, mkmpm.address]);
+  const dispute = await deployIfPresent("DisputeResolutionBoard", [token.address, mkmpm.address]);
 
   // 5) Initialize committees ONLY if all three contracts exist
   if (consortium && validation && dispute) {
-    await execute(
-      "MKMPOL21",
-      { from: deployer, log: true },
-      "initializeCommittees",
-      consortium,
-      validation,
-      dispute
-    );
+    await execute("MKMPOL21", { from: deployer, log: true }, "initializeCommittees", consortium, validation, dispute);
     log("Committees initialized.");
   } else {
     log("Skipping initializeCommittees — not all committee contracts are deployed. Owner preserved.");
