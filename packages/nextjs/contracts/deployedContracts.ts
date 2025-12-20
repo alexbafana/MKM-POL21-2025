@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Consortium: {
-      address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
       abi: [
         {
           inputs: [
@@ -1400,10 +1400,10 @@ const deployedContracts = {
         quorumNumerator: "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol",
         updateQuorumNumerator: "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol",
       },
-      deployedOnBlock: 20,
+      deployedOnBlock: 7,
     },
     DisputeResolutionBoard: {
-      address: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
       abi: [
         {
           inputs: [
@@ -2659,10 +2659,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 24,
+      deployedOnBlock: 11,
     },
     MKMPOL21: {
-      address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       abi: [
         {
           inputs: [],
@@ -3031,10 +3031,10 @@ const deployedContracts = {
         canVote: "contracts/interfaces/IPermissionManager.sol",
         has_permission: "contracts/interfaces/IPermissionManager.sol",
       },
-      deployedOnBlock: 17,
+      deployedOnBlock: 4,
     },
     ValidationCommittee: {
-      address: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
       abi: [
         {
           inputs: [
@@ -4290,10 +4290,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 22,
+      deployedOnBlock: 9,
     },
     VotingPowerToken: {
-      address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [
@@ -5123,7 +5123,7 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 15,
+      deployedOnBlock: 2,
     },
   },
 } as const;

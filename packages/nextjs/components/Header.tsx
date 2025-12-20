@@ -23,6 +23,7 @@ type HeaderMenuGroup = {
 
 const singleLinks: HeaderMenuLink[] = [
   { label: "Home", href: "/" },
+  { label: "Dashboard", href: "/dashboard" },
   { label: "Roles & Permissions", href: "/roles-permissions" },
   { label: "Debug Contracts", href: "/debug", icon: <BugAntIcon className="h-4 w-4" /> },
 ];
