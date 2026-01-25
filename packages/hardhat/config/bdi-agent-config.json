@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "BDI Agent Configuration for MKMPOL21 DAO Integration",
+
+  "version": "1.0.0",
+  "description": "Configuration for Jadex BDI validation agents integrating with MKMPOL21 DAO",
+
+  "network": {
+    "name": "localhost",
+    "chainId": 31337,
+    "rpcUrl": "http://localhost:8545",
+    "apiBaseUrl": "http://localhost:3000/api/bdi-agent"
+  },
+
+  "agents": {
+    "coordinator": {
+      "name": "Coordinator Agent",
+      "description": "Orchestrates the validation pipeline, listens for events, dispatches validators",
+      "address": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
+      "hardhatAccountIndex": 10,
+      "privateKeyEnvVar": "BDI_COORDINATOR_PRIVATE_KEY",
+      "role": {
+        "name": "MFSSIA_GUARDIAN_AGENT",
+        "index": 2,
+        "value": 3074
+      },
+      "permissions": [],
+      "bdi": {
+        "beliefs": [
+          "graphSubmitted(graphId, graphURI, variant, year, graphType)",
+          "validationPending(graphId)",
+          "syntaxValidated(graphId, isValid)",
+          "semanticValidated(graphId, isValid)",
+          "validationComplete(graphId)",
+          "approvalPending(graphId)",
+          "approved(graphId)",
+          "published(graphId, dkgAssetUAL)"
+        ],
+        "desires": [
+          "coordinateValidation(graphId)",
+          "trackProgress(graphId)",
+          "ensureAllGraphsProcessed()"
+        ],
+        "intentions": [
+          "listenForSubmissions()",
+          "dispatchSyntaxValidator(graphId)",
+          "dispatchSemanticValidator(graphId)",
+          "notifyCommittee(graphId)",
+          "reportStatus(graphId)"
+        ]
+      },
+      "eventListeners": [
+        { "event": "RDFGraphSubmitted", "action": "dispatchValidators" },
+        { "event": "RDFGraphValidated", "action": "updateValidationStatus" },
+        { "event": "RDFGraphApproved", "action": "notifyPublisher" }
+      ]
+    },
+
+    "syntaxValidator": {
+      "name": "Syntax Validator Agent",
+      "description": "Validates RDF syntax using Apache Jena/RIOT",
+      "address": "0x71bE63f3384f5fb98995898A86B02Fb2426c5788",
+      "hardhatAccountIndex": 11,
+      "privateKeyEnvVar": "BDI_SYNTAX_VALIDATOR_PRIVATE_KEY",
+      "role": {
+        "name": "DATA_VALIDATOR",
+        "index": 4,
+        "value": 1156
+      },
+      "permissions": [4],
+      "bdi": {
+        "beliefs": [
+          "rdfFile(filePath, content)",
+          "syntaxCheckResult(graphId, isValid, errors)",
+          "validationRequested(graphId)"
+        ],
+        "desires": [
+          "validateRdfSyntax(graphId)",
+          "reportSyntaxErrors(graphId, errors)"
+        ],
+        "intentions": [
+          "fetchRdfContent(graphId)",
+          "runRiotValidation(content)",
+          "submitValidationResult(graphId, isValid)"
+        ]
+      },
+      "validationConfig": {
+        "tool": "Apache Jena RIOT",
+        "command": "riot --validate",
+        "timeout": 30000,
+        "retries": 3
+      }
+    },
+
+    "semanticValidator": {
+      "name": "Semantic Validator Agent",
+      "description": "Validates RDF semantics using SHACL shapes and SPARQL competency queries",
+      "address": "0xFABB0ac9d68B0B445fB7357272Ff202C5651694a",
+      "hardhatAccountIndex": 12,
+      "privateKeyEnvVar": "BDI_SEMANTIC_VALIDATOR_PRIVATE_KEY",
+      "role": {
+        "name": "DATA_VALIDATOR",
+        "index": 4,
+        "value": 1156
+      },
+      "permissions": [4],
+      "bdi": {
+        "beliefs": [
+          "shaclShapesLoaded(shapesPath)",
+          "sparqlQueriesLoaded(queriesPath)",
+          "shaclValidationResult(graphId, isValid, violations)",
+          "sparqlQueryResult(graphId, queryId, passed)"
+        ],
+        "desires": [
+          "validateSemantics(graphId)",
+          "ensureDataQuality(graphId)"
+        ],
+        "intentions": [
+          "loadShaclShapes(shapesPath)",
+          "runShaclValidation(graphId)",
+          "executeCompetencyQueries(graphId)",
+          "submitValidationResult(graphId, isValid)"
+        ]
+      },
+      "validationConfig": {
+        "shaclShapesPath": "./shacl/employment-event-shapes.ttl",
+        "sparqlQueriesPath": "./sparql/competency-queries/",
+        "fusekiEndpoint": "http://localhost:3030/test/sparql",
+        "timeout": 60000
+      }
+    },
+
+    "daoSubmitter": {
+      "name": "DAO Submitter Agent",
+      "description": "Submits RDF graphs to the DAO for validation and approval",
+      "address": "0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec",
+      "hardhatAccountIndex": 13,
+      "privateKeyEnvVar": "BDI_DAO_SUBMITTER_PRIVATE_KEY",
+      "role": {
+        "name": "MEMBER_INSTITUTION",
+        "index": 0,
+        "value": 1152
+      },
+      "permissions": [8],
+      "bdi": {
+        "beliefs": [
+          "rdfFileReady(filePath, hash)",
+          "submissionPending(graphId)",
+          "submissionComplete(graphId, txHash)"
+        ],
+        "desires": [
+          "submitRdfToDao(filePath)",
+          "trackSubmissionStatus(graphId)"
+        ],
+        "intentions": [
+          "computeContentHash(filePath)",
+          "prepareGraphMetadata(filePath)",
+          "callSubmitRdfGraph(params)",
+          "monitorTransactionReceipt(txHash)"
+        ]
+      }
+    }
+  },
+
+  "pipeline": {
+    "description": "RDF validation pipeline stages",
+    "stages": [
+      {
+        "name": "submission",
+        "agent": "daoSubmitter",
+        "inputEvent": "newRdfFile",
+        "outputEvent": "RDFGraphSubmitted",
+        "requiredPermission": 8
+      },
+      {
+        "name": "syntaxValidation",
+        "agent": "syntaxValidator",
+        "inputEvent": "RDFGraphSubmitted",
+        "outputEvent": "RDFGraphValidated",
+        "requiredPermission": 4
+      },
+      {
+        "name": "semanticValidation",
+        "agent": "semanticValidator",
+        "inputEvent": "syntaxValidationPassed",
+        "outputEvent": "RDFGraphValidated",
+        "requiredPermission": 4
+      },
+      {
+        "name": "committeeApproval",
+        "agent": "validationCommittee",
+        "inputEvent": "allValidationsPassed",
+        "outputEvent": "RDFGraphApproved",
+        "requiredPermission": 6,
+        "human": true
+      },
+      {
+        "name": "dkgPublication",
+        "agent": "owner",
+        "inputEvent": "RDFGraphApproved",
+        "outputEvent": "RDFGraphPublishedToDKG",
+        "requiredPermission": 5
+      }
+    ]
+  },
+
+  "contracts": {
+    "mkmpol21": {
+      "name": "MKMPOL21",
+      "description": "Permission Manager contract",
+      "addressEnvVar": "MKMPOL21_ADDRESS"
+    },
+    "gaDataValidation": {
+      "name": "GADataValidation",
+      "description": "Governance Area for Data Validation",
+      "addressEnvVar": "GA_DATA_VALIDATION_ADDRESS"
+    }
+  },
+
+  "graphTypes": {
+    "ARTICLES": { "value": 0, "filename": "articles.ttl" },
+    "ENTITIES": { "value": 1, "filename": "entities.ttl" },
+    "MENTIONS": { "value": 2, "filename": "mentions.ttl" },
+    "NLP": { "value": 3, "filename": "nlp.ttl" },
+    "ECONOMICS": { "value": 4, "filename": "economics.ttl", "description": "Employment events" },
+    "RELATIONS": { "value": 5, "filename": "relations.ttl" },
+    "PROVENANCE": { "value": 6, "filename": "provenance.ttl" }
+  },
+
+  "datasetVariants": {
+    "ERR_ONLINE": { "value": 0, "description": "ERR online news content" },
+    "OL_ONLINE": { "value": 1, "description": "Õhtuleht online content" },
+    "OL_PRINT": { "value": 2, "description": "Õhtuleht print content" },
+    "ARIREGISTER": { "value": 3, "description": "Estonian Business Registry" }
+  },
+
+  "employmentPipeline": {
+    "description": "Configuration for the employment event detection pipeline",
+    "inputFormat": "CSV",
+    "stages": [
+      "CSV parsing",
+      "NLP processing (EstBERT)",
+      "NER extraction (EstNER)",
+      "LLM employment classification (GPT-4)",
+      "EMTAK sector classification",
+      "Provenance generation",
+      "RDF serialization"
+    ],
+    "outputGraphType": "ECONOMICS",
+    "modelVersionFormat": "EstBERT-{version}",
+    "defaultDatasetVariant": "ERR_ONLINE"
+  }
+}

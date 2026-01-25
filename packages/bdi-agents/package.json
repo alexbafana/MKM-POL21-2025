@@ -1,0 +1,22 @@
+{
+  "name": "@mkmpol21/bdi-agents",
+  "version": "1.0.0",
+  "description": "BDI validation agents for MKMPOL21 DAO",
+  "main": "src/agent-runner.ts",
+  "scripts": {
+    "pipeline": "npx ts-node src/agent-runner.ts pipeline",
+    "submit": "npx ts-node src/agent-runner.ts submit",
+    "validate": "npx ts-node src/agent-runner.ts validate",
+    "status": "npx ts-node src/agent-runner.ts status",
+    "roles": "npx ts-node src/agent-runner.ts roles",
+    "help": "npx ts-node src/agent-runner.ts help"
+  },
+  "dependencies": {
+    "ethers": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

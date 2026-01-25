@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRightIcon,
@@ -35,6 +35,147 @@ const STEPS = [
  * OnboardingFlow - Reusable onboarding component for different role types
  * Handles the multi-step onboarding process including identity verification and role assignment
  */
+/**
+ * Event Log Panel Component
+ * Displays API calls and oracle events in a collapsible panel
+ */
+const EventLogPanel = ({
+  apiCallLog,
+  oracleEventLog,
+  oracleMessage,
+  oracleConnectionState,
+  oracleVerificationState,
+}: {
+  apiCallLog: any[];
+  oracleEventLog: any[];
+  oracleMessage: string | null;
+  oracleConnectionState: string;
+  oracleVerificationState: string;
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const getStatusColor = (type: string) => {
+    switch (type) {
+      case "success":
+        return "text-success";
+      case "error":
+        return "text-error";
+      case "warning":
+        return "text-warning";
+      case "event":
+        return "text-info";
+      default:
+        return "text-base-content/70";
+    }
+  };
+
+  const getConnectionStatusColor = () => {
+    switch (oracleConnectionState) {
+      case "connected":
+        return "badge-success";
+      case "connecting":
+      case "reconnecting":
+        return "badge-warning";
+      case "error":
+        return "badge-error";
+      default:
+        return "badge-ghost";
+    }
+  };
+
+  const getVerificationStatusColor = () => {
+    switch (oracleVerificationState) {
+      case "success":
+        return "badge-success";
+      case "processing":
+      case "requested":
+        return "badge-warning";
+      case "failed":
+      case "error":
+        return "badge-error";
+      default:
+        return "badge-ghost";
+    }
+  };
+
+  return (
+    <div className="mt-4 border border-base-300 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full px-4 py-3 bg-base-200 flex items-center justify-between hover:bg-base-300 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium">Event Log</span>
+          <span className={`badge badge-sm ${getConnectionStatusColor()}`}>{oracleConnectionState}</span>
+          <span className={`badge badge-sm ${getVerificationStatusColor()}`}>{oracleVerificationState}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-base-content/50">{apiCallLog.length + oracleEventLog.length} events</span>
+          <svg
+            className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </button>
+
+      {isExpanded && (
+        <div className="p-4 bg-base-100 max-h-64 overflow-y-auto">
+          {/* Oracle Status */}
+          {oracleMessage && (
+            <div className="mb-3 p-2 rounded-lg bg-info/10 border border-info/20">
+              <div className="flex items-center gap-2">
+                <SpinnerIcon className="w-4 h-4 text-info animate-spin" />
+                <span className="text-sm text-info">{oracleMessage}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Combined Event Log */}
+          <div className="space-y-1">
+            {[...apiCallLog, ...oracleEventLog]
+              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+              .slice(0, 20)
+              .map((log, index) => (
+                <div key={index} className="text-xs font-mono p-2 rounded bg-base-200">
+                  <div className="flex items-start gap-2">
+                    <span className="text-base-content/40 shrink-0">
+                      {new Date(log.timestamp).toLocaleTimeString()}
+                    </span>
+                    {"type" in log ? (
+                      <>
+                        <span className={`font-semibold ${getStatusColor(log.type)}`}>[{log.type.toUpperCase()}]</span>
+                        <span className="text-base-content/70">{log.endpoint}:</span>
+                        <span className="text-base-content">{log.message}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-accent">[ORACLE]</span>
+                        <span className="text-base-content">{log.event}</span>
+                      </>
+                    )}
+                  </div>
+                  {log.details && (
+                    <pre className="mt-1 text-[10px] text-base-content/50 overflow-x-auto">
+                      {JSON.stringify(log.details, null, 2)}
+                    </pre>
+                  )}
+                </div>
+              ))}
+          </div>
+
+          {apiCallLog.length === 0 && oracleEventLog.length === 0 && (
+            <div className="text-center text-base-content/50 text-sm py-4">No events yet</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const OnboardingFlow = ({ roleKey, title, description, icon, accentColor }: OnboardingFlowProps) => {
   const onboarding = useOnboarding(roleKey);
   const {
@@ -59,6 +200,14 @@ export const OnboardingFlow = ({ roleKey, title, description, icon, accentColor 
     reset,
     updateStep,
     getStepNumber,
+    // New MFSSIA fields
+    oracleConnectionState,
+    oracleVerificationState,
+    oracleMessage,
+    oracleConfidence,
+    apiCallLog,
+    oracleEventLog,
+    attestationUAL,
   } = onboarding;
 
   // Update step when connection status changes
@@ -203,6 +352,27 @@ export const OnboardingFlow = ({ roleKey, title, description, icon, accentColor 
                   </>
                 )}
               </button>
+
+              {/* Event Log Panel - shows during verification */}
+              {(isVerifying || apiCallLog.length > 0 || oracleEventLog.length > 0) && (
+                <EventLogPanel
+                  apiCallLog={apiCallLog}
+                  oracleEventLog={oracleEventLog}
+                  oracleMessage={oracleMessage}
+                  oracleConnectionState={oracleConnectionState}
+                  oracleVerificationState={oracleVerificationState}
+                />
+              )}
+
+              {/* Oracle confidence display */}
+              {oracleConfidence !== null && (
+                <div className="mt-4 p-3 rounded-lg bg-success/10 border border-success/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-base-content/70">Oracle Confidence</span>
+                    <span className="font-semibold text-success">{(oracleConfidence * 100).toFixed(1)}%</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -351,9 +521,21 @@ export const OnboardingFlow = ({ roleKey, title, description, icon, accentColor 
                   <span className={`badge ${colors.badge}`}>{targetRole.name}</span>
                 </div>
                 {txHash && (
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-3">
                     <span className="text-sm text-base-content/70">Transaction</span>
                     <span className="font-mono text-xs truncate max-w-[150px]">{txHash}</span>
+                  </div>
+                )}
+                {attestationUAL && (
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm text-base-content/70">Attestation UAL</span>
+                    <span className="font-mono text-xs truncate max-w-[200px]">{attestationUAL}</span>
+                  </div>
+                )}
+                {oracleConfidence !== null && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-base-content/70">Oracle Confidence</span>
+                    <span className="font-semibold text-success">{(oracleConfidence * 100).toFixed(1)}%</span>
                   </div>
                 )}
               </div>

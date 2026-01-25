@@ -70,7 +70,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log("Skipping initializeCommittees — not all committee contracts are deployed. Owner preserved.");
   }
 
-  // 6) Sanity check: confirm deployer still has Owner (index 5)
+  // 6) Deploy GADataValidation (Governance Area for Data Validation)
+  const gaDataValidation = await deployIfPresent("GADataValidation", [mkmpm.address, deployer]);
+  if (gaDataValidation) {
+    log(`GADataValidation at: ${gaDataValidation}`);
+  }
+
+  // 7) Sanity check: confirm deployer still has Owner (index 5)
   const mkmp = await ethers.getContractAt("MKMPOL21", mkmpm.address);
   const rawRole = await mkmp.hasRole(deployer); // uint32 (Ethers v6 returns bigint)
   const ownerIndex = Number(rawRole) & 31;

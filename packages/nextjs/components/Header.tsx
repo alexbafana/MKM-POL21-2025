@@ -4,8 +4,8 @@ import React, { useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { Bars3Icon, ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { FaucetButton, HardhatAccountSwitcher, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 /** Single-level link */
@@ -22,10 +22,10 @@ type HeaderMenuGroup = {
 };
 
 const singleLinks: HeaderMenuLink[] = [
-  { label: "Home", href: "/" },
+  { label: "Onboarding", href: "/" },
   { label: "Dashboard", href: "/dashboard" },
+  { label: "Artifact Integrity", href: "/artifact-integrity", icon: <ShieldCheckIcon className="h-4 w-4" /> },
   { label: "Roles & Permissions", href: "/roles-permissions" },
-  { label: "Debug Contracts", href: "/debug", icon: <BugAntIcon className="h-4 w-4" /> },
 ];
 
 const committeesGroup: HeaderMenuGroup = {
@@ -153,7 +153,12 @@ export const Header = () => {
 
       <div className="navbar-end grow mr-4">
         <RainbowKitCustomConnectButton />
-        {isLocalNetwork && <FaucetButton />}
+        {isLocalNetwork && (
+          <>
+            <HardhatAccountSwitcher />
+            <FaucetButton />
+          </>
+        )}
       </div>
     </div>
   );

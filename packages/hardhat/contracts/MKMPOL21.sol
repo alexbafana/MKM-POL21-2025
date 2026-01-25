@@ -90,9 +90,9 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
     function initializeCommittees(address _Consortium, address _Validation_Committee, address _Dispute_Resolution_Board) external {
         require(roles[msg.sender] == all_roles[5], "Only the owner can initialize the Dao");  // MKMPOL21Owner
     require(committee_initialization_blocked == false && _Consortium != address(0) && _Validation_Committee != address(0) && _Dispute_Resolution_Board != address(0), "Invalid committee initialization");
-        roles[_Consortium] = all_roles[0]; // Consortium
-        roles[_Validation_Committee] = all_roles[1]; // Validation_Committee
-        roles[_Dispute_Resolution_Board] = all_roles[2]; // Dispute_Resolution_Board
+        roles[_Consortium] = all_roles[6]; // Consortium (was incorrectly all_roles[0])
+        roles[_Validation_Committee] = all_roles[7]; // Validation_Committee (was incorrectly all_roles[1])
+        roles[_Dispute_Resolution_Board] = all_roles[8]; // Dispute_Resolution_Board (was incorrectly all_roles[2])
         committee_initialization_blocked = true;
     }
 
@@ -146,6 +146,10 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
         }
 
         function has_permission(address user, uint64 _permissionIndex) external view returns (bool) {
+            // If user has no role, they have no permissions
+            if (roles[user] == 0) {
+                return false;
+            }
             if (role_permissions[uint64(roles[user] & 31)] & (uint64(1) << _permissionIndex) != 0){ 
                 return true;
             }else{
@@ -153,14 +157,178 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
             }
         }
         
-        function onboard_ordinary_user() external hasPermission(msg.sender, 18) {
-            // TODO: Implement the function logic here
+        function onboard_ordinary_user() external {
+            require(roles[msg.sender] == 0, "User already has a role");
+            // TODO: Add MFSSIA verification check here
+            roles[msg.sender] = all_roles[1]; // Ordinary_User (index 1, value 1153)
+            emit RoleAssigned(msg.sender, all_roles[1]);
         }
-                
-        function onboard_institution() external hasPermission(msg.sender, 19) {
-            // TODO: Implement the function logic here
+
+        function onboard_institution() external {
+            require(roles[msg.sender] == 0, "User already has a role");
+            // TODO: Add MFSSIA verification check here
+            roles[msg.sender] = all_roles[0]; // Member_Institution (index 0, value 1152)
+            emit RoleAssigned(msg.sender, all_roles[0]);
         }
-                
+
+        // ===== MFSSIA ATTESTATION SYSTEM =====
+
+        struct Attestation {
+            string ual;
+            uint256 expiresAt;
+            bool verified;
+        }
+
+        struct RDFDocument {
+            string documentHash;
+            string attestationUAL;
+            address submitter;
+            uint256 submittedAt;
+            bool validated;
+            uint8 challengesPassed;
+        }
+
+        mapping(address => Attestation) public userAttestations;
+        mapping(bytes32 => RDFDocument) public rdfDocuments;
+
+        uint256 public constant ATTESTATION_VALIDITY_PERIOD = 365 days;
+
+        event AttestationVerified(address indexed user, string ual, uint256 expiresAt);
+        event AttestationExpired(address indexed user);
+        event RDFSubmitted(bytes32 indexed docId, address indexed submitter, string attestationUAL);
+        event RDFValidated(bytes32 indexed docId, bool validated, uint8 challengesPassed);
+
+        /**
+         * Onboard ordinary user with MFSSIA attestation
+         * @param attestationUAL Universal Attestation Locator from MFSSIA
+         */
+        function onboard_ordinary_user_with_attestation(string memory attestationUAL) external {
+            require(roles[msg.sender] == 0, "User already has a role");
+            require(bytes(attestationUAL).length > 0, "Invalid attestation");
+
+            // Store attestation
+            userAttestations[msg.sender] = Attestation({
+                ual: attestationUAL,
+                expiresAt: block.timestamp + ATTESTATION_VALIDITY_PERIOD,
+                verified: true
+            });
+
+            // Assign role
+            roles[msg.sender] = all_roles[1]; // Ordinary_User (1153)
+
+            emit RoleAssigned(msg.sender, all_roles[1]);
+            emit AttestationVerified(msg.sender, attestationUAL, block.timestamp + ATTESTATION_VALIDITY_PERIOD);
+        }
+
+        /**
+         * Onboard institution with MFSSIA attestation
+         * @param attestationUAL Universal Attestation Locator from MFSSIA
+         */
+        function onboard_institution_with_attestation(string memory attestationUAL) external {
+            require(roles[msg.sender] == 0, "User already has a role");
+            require(bytes(attestationUAL).length > 0, "Invalid attestation");
+
+            // Store attestation
+            userAttestations[msg.sender] = Attestation({
+                ual: attestationUAL,
+                expiresAt: block.timestamp + ATTESTATION_VALIDITY_PERIOD,
+                verified: true
+            });
+
+            // Assign role
+            roles[msg.sender] = all_roles[0]; // Member_Institution (1152)
+
+            emit RoleAssigned(msg.sender, all_roles[0]);
+            emit AttestationVerified(msg.sender, attestationUAL, block.timestamp + ATTESTATION_VALIDITY_PERIOD);
+        }
+
+        /**
+         * Submit RDF document with MFSSIA Example D validation
+         * @param documentHash SHA-256 hash of the RDF content
+         * @param attestationUAL MFSSIA attestation from Example D verification
+         * @param challengesPassed Number of challenges passed (0-9)
+         */
+        function submitRDFDocument(
+            string memory documentHash,
+            string memory attestationUAL,
+            uint8 challengesPassed
+        ) external returns (bytes32) {
+            require(
+                roles[msg.sender] == all_roles[0] || roles[msg.sender] == all_roles[5],
+                "Only institutions and owners can submit RDF"
+            );
+            require(bytes(documentHash).length > 0, "Invalid document hash");
+            require(bytes(attestationUAL).length > 0, "Invalid attestation");
+            require(challengesPassed <= 9, "Invalid challenges count");
+
+            bytes32 docId = keccak256(abi.encodePacked(documentHash, msg.sender, block.timestamp));
+
+            // Require at least 8/9 challenges to pass for validation
+            bool validated = challengesPassed >= 8;
+
+            rdfDocuments[docId] = RDFDocument({
+                documentHash: documentHash,
+                attestationUAL: attestationUAL,
+                submitter: msg.sender,
+                submittedAt: block.timestamp,
+                validated: validated,
+                challengesPassed: challengesPassed
+            });
+
+            emit RDFSubmitted(docId, msg.sender, attestationUAL);
+            emit RDFValidated(docId, validated, challengesPassed);
+
+            return docId;
+        }
+
+        /**
+         * Check if user's attestation is still valid
+         */
+        function isAttestationValid(address user) public view returns (bool) {
+            Attestation memory attestation = userAttestations[user];
+            return attestation.verified && block.timestamp < attestation.expiresAt;
+        }
+
+        /**
+         * Get user's attestation details
+         */
+        function getAttestation(address user) external view returns (
+            string memory ual,
+            uint256 expiresAt,
+            bool verified,
+            bool isExpired
+        ) {
+            Attestation memory attestation = userAttestations[user];
+            return (
+                attestation.ual,
+                attestation.expiresAt,
+                attestation.verified,
+                block.timestamp >= attestation.expiresAt
+            );
+        }
+
+        /**
+         * Get RDF document details
+         */
+        function getRDFDocument(bytes32 docId) external view returns (
+            string memory documentHash,
+            string memory attestationUAL,
+            address submitter,
+            uint256 submittedAt,
+            bool validated,
+            uint8 challengesPassed
+        ) {
+            RDFDocument memory doc = rdfDocuments[docId];
+            return (
+                doc.documentHash,
+                doc.attestationUAL,
+                doc.submitter,
+                doc.submittedAt,
+                doc.validated,
+                doc.challengesPassed
+            );
+        }
+
 
         function remove_ordinary_member() external hasPermission(msg.sender, 20) {
             // TODO: Implement the function logic here
@@ -275,11 +443,19 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
                 
 
             function canVote(address user, uint64 permissionIndex) external view returns (bool) {
+                // If user has no role, they cannot vote
+                if (roles[user] == 0) {
+                    return false;
+                }
                 require(role_permissions[uint64(roles[user] & 31)] & (uint64(1) << permissionIndex) != 0, "User does not have this permission");
                 return true;
             }
 
             function canPropose(address user, uint64 permissionIndex) external view returns (bool) {
+                // If user has no role, they cannot propose
+                if (roles[user] == 0) {
+                    return false;
+                }
                 require(role_permissions[uint64(roles[user] & 31)] & (uint64(1) << permissionIndex) != 0, "User does not have this permission");
                 return true;
             }

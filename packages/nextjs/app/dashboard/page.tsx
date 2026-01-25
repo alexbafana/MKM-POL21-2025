@@ -64,12 +64,30 @@ export default function DashboardPage() {
     address: mkmpAddress,
     functionName: "hasRole",
     args: [address ?? zeroAddress],
-    query: { enabled: Boolean(address && mkmpAddress) },
+    query: {
+      enabled: Boolean(address && mkmpAddress),
+      refetchInterval: 5000, // Refetch every 5 seconds to catch role changes
+      refetchOnWindowFocus: true, // Refetch when window gains focus
+      refetchOnMount: true, // Always refetch on mount
+    },
   });
 
   useEffect(() => {
-    if (address && mkmpAddress) refetch();
+    if (address && mkmpAddress) {
+      refetch();
+    }
   }, [address, mkmpAddress, chainId, refetch]);
+
+  // Refetch when page becomes visible (user navigates back from onboarding)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && address && mkmpAddress) {
+        refetch();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [address, mkmpAddress, refetch]);
 
   const { roleValue, roleName, roleIndex, isOwner, isMember } = useMemo(() => {
     const v = roleRaw ? Number(roleRaw) : 0;
@@ -299,7 +317,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className={`grid gap-6 ${roleIndex === 0 || roleIndex === 5 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
             {/* Role Info */}
             <div className="card bg-base-100 shadow-lg border border-base-300">
               <div className="card-body">
@@ -358,6 +376,39 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* Data Provision - Member Institution and Owner Only */}
+            {(roleIndex === 0 || roleIndex === 5) && (
+              <div className="card bg-base-100 shadow-lg border border-success/30 group hover:border-success/50 transition-all">
+                <div className="card-body">
+                  <h3 className="card-title flex items-center gap-2">
+                    <DataIcon className="w-5 h-5 text-success" />
+                    Data Provision
+                  </h3>
+                  <p className="text-sm text-base-content/70 mb-4">
+                    Upload and submit RDF data files for committee validation
+                  </p>
+                  <Link href="/data-provision" className="btn btn-success btn-block gap-2">
+                    <DataIcon className="w-4 h-4" />
+                    Data Provision
+                  </Link>
+                  <div className="mt-4 text-xs text-base-content/60">
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="w-1 h-1 rounded-full bg-success" />
+                      Upload RDF documents
+                    </div>
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="w-1 h-1 rounded-full bg-success" />
+                      Validate syntax
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-success" />
+                      Submit for approval
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -396,6 +447,12 @@ export default function DashboardPage() {
                     No Role
                   </div>
                 </div>
+                {roleRaw !== undefined && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-base-content/70">Raw Role Value</span>
+                    <span className="font-mono text-xs">{String(roleRaw)}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -412,7 +469,33 @@ export default function DashboardPage() {
             </div>
 
             <div className="card-actions justify-center mt-6 flex-wrap gap-2">
-              <Link href="/onboarding/individual" className="btn btn-primary">
+              <button onClick={() => refetch()} disabled={isFetching} className="btn btn-primary gap-2">
+                {isFetching ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                      />
+                    </svg>
+                    Refresh Role
+                  </>
+                )}
+              </button>
+              <Link href="/onboarding/individual" className="btn btn-outline">
                 Start Individual Onboarding
               </Link>
               <Link href="/onboarding/institution" className="btn btn-outline">

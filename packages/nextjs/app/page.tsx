@@ -1,382 +1,227 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { useAccount } from "wagmi";
-import {
-  AdminIcon,
-  BlockchainIcon,
-  CommitteeIcon,
-  DAOIcon,
-  DataIcon,
-  GovernanceIcon,
-  IdentityIcon,
-  InstitutionIcon,
-  UserIcon,
-} from "~~/components/dao";
+import { useRouter } from "next/navigation";
+import { zeroAddress } from "viem";
+import { useAccount, useChainId, useReadContract } from "wagmi";
+import { DAOIcon, InstitutionIcon, UserIcon } from "~~/components/dao";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import deployedContracts from "~~/contracts/deployedContracts";
+
+/* Minimal ABI for reading roles */
+const MKMP_ABI = [
+  {
+    type: "function",
+    name: "hasRole",
+    stateMutability: "view",
+    inputs: [{ name: "user", type: "address" }],
+    outputs: [{ type: "uint32" }],
+  },
+] as const;
+
+/** Resolve current MKMP address from Scaffold-ETH map */
+const useMkmpAddress = (): `0x${string}` | undefined => {
+  const chainId = useChainId();
+  return deployedContracts?.[chainId as keyof typeof deployedContracts]?.MKMPOL21?.address as `0x${string}` | undefined;
+};
 
 /**
- * Landing Page - Welcome page for the MKMPOL21 DAO
- * Entry point for all users before accessing the DAO dashboard
+ * Onboarding Page - Entry point for the MKMPOL21 DAO
+ * Automatically redirects users with roles to the Dashboard
  */
-export default function LandingPage() {
-  const { isConnected } = useAccount();
+export default function OnboardingPage() {
+  const { address, isConnected } = useAccount();
+  const router = useRouter();
+  const mkmpAddress = useMkmpAddress();
+
+  const { data: roleRaw, isFetching } = useReadContract({
+    abi: MKMP_ABI,
+    address: mkmpAddress,
+    functionName: "hasRole",
+    args: [address ?? zeroAddress],
+    query: {
+      enabled: Boolean(address && mkmpAddress),
+      refetchOnMount: true,
+    },
+  });
+
+  const hasRole = roleRaw ? Number(roleRaw) !== 0 : false;
+
+  // Redirect to dashboard if user has a role
+  useEffect(() => {
+    if (isConnected && !isFetching && hasRole) {
+      router.push("/dashboard");
+    }
+  }, [isConnected, isFetching, hasRole, router]);
+
+  // Show loading while checking role
+  const isCheckingRole = isConnected && isFetching;
 
   return (
-    <div className="min-h-[calc(100vh-5rem)]">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-base-100 via-base-200 to-base-100 dark:from-base-100 dark:via-base-200/50 dark:to-base-100">
+    <div className="min-h-[calc(100vh-5rem)] flex flex-col">
+      {/* Hero Section - Full viewport height */}
+      <section className="flex-1 relative overflow-hidden bg-gradient-to-br from-base-100 via-base-200/50 to-base-100 flex items-center justify-center">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(14,165,233,0.15),transparent_50%)]" />
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(59,130,246,0.15),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(14,165,233,0.12),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.08),transparent_60%)]" />
         </div>
 
-        {/* Decorative elements with enhanced animations */}
+        {/* Floating orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute top-1/4 left-1/6 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-float" />
           <div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float"
-            style={{ animationDelay: "1s" }}
+            className="absolute bottom-1/4 right-1/6 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float"
+            style={{ animationDelay: "1.5s", animationDuration: "7s" }}
           />
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl animate-pulse"
-            style={{ animationDuration: "4s" }}
-          />
-          {/* Additional decorative orbs */}
-          <div
-            className="absolute top-1/4 right-1/4 w-48 h-48 bg-success/5 rounded-full blur-2xl animate-float"
-            style={{ animationDelay: "2s", animationDuration: "5s" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-secondary/5 rounded-full blur-3xl animate-pulse"
+            style={{ animationDuration: "5s" }}
           />
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-32">
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: "60px 60px",
+          }}
+        />
+
+        <div className="relative z-10 max-w-5xl mx-auto px-6 py-16">
           <div className="text-center">
-            {/* Logo and title */}
-            <div className="animate-fade-in">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 mb-8 glow-blue shadow-2xl backdrop-blur-sm border border-primary/20">
-                <DAOIcon className="w-12 h-12 text-primary drop-shadow-lg" />
+            {/* Logo */}
+            <div className="animate-fade-in mb-10">
+              <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl bg-gradient-to-br from-primary/20 via-accent/15 to-success/20 shadow-2xl backdrop-blur-sm border border-white/10 glow-blue">
+                <DAOIcon className="w-14 h-14 text-primary drop-shadow-lg" />
               </div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight">
-                <span className="text-gradient drop-shadow-sm">MKMPOL21</span>
-                <span className="block text-base-content mt-3 text-4xl md:text-5xl lg:text-6xl font-bold">
-                  Decentralized Autonomous Organization
-                </span>
+            </div>
+
+            {/* Title */}
+            <div className="animate-fade-in mb-8">
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4">
+                <span className="text-gradient">MKMPOL21</span>
               </h1>
-            </div>
-
-            {/* Mission statement */}
-            <div className="animate-fade-in-delay-1 max-w-4xl mx-auto">
-              <div className="backdrop-blur-sm bg-base-100/30 dark:bg-base-200/30 rounded-3xl p-8 border border-base-300/50 shadow-xl mb-8">
-                <p className="text-xl md:text-2xl text-base-content/90 mb-6 leading-relaxed font-medium">
-                  Decentralizing the governance of economic data through{" "}
-                  <span className="font-bold text-primary bg-primary/10 px-2 py-1 rounded">DAO-enabled governance</span>{" "}
-                  and{" "}
-                  <span className="font-bold text-accent bg-accent/10 px-2 py-1 rounded">self-sovereign identity</span>
-                </p>
-                <div className="w-24 h-1 bg-gradient-to-r from-primary via-accent to-success mx-auto rounded-full mb-6" />
-                <p className="text-base md:text-lg text-base-content/70 leading-relaxed">
-                  A transparent, accountable, and community-driven platform empowering stakeholders to collaboratively
-                  manage public economic data with verified identities and decentralized decision-making
-                </p>
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="animate-fade-in-delay-2 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              {isConnected ? (
-                <Link
-                  href="/dashboard"
-                  className="btn btn-primary btn-lg gap-3 px-10 glow-blue-hover transform hover:scale-105 transition-all duration-300 shadow-2xl"
-                >
-                  <GovernanceIcon className="w-6 h-6" />
-                  <span className="font-bold">Access DAO Dashboard</span>
-                </Link>
-              ) : (
-                <div className="flex flex-col items-center gap-3">
-                  <RainbowKitCustomConnectButton />
-                  <p className="text-sm text-base-content/60">Connect to access the DAO ecosystem</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Onboarding Options Section */}
-      <section className="py-20 bg-gradient-to-b from-base-200 via-base-100 to-base-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16 animate-fade-in-delay-3">
-            <div className="inline-block mb-4">
-              <span className="text-sm font-bold uppercase tracking-wider text-primary bg-primary/10 px-4 py-2 rounded-full">
-                Get Started
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-base-content via-primary to-accent bg-clip-text text-transparent">
-              Join the DAO
-            </h2>
-            <p className="text-lg md:text-xl text-base-content/70 max-w-2xl mx-auto leading-relaxed">
-              Choose your onboarding path based on your role in the economic data ecosystem
-            </p>
-            <div className="w-32 h-1 bg-gradient-to-r from-primary via-accent to-success mx-auto mt-6 rounded-full" />
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-delay-4">
-            {/* Dashboard Access */}
-            <Link
-              href="/dashboard"
-              className="card bg-base-100 shadow-xl card-hover border-2 border-primary/20 group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/40"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="card-body items-center text-center relative z-10">
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-content transition-all duration-300 mb-4 shadow-lg group-hover:shadow-primary/50 group-hover:scale-110">
-                  <GovernanceIcon className="w-9 h-9" />
-                </div>
-                <h3 className="card-title text-lg font-bold group-hover:text-primary transition-colors">
-                  DAO Dashboard
-                </h3>
-                <p className="text-sm text-base-content/70 leading-relaxed">
-                  Access your personalized dashboard based on your current role
-                </p>
-                <div className="badge badge-primary badge-outline mt-3 group-hover:badge-primary transition-all">
-                  For Members
-                </div>
-              </div>
-            </Link>
-
-            {/* Admin Onboarding */}
-            <Link
-              href="/onboarding/admin"
-              className="card bg-base-100 shadow-xl card-hover border-2 border-warning/20 group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-warning/40"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-warning/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="card-body items-center text-center relative z-10">
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-warning/10 to-warning/5 text-warning group-hover:from-warning group-hover:to-warning/80 group-hover:text-warning-content transition-all duration-300 mb-4 shadow-lg group-hover:shadow-warning/50 group-hover:scale-110">
-                  <AdminIcon className="w-9 h-9" />
-                </div>
-                <h3 className="card-title text-lg font-bold group-hover:text-warning transition-colors">
-                  Admin Onboarding
-                </h3>
-                <p className="text-sm text-base-content/70 leading-relaxed">
-                  For DAO administrators and governance operators
-                </p>
-                <div className="badge badge-warning badge-outline mt-3 group-hover:badge-warning transition-all">
-                  Owner Role
-                </div>
-              </div>
-            </Link>
-
-            {/* Individual Onboarding */}
-            <Link
-              href="/onboarding/individual"
-              className="card bg-base-100 shadow-xl card-hover border-2 border-accent/20 group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-accent/40"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="card-body items-center text-center relative z-10">
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-accent/10 to-accent/5 text-accent group-hover:from-accent group-hover:to-accent/80 group-hover:text-accent-content transition-all duration-300 mb-4 shadow-lg group-hover:shadow-accent/50 group-hover:scale-110">
-                  <UserIcon className="w-9 h-9" />
-                </div>
-                <h3 className="card-title text-lg font-bold group-hover:text-accent transition-colors">
-                  Individual Onboarding
-                </h3>
-                <p className="text-sm text-base-content/70 leading-relaxed">
-                  For individual users and data contributors
-                </p>
-                <div className="badge badge-accent badge-outline mt-3 group-hover:badge-accent transition-all">
-                  User Role
-                </div>
-              </div>
-            </Link>
-
-            {/* Institution Onboarding */}
-            <Link
-              href="/onboarding/institution"
-              className="card bg-base-100 shadow-xl card-hover border-2 border-success/20 group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-success/40"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-success/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="card-body items-center text-center relative z-10">
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-success/10 to-success/5 text-success group-hover:from-success group-hover:to-success/80 group-hover:text-success-content transition-all duration-300 mb-4 shadow-lg group-hover:shadow-success/50 group-hover:scale-110">
-                  <InstitutionIcon className="w-9 h-9" />
-                </div>
-                <h3 className="card-title text-lg font-bold group-hover:text-success transition-colors">
-                  Institution Onboarding
-                </h3>
-                <p className="text-sm text-base-content/70 leading-relaxed">
-                  For organizations and data-providing institutions
-                </p>
-                <div className="badge badge-success badge-outline mt-3 group-hover:badge-success transition-all">
-                  Institution Role
-                </div>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-base-100">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Governance Infrastructure</h2>
-            <p className="text-base-content/70 max-w-2xl mx-auto">
-              Built on proven decentralized governance patterns with optimistic execution and multi-committee oversight
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1: Committees */}
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-              <div className="card-body">
-                <div className="p-3 rounded-xl bg-primary/10 text-primary w-fit mb-4">
-                  <CommitteeIcon className="w-8 h-8" />
-                </div>
-                <h3 className="card-title text-xl mb-2">Three Governance Committees</h3>
-                <p className="text-base-content/70 leading-relaxed">
-                  Consortium, Validation Committee, and Dispute Resolution Board work together to ensure balanced
-                  decision-making
-                </p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    Consortium for strategic decisions
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    Validation for data quality
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    Dispute Resolution for conflicts
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Feature 2: Optimistic Governance */}
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-              <div className="card-body">
-                <div className="p-3 rounded-xl bg-accent/10 text-accent w-fit mb-4">
-                  <BlockchainIcon className="w-8 h-8" />
-                </div>
-                <h3 className="card-title text-xl mb-2">Optimistic Governance</h3>
-                <p className="text-base-content/70 leading-relaxed">
-                  Efficient decision-making with challenge periods and veto mechanisms for accountability
-                </p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                    3-day challenge period
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                    Proposal and veto system
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                    Transparent execution
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Feature 3: Self-Sovereign Identity */}
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-              <div className="card-body">
-                <div className="p-3 rounded-xl bg-success/10 text-success w-fit mb-4">
-                  <IdentityIcon className="w-8 h-8" />
-                </div>
-                <h3 className="card-title text-xl mb-2">Self-Sovereign Identity</h3>
-                <p className="text-base-content/70 leading-relaxed">
-                  MFSSIA integration ensures verified participants while preserving privacy and user control
-                </p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                    MFSSIA verification
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                    Privacy-preserving identity
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                    Role-based access control
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Data Governance Section */}
-      <section className="py-20 bg-gradient-to-br from-base-200 to-base-100">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="p-3 rounded-xl bg-primary/10 text-primary w-fit mb-6">
-                <DataIcon className="w-10 h-10" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Decentralized Data Governance</h2>
-              <p className="text-lg text-base-content/70 mb-8 leading-relaxed">
-                Our platform enables transparent management of economic data through decentralized consensus, ensuring
-                data quality, accessibility, and fair distribution of governance power among stakeholders.
+              <p className="text-2xl md:text-3xl font-light text-base-content/60 tracking-wide">
+                Public Data Governance
               </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/roles-permissions" className="btn btn-outline btn-primary">
-                  View Roles and Permissions
-                </Link>
-                <Link href="/committees" className="btn btn-ghost">
-                  Explore Committees
-                </Link>
-              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="card bg-base-100 shadow-lg p-6 text-center">
-                <div className="text-4xl font-bold text-primary mb-2">9</div>
-                <div className="text-sm text-base-content/70">Role Types</div>
-              </div>
-              <div className="card bg-base-100 shadow-lg p-6 text-center">
-                <div className="text-4xl font-bold text-accent mb-2">3</div>
-                <div className="text-sm text-base-content/70">Committees</div>
-              </div>
-              <div className="card bg-base-100 shadow-lg p-6 text-center">
-                <div className="text-4xl font-bold text-success mb-2">64</div>
-                <div className="text-sm text-base-content/70">Permissions</div>
-              </div>
-              <div className="card bg-base-100 shadow-lg p-6 text-center">
-                <div className="text-4xl font-bold text-warning mb-2">3d</div>
-                <div className="text-sm text-base-content/70">Challenge Period</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            {/* Divider */}
+            <div className="animate-fade-in-delay-1 w-32 h-1 bg-gradient-to-r from-primary via-accent to-success mx-auto rounded-full mb-12" />
 
-      {/* CTA Section */}
-      <section className="py-20 bg-base-100">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Join?</h2>
-          <p className="text-lg text-base-content/70 mb-8">
-            Connect your wallet and begin your journey into decentralized data governance
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {isConnected ? (
-              <>
-                <Link href="/dashboard" className="btn btn-primary btn-lg gap-2 px-8">
-                  <GovernanceIcon className="w-5 h-5" />
-                  Go to Dashboard
-                </Link>
-                <Link href="/onboarding/individual" className="btn btn-outline btn-lg px-8">
-                  Start Onboarding
-                </Link>
-              </>
+            {/* Content based on state */}
+            {!isConnected ? (
+              /* Not connected - show connect prompt */
+              <div className="animate-fade-in-delay-2 flex flex-col items-center gap-6">
+                <p className="text-lg text-base-content/50 font-medium">Connect your wallet to begin</p>
+                <RainbowKitCustomConnectButton />
+              </div>
+            ) : isCheckingRole ? (
+              /* Checking role - show loading */
+              <div className="animate-fade-in-delay-2 flex flex-col items-center gap-6">
+                <div className="flex items-center gap-3">
+                  <span className="loading loading-spinner loading-md text-primary"></span>
+                  <p className="text-lg text-base-content/50 font-medium">Checking your DAO membership...</p>
+                </div>
+              </div>
             ) : (
-              <RainbowKitCustomConnectButton />
+              /* Connected but no role - show onboarding options */
+              <div className="animate-fade-in-delay-2">
+                <p className="text-lg text-base-content/50 mb-10 font-medium">Select your onboarding path</p>
+
+                {/* Onboarding Cards */}
+                <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+                  {/* Individual Onboarding */}
+                  <Link
+                    href="/onboarding/individual"
+                    className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-base-100 to-base-200/80 border border-accent/20 shadow-xl hover:shadow-2xl hover:shadow-accent/20 transition-all duration-500 hover:-translate-y-2 hover:border-accent/40"
+                  >
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <div className="relative p-10">
+                      {/* Icon */}
+                      <div className="mb-8 flex justify-center">
+                        <div className="p-6 rounded-2xl bg-gradient-to-br from-accent/15 to-accent/5 text-accent group-hover:from-accent group-hover:to-accent/80 group-hover:text-white transition-all duration-500 shadow-lg group-hover:shadow-accent/40 group-hover:scale-110">
+                          <UserIcon className="w-12 h-12" />
+                        </div>
+                      </div>
+
+                      {/* Text */}
+                      <h3 className="text-2xl font-bold mb-3 group-hover:text-accent transition-colors duration-300">
+                        Individual
+                      </h3>
+                      <p className="text-base-content/60 text-sm leading-relaxed">
+                        Join as a data contributor and participate in DAO governance
+                      </p>
+
+                      {/* Arrow indicator */}
+                      <div className="mt-6 flex justify-center">
+                        <div className="w-10 h-10 rounded-full border-2 border-accent/30 flex items-center justify-center group-hover:border-accent group-hover:bg-accent/10 transition-all duration-300">
+                          <svg
+                            className="w-5 h-5 text-accent/50 group-hover:text-accent group-hover:translate-x-0.5 transition-all duration-300"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+
+                  {/* Institution Onboarding */}
+                  <Link
+                    href="/onboarding/institution"
+                    className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-base-100 to-base-200/80 border border-success/20 shadow-xl hover:shadow-2xl hover:shadow-success/20 transition-all duration-500 hover:-translate-y-2 hover:border-success/40"
+                  >
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-success/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <div className="relative p-10">
+                      {/* Icon */}
+                      <div className="mb-8 flex justify-center">
+                        <div className="p-6 rounded-2xl bg-gradient-to-br from-success/15 to-success/5 text-success group-hover:from-success group-hover:to-success/80 group-hover:text-white transition-all duration-500 shadow-lg group-hover:shadow-success/40 group-hover:scale-110">
+                          <InstitutionIcon className="w-12 h-12" />
+                        </div>
+                      </div>
+
+                      {/* Text */}
+                      <h3 className="text-2xl font-bold mb-3 group-hover:text-success transition-colors duration-300">
+                        Institution
+                      </h3>
+                      <p className="text-base-content/60 text-sm leading-relaxed">
+                        Register your organization to provide and validate data
+                      </p>
+
+                      {/* Arrow indicator */}
+                      <div className="mt-6 flex justify-center">
+                        <div className="w-10 h-10 rounded-full border-2 border-success/30 flex items-center justify-center group-hover:border-success group-hover:bg-success/10 transition-all duration-300">
+                          <svg
+                            className="w-5 h-5 text-success/50 group-hover:text-success group-hover:translate-x-0.5 transition-all duration-300"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Bottom gradient fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-base-100 to-transparent" />
       </section>
     </div>
   );
