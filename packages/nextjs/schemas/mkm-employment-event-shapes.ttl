@@ -1,0 +1,133 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix ex:   <http://mkm.ee/schema/> .
+@prefix emp:  <http://mkm.ee/employment/> .
+@prefix cls:  <http://mkm.ee/classification/> .
+@prefix dct:  <http://purl.org/cdt/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ver:  <http://mkm.ee/versioning/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# SHACL Shapes for Example D: Employment Event Detection
+# =============================================================================
+# These shapes validate TTL data produced by the NLP pipeline for detecting
+# employment events in Estonian news articles (ERR, Ohtuleht, etc.)
+#
+# Required properties (sh:Violation) block submission if missing:
+#   - dct:title, dct:created, ex:source
+#
+# Recommended properties (sh:Warning) produce warnings but don't block:
+#   - emp:employmentEvent, emp:jobCount, cls:hasEMTAKClassification,
+#     ex:mentions, prov:wasGeneratedBy, ver:hasProcessingTrajectory
+# =============================================================================
+
+# --- Article Shape -----------------------------------------------------------
+# Validates the article node containing employment event data
+ex:EmploymentArticleShape a sh:NodeShape ;
+    sh:targetClass ex:Article ;
+    # Required: Article must have a title
+    sh:property [
+        sh:path dct:title ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Article must have at least one title (dct:title)"
+    ] ;
+    # Required: Article must have a creation date
+    sh:property [
+        sh:path dct:created ;
+        sh:minCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:date ]
+            [ sh:datatype xsd:dateTime ]
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "Article must have a creation date (dct:created, xsd:date or xsd:dateTime)"
+    ] ;
+    # Required: Article must have a source
+    sh:property [
+        sh:path ex:source ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Article must have a source (ex:source), expected value 'ERR'"
+    ] ;
+    # Warning: Article should have an employment event type
+    sh:property [
+        sh:path emp:employmentEvent ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should declare an employment event type (emp:employmentEvent: 'job_gain' or 'job_loss')"
+    ] ;
+    # Warning: Article should include a job count
+    sh:property [
+        sh:path emp:jobCount ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should include a positive job count (emp:jobCount)"
+    ] ;
+    # Warning: Article should have EMTAK classification
+    sh:property [
+        sh:path cls:hasEMTAKClassification ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have EMTAK classification (cls:hasEMTAKClassification)"
+    ] ;
+    # Warning: Article should mention at least one entity
+    sh:property [
+        sh:path ex:mentions ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should mention at least one entity (ex:mentions)"
+    ] ;
+    # Warning: Article should have provenance
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have provenance (prov:wasGeneratedBy)"
+    ] ;
+    # Warning: Article should have processing trajectory
+    sh:property [
+        sh:path ver:hasProcessingTrajectory ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have processing trajectory (ver:hasProcessingTrajectory)"
+    ] .
+
+# --- EMTAK Code Shape --------------------------------------------------------
+# Validates EMTAK classification codes are 5-digit format
+ex:EMTAKCodeShape a sh:NodeShape ;
+    sh:targetSubjectsOf cls:hasEMTAKClassification ;
+    sh:property [
+        sh:path cls:hasEMTAKClassification ;
+        sh:severity sh:Warning ;
+        sh:message "EMTAK classification should reference a valid classification IRI"
+    ] .
+
+# --- Employment Event Shape ---------------------------------------------------
+# Validates employment event nodes referenced by articles
+ex:EmploymentEventShape a sh:NodeShape ;
+    sh:targetClass emp:EmploymentEvent ;
+    sh:property [
+        sh:path emp:eventType ;
+        sh:minCount 1 ;
+        sh:in ( "job_gain" "job_loss" "restructuring" ) ;
+        sh:severity sh:Warning ;
+        sh:message "Employment event should have a type (job_gain, job_loss, or restructuring)"
+    ] ;
+    sh:property [
+        sh:path emp:organization ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Employment event should reference an organization"
+    ] ;
+    sh:property [
+        sh:path emp:jobCount ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:severity sh:Warning ;
+        sh:message "Employment event should include a job count"
+    ] .

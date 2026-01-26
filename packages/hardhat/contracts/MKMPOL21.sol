@@ -5,10 +5,16 @@ pragma solidity ^0.8.0;
  * @notice Manage the governance of public data
  */
 import "./interfaces/IPermissionManager.sol";
+
+interface IVotingPowerToken {
+    function mint(address to, uint256 amount) external;
+}
+
 contract MKMPOL21 is IPermissionManager {
     bool internal committee_initialization_blocked;
     mapping(address => uint32) internal roles;
     uint64[9] internal role_permissions;
+    IVotingPowerToken public votingToken;
     uint32[9] internal all_roles = [
         1152, // #0) Member_Institution -> ID : 0 , control bitmask: 100100
         1153, // #1) Ordinary_User -> ID : 1 , control bitmask: 100100
@@ -75,7 +81,7 @@ contract MKMPOL21 is IPermissionManager {
 
         role_permissions[3] = 229376; // #3) Eliza_Data_Extractor_Agent 
 
-        role_permissions[4] = 16915628938; // #4) Data_Validator 
+        role_permissions[4] = 16915628954; // #4) Data_Validator (added bit 4: validate permission)
 
         role_permissions[5] = 17179869183; // #5) MKMPOL21Owner 
 
@@ -162,6 +168,10 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
             // TODO: Add MFSSIA verification check here
             roles[msg.sender] = all_roles[1]; // Ordinary_User (index 1, value 1153)
             emit RoleAssigned(msg.sender, all_roles[1]);
+            // Mint 1 voting token so the user has voting power for future proposals
+            if (address(votingToken) != address(0)) {
+                votingToken.mint(msg.sender, 1 ether);
+            }
         }
 
         function onboard_institution() external {
@@ -169,6 +179,25 @@ roles[msg.sender] = all_roles[5]; // MKMPOL21Owner
             // TODO: Add MFSSIA verification check here
             roles[msg.sender] = all_roles[0]; // Member_Institution (index 0, value 1152)
             emit RoleAssigned(msg.sender, all_roles[0]);
+            // Mint 1 voting token so the user has voting power for future proposals
+            if (address(votingToken) != address(0)) {
+                votingToken.mint(msg.sender, 1 ether);
+            }
+        }
+
+        function setVotingToken(address _token) external {
+            require(roles[msg.sender] == all_roles[5], "Only owner");
+            votingToken = IVotingPowerToken(_token);
+        }
+
+        function onboard_data_validator() external {
+            uint32 currentRole = roles[msg.sender];
+            require(
+                currentRole == all_roles[0] || currentRole == all_roles[1],
+                "Must be Member_Institution or Ordinary_User to become Data_Validator"
+            );
+            roles[msg.sender] = all_roles[4]; // Data_Validator (index 4, value 1156)
+            emit RoleAssigned(msg.sender, all_roles[4]);
         }
 
         // ===== MFSSIA ATTESTATION SYSTEM =====

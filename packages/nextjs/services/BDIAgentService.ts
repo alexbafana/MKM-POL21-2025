@@ -52,6 +52,16 @@ const MKMPOL21_ABI = [
   "event RoleAssigned(address indexed user, uint32 indexed role)",
 ];
 
+const VALIDATION_COMMITTEE_ABI = [
+  "function propose(address[] targets, uint256[] values, bytes[] calldatas, string description) external returns (uint256)",
+  "function castVote(uint256 proposalId, uint8 support) external returns (uint256)",
+  "function state(uint256 proposalId) external view returns (uint8)",
+  "function proposalVotes(uint256 proposalId) external view returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes)",
+  "function execute(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) external payable returns (uint256)",
+  "event ProposalCreated(uint256 proposalId, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 voteStart, uint256 voteEnd, string description)",
+  "event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason)",
+];
+
 // =============================================================================
 // Type Definitions
 // =============================================================================
@@ -176,15 +186,29 @@ const ROLE_NAMES: Record<number, string> = {
  * - Intentions: Write methods that execute actions
  * - Coordination: Event listeners for multi-agent coordination
  */
+/** Result of proposal creation */
+export interface ProposalResult {
+  proposalId: string;
+  txHash: string;
+  description: string;
+}
+
 export class BDIAgentService {
   private provider: JsonRpcProvider;
   private gaDataValidationAddress: string;
   private mkmpol21Address: string;
+  private validationCommitteeAddress: string;
 
-  constructor(rpcUrl: string, gaDataValidationAddress: string, mkmpol21Address: string) {
+  constructor(
+    rpcUrl: string,
+    gaDataValidationAddress: string,
+    mkmpol21Address: string,
+    validationCommitteeAddress?: string,
+  ) {
     this.provider = new JsonRpcProvider(rpcUrl);
     this.gaDataValidationAddress = gaDataValidationAddress;
     this.mkmpol21Address = mkmpol21Address;
+    this.validationCommitteeAddress = validationCommitteeAddress || "";
   }
 
   // ===========================================================================
@@ -204,6 +228,14 @@ export class BDIAgentService {
   /** Get MKMPOL21 contract instance */
   private getMKMPOL21Contract(signer?: Wallet): Contract {
     return new Contract(this.mkmpol21Address, MKMPOL21_ABI, signer ?? this.provider);
+  }
+
+  /** Get ValidationCommittee contract instance */
+  private getValidationCommitteeContract(signer?: Wallet): Contract {
+    if (!this.validationCommitteeAddress) {
+      throw new Error("ValidationCommittee address not configured");
+    }
+    return new Contract(this.validationCommitteeAddress, VALIDATION_COMMITTEE_ABI, signer ?? this.provider);
   }
 
   // ===========================================================================
@@ -466,6 +498,98 @@ export class BDIAgentService {
     return { txHash: tx.hash };
   }
 
+  /**
+   * Create a governance proposal in the Validation Committee to approve an RDF graph.
+   * Requires Permission 30 (propose on ValidationCommittee)
+   *
+   * @param agentPrivateKey - Agent's private key for signing
+   * @param graphId - Graph identifier (bytes32 hex)
+   * @param metadata - Graph metadata for description
+   */
+  async createRDFApprovalProposal(
+    agentPrivateKey: string,
+    graphId: string,
+    metadata: {
+      graphURI: string;
+      graphType: number;
+      datasetVariant: number;
+      year: number;
+      modelVersion: string;
+      syntaxValid?: boolean;
+      semanticValid?: boolean;
+      consistencyValid?: boolean;
+    },
+  ): Promise<ProposalResult> {
+    const wallet = this.getAgentWallet(agentPrivateKey);
+    const committee = this.getValidationCommitteeContract(wallet);
+    const ga = this.getGAContract();
+
+    // Encode calldata for GADataValidation.approveRDFGraph(graphId)
+    const calldata = ga.interface.encodeFunctionData("approveRDFGraph", [graphId]);
+
+    // Build graph type and dataset labels
+    const graphTypeLabels = ["ARTICLES", "ENTITIES", "MENTIONS", "NLP", "ECONOMICS", "RELATIONS", "PROVENANCE"];
+    const datasetLabels = ["ERR Online", "Ohtuleht Online", "Ohtuleht Print", "Ariregister"];
+
+    // Build validation summary
+    const validationParts: string[] = [];
+    if (metadata.syntaxValid !== undefined) {
+      validationParts.push(`Syntax ${metadata.syntaxValid ? "passed" : "failed"}`);
+    }
+    if (metadata.semanticValid !== undefined) {
+      validationParts.push(`Semantic ${metadata.semanticValid ? "passed" : "has warnings"}`);
+    }
+    if (metadata.consistencyValid !== undefined) {
+      validationParts.push(`Consistency ${metadata.consistencyValid ? "passed" : "has issues"}`);
+    }
+    const validationSummary = validationParts.length > 0 ? validationParts.join(", ") : "Pending";
+
+    // Build proposal description with [RDF-APPROVAL] marker
+    const description = [
+      `[RDF-APPROVAL] Approve RDF Graph for DKG Publication`,
+      ``,
+      `Graph ID: ${graphId}`,
+      `Graph URI: ${metadata.graphURI}`,
+      `Graph Type: ${graphTypeLabels[metadata.graphType] || "Unknown"}`,
+      `Dataset: ${datasetLabels[metadata.datasetVariant] || "Unknown"}`,
+      `Year: ${metadata.year}`,
+      `Model: ${metadata.modelVersion}`,
+      ``,
+      `Validation: ${validationSummary}`,
+      ``,
+      `This proposal, upon execution, will call GADataValidation.approveRDFGraph()`,
+      `to mark the submitted RDF graph as committee-approved for DKG publication.`,
+    ].join("\n");
+
+    const tx = await committee.propose([this.gaDataValidationAddress], [0n], [calldata], description);
+
+    const receipt = await tx.wait();
+
+    // Extract proposalId from ProposalCreated event
+    let proposalId = "";
+    for (const log of receipt.logs) {
+      try {
+        const parsed = committee.interface.parseLog({ topics: log.topics as string[], data: log.data });
+        if (parsed && parsed.name === "ProposalCreated") {
+          proposalId = parsed.args[0].toString();
+          break;
+        }
+      } catch {
+        // Skip logs that don't match
+      }
+    }
+
+    if (!proposalId) {
+      throw new Error("Failed to extract proposalId from transaction receipt");
+    }
+
+    return {
+      proposalId,
+      txHash: tx.hash,
+      description,
+    };
+  }
+
   // ===========================================================================
   // Event Listening (Agent Coordination)
   // ===========================================================================
@@ -554,20 +678,27 @@ export class BDIAgentService {
 // =============================================================================
 
 let bdiAgentServiceInstance: BDIAgentService | null = null;
+let bdiAgentServiceAddresses: string = "";
 
 /**
  * Get or create the BDI Agent Service singleton
  *
+ * Recreates the instance if contract addresses change (e.g. after a redeploy).
+ *
  * @param rpcUrl - JSON-RPC endpoint URL (default: localhost:8545)
  * @param gaDataValidationAddress - GADataValidation contract address
  * @param mkmpol21Address - MKMPOL21 contract address
+ * @param validationCommitteeAddress - ValidationCommittee contract address
  */
 export function getBDIAgentService(
   rpcUrl?: string,
   gaDataValidationAddress?: string,
   mkmpol21Address?: string,
+  validationCommitteeAddress?: string,
 ): BDIAgentService {
-  if (!bdiAgentServiceInstance) {
+  const addressKey = `${gaDataValidationAddress}|${mkmpol21Address}|${validationCommitteeAddress}`;
+
+  if (!bdiAgentServiceInstance || addressKey !== bdiAgentServiceAddresses) {
     if (!gaDataValidationAddress || !mkmpol21Address) {
       throw new Error(
         "BDIAgentService not initialized. Provide gaDataValidationAddress and mkmpol21Address on first call.",
@@ -577,7 +708,9 @@ export function getBDIAgentService(
       rpcUrl || "http://localhost:8545",
       gaDataValidationAddress,
       mkmpol21Address,
+      validationCommitteeAddress,
     );
+    bdiAgentServiceAddresses = addressKey;
   }
   return bdiAgentServiceInstance;
 }

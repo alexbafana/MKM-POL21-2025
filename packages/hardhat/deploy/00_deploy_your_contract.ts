@@ -35,8 +35,21 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
   log(`MKMPOL21 at: ${mkmpm.address}`);
 
-  // 3) Transfer token ownership to MKMPOL21
+  // 2.5) Mint voting tokens to test accounts BEFORE ownership transfer
+  // (VotingPowerToken auto-self-delegates on first mint, no manual delegate needed)
+  const signers = await ethers.getSigners();
+  const mintAmount = ethers.parseEther("1");
+  for (const idx of [1, 2, 3]) {
+    if (signers[idx]) {
+      await execute("VotingPowerToken", { from: deployer, log: true }, "mint", signers[idx].address, mintAmount);
+      log(`Minted token for signer[${idx}]: ${signers[idx].address}`);
+    }
+  }
+
+  // 3) Transfer token ownership to MKMPOL21, then set token reference
   await execute("VotingPowerToken", { from: deployer, log: true }, "transferOwnership", mkmpm.address);
+  await execute("MKMPOL21", { from: deployer, log: true }, "setVotingToken", token.address);
+  log(`MKMPOL21 votingToken set to: ${token.address}`);
 
   // 4) Optional governance contracts
   const challengePeriod = 60 * 60 * 24 * 3; // 3 days
@@ -58,8 +71,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   // Consortium uses optimistic governance with challenge period (3 args)
   const consortium = await deployIfPresent("Consortium", [token.address, mkmpm.address, challengePeriod]);
-  // ValidationCommittee and DisputeResolutionBoard use simple majority (2 args)
-  const validation = await deployIfPresent("ValidationCommittee", [token.address, mkmpm.address]);
+  // ValidationCommittee: 0 delay, 30 blocks voting, 34% quorum (= 1 out of 3 validators)
+  const validation = await deployIfPresent("ValidationCommittee", [token.address, mkmpm.address, 0, 30, 34]);
+  // DisputeResolutionBoard uses simple majority (2 args)
   const dispute = await deployIfPresent("DisputeResolutionBoard", [token.address, mkmpm.address]);
 
   // 5) Initialize committees ONLY if all three contracts exist
@@ -76,7 +90,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log(`GADataValidation at: ${gaDataValidation}`);
   }
 
-  // 7) Sanity check: confirm deployer still has Owner (index 5)
+  // 7) Assign Data_Validator role (index 4, value 1156) to agent wallet
+  const validatorAddress = process.env.BDI_VALIDATOR_ADDRESS || signers[2]?.address;
+  if (validatorAddress) {
+    await execute("MKMPOL21", { from: deployer, log: true }, "assignRole", validatorAddress, 1156);
+    log(`Data_Validator role assigned to: ${validatorAddress}`);
+  }
+
+  // 8) Sanity check: confirm deployer still has Owner (index 5)
   const mkmp = await ethers.getContractAt("MKMPOL21", mkmpm.address);
   const rawRole = await mkmp.hasRole(deployer); // uint32 (Ethers v6 returns bigint)
   const ownerIndex = Number(rawRole) & 31;

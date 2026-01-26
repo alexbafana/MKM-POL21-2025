@@ -55,6 +55,10 @@ const config: HardhatUserConfig = {
         url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
         enabled: process.env.MAINNET_FORKING_ENABLED === "true",
       },
+      mining: {
+        auto: true,
+        interval: 5000, // mine a block every 5 seconds
+      },
     },
     mainnet: {
       url: "https://mainnet.rpc.buidlguidl.com",

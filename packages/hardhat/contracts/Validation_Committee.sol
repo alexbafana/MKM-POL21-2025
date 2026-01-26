@@ -22,14 +22,14 @@ contract ValidationCommittee is Governor, GovernorSettings, GovernorCountingSimp
     // State variables
     IPermissionManager public permissionManager;
 
-    // Constructor
-    constructor(IVotes _token, address _permissionManager)
+    // Constructor with parameterized voting timing and quorum
+    constructor(IVotes _token, address _permissionManager, uint48 _votingDelay, uint32 _votingPeriod, uint256 _quorumPercent)
         Governor("ValidationCommittee")
-        GovernorSettings(7200 /* 1 day */, 50400 /* 1 week */, 0)
+        GovernorSettings(_votingDelay, _votingPeriod, 0)
         GovernorVotes(_token)
-        GovernorVotesQuorumFraction(0)
+        GovernorVotesQuorumFraction(_quorumPercent)
     {
-        permissionManager = IPermissionManager(_permissionManager); 
+        permissionManager = IPermissionManager(_permissionManager);
     }
 
     function castVote(uint256 proposalId, uint8 support)

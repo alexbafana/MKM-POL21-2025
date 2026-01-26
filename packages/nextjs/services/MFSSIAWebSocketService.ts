@@ -240,7 +240,7 @@ export class MFSSIAWebSocketService {
    * 1. The namespace path in the URL
    * 2. The engine.io path (not /socket.io/)
    *
-   * We implement EXACTLY as their documentation specifies, even though it's redundant.
+   * We implement EXACTLY as their documentation specifies.
    */
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {

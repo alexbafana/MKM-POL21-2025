@@ -97,6 +97,47 @@ export interface VerificationSession {
 }
 
 /**
+ * Employment Event Artifact data for Example-D challenge set
+ * Contains all the data needed for employment event detection verification
+ */
+export interface EmploymentEventArtifactData {
+  // Source information (C-D-1)
+  sourceDomainHash: string; // SHA-256 hash of normalized domain (e.g., "err.ee")
+  contentHash: string; // SHA-256 hash of TTL content
+
+  // Content integrity (C-D-2)
+  csvHash: string; // SHA-256 hash of source CSV data
+  content: string; // The actual TTL content
+
+  // NLP determinism (C-D-3)
+  modelName: string; // e.g., "EstBERT-1.0"
+  modelVersionHash: string; // SHA-256 hash of model weights/config
+  softwareHash: string; // SHA-256 hash of NLP pipeline software
+
+  // Semantic coherence (C-D-4)
+  crossConsistencyScore: number; // 0-1 score of cross-triple consistency
+
+  // Employment plausibility (C-D-5)
+  llmConfidence: number; // 0-1 LLM adjudication confidence
+  numericExtractionTrace: string; // JSON string of extraction trace
+
+  // EMTAK consistency (C-D-6)
+  emtakCode: string; // 5-digit EMTAK classification code
+  registrySectorMatch: boolean; // Whether EMTAK matches business registry
+
+  // Temporal validity (C-D-7)
+  articleDate: string; // ISO date of article
+  ingestionTime: string; // ISO timestamp of pipeline ingestion
+
+  // Provenance closure (C-D-8)
+  provenanceHash: string; // SHA-256 hash of provenance chain
+  wasGeneratedBy: string; // URI of generating process
+
+  // Governance acknowledgement (C-D-9)
+  daoSignature: string; // DAO governance signature
+}
+
+/**
  * RDF Artifact data for Example-A challenge set
  * Contains all the data needed for artifact integrity verification
  */
@@ -253,6 +294,127 @@ export const CHALLENGE_SETS: ChallengeSetInfo[] = [
     ],
     applicableRoles: ["ORDINARY_USER", "MEMBER_INSTITUTION", "DATA_VALIDATOR"],
     requiredConfidence: 0.85,
+  },
+  {
+    id: "mfssia:Example-D",
+    code: "mfssia:Example-D",
+    name: "Example D \u2013 Employment Event Detection",
+    description:
+      "MFSSIA challenge set for verifying employment event detection from Estonian news articles. Ensures source authenticity, NLP pipeline determinism, employment plausibility, EMTAK classification consistency, and provenance completeness.",
+    version: "1.0",
+    status: "ACTIVE",
+    mandatoryChallenges: 9,
+    optionalChallenges: 0,
+    challenges: [
+      {
+        code: "mfssia:C-D-1",
+        name: "Source Authenticity",
+        description: "Verifies that the article originates from a whitelisted institutional publisher (ERR).",
+        factorClass: "SourceIntegrity",
+        mandatory: true,
+        expectedEvidence: ["sourceDomainHash", "contentHash"],
+        oracleEndpoint: "ERRArchiveOracle",
+        question: "Does the article originate from a whitelisted institutional publisher?",
+        evaluationPassCondition: "sourceDomainHash matches whitelisted ERR domain",
+      },
+      {
+        code: "mfssia:C-D-2",
+        name: "Content Integrity",
+        description: "Verifies that the TTL content has not been tampered with since generation from the source CSV.",
+        factorClass: "DataIntegrity",
+        mandatory: true,
+        expectedEvidence: ["contentHash", "csvHash"],
+        oracleEndpoint: "InternalHashOracle",
+        question: "Is the TTL content hash consistent with the source data hash?",
+        evaluationPassCondition:
+          "contentHash and csvHash are valid SHA-256 hashes and content is internally consistent",
+      },
+      {
+        code: "mfssia:C-D-3",
+        name: "NLP Determinism",
+        description:
+          "Verifies that the NLP pipeline produces deterministic output given the same input and model version.",
+        factorClass: "ProcessIntegrity",
+        mandatory: true,
+        expectedEvidence: ["modelName", "modelVersionHash", "softwareHash"],
+        oracleEndpoint: "ContainerRegistryOracle",
+        question: "Is the NLP pipeline version verifiable and deterministic?",
+        evaluationPassCondition: "modelVersionHash matches registered model, softwareHash matches container registry",
+      },
+      {
+        code: "mfssia:C-D-4",
+        name: "Semantic Coherence",
+        description:
+          "Checks cross-consistency of extracted triples (e.g., employment events reference valid entities).",
+        factorClass: "ContentIntegrity",
+        mandatory: true,
+        expectedEvidence: ["crossConsistencyScore"],
+        oracleEndpoint: "SemanticValidationOracle",
+        question: "Are the extracted RDF triples semantically coherent and cross-consistent?",
+        evaluationPassCondition: "crossConsistencyScore >= 0.7",
+      },
+      {
+        code: "mfssia:C-D-5",
+        name: "Employment Plausibility",
+        description:
+          "Uses LLM adjudication to verify whether extracted employment events are plausible given the article text.",
+        factorClass: "ContentIntegrity",
+        mandatory: true,
+        expectedEvidence: ["llmConfidence", "numericExtractionTrace"],
+        oracleEndpoint: "LLMAdjudicationOracle",
+        question: "Are the extracted employment events plausible given the source article?",
+        evaluationPassCondition: "llmConfidence >= 0.6 and numericExtractionTrace is valid JSON",
+      },
+      {
+        code: "mfssia:C-D-6",
+        name: "EMTAK Consistency",
+        description:
+          "Verifies that the EMTAK classification code is consistent with the business registry sector data.",
+        factorClass: "ContentIntegrity",
+        mandatory: true,
+        expectedEvidence: ["emtakCode", "registrySectorMatch"],
+        oracleEndpoint: "BusinessRegistryOracle",
+        question: "Is the EMTAK classification consistent with the Estonian Business Registry?",
+        evaluationPassCondition: "emtakCode matches 5-digit pattern and registrySectorMatch is true",
+      },
+      {
+        code: "mfssia:C-D-7",
+        name: "Temporal Validity",
+        description:
+          "Checks that the article date and pipeline ingestion timestamp are within acceptable temporal bounds.",
+        factorClass: "TemporalValidity",
+        mandatory: true,
+        expectedEvidence: ["articleDate", "ingestionTime"],
+        oracleEndpoint: "TimeOracle",
+        question: "Are the temporal claims (article date, ingestion time) valid and consistent?",
+        evaluationPassCondition: "articleDate <= ingestionTime and ingestionTime <= now + 24h",
+      },
+      {
+        code: "mfssia:C-D-8",
+        name: "Provenance Closure",
+        description:
+          "Validates that the RDF graph has complete provenance metadata (prov:wasGeneratedBy chain is closed).",
+        factorClass: "Provenance",
+        mandatory: true,
+        expectedEvidence: ["provenanceHash", "wasGeneratedBy"],
+        oracleEndpoint: "RDFValidatorOracle",
+        question: "Does the RDF graph have a complete and valid provenance chain?",
+        evaluationPassCondition: "provenanceHash is valid SHA-256 and wasGeneratedBy URI resolves",
+      },
+      {
+        code: "mfssia:C-D-9",
+        name: "Governance Acknowledgement",
+        description: "Verifies that the DAO governance system has acknowledged and signed off on the data submission.",
+        factorClass: "DataIntegrity",
+        mandatory: true,
+        expectedEvidence: ["daoSignature"],
+        oracleEndpoint: "GovernanceOracle",
+        question: "Has the DAO governance system acknowledged this data submission?",
+        evaluationPassCondition: "daoSignature is a valid cryptographic signature from a DAO committee member",
+      },
+    ],
+    applicableRoles: ["MEMBER_INSTITUTION", "DATA_VALIDATOR"],
+    requiredConfidence: 0.8,
   },
 ];
 

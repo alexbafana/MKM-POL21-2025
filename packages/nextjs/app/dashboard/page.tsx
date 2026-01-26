@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { zeroAddress } from "viem";
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import {
   AdminIcon,
   BlockchainIcon,
@@ -15,24 +14,7 @@ import {
 } from "~~/components/dao";
 import { LoadingState } from "~~/components/dao/LoadingState";
 import { Address } from "~~/components/scaffold-eth";
-import deployedContracts from "~~/contracts/deployedContracts";
-
-/* Minimal ABI for reading roles */
-const MKMP_ABI = [
-  {
-    type: "function",
-    name: "hasRole",
-    stateMutability: "view",
-    inputs: [{ name: "user", type: "address" }],
-    outputs: [{ type: "uint32" }],
-  },
-] as const;
-
-/** Resolve current MKMP address from Scaffold-ETH map */
-const useMkmpAddress = (): `0x${string}` | undefined => {
-  const chainId = useChainId();
-  return deployedContracts?.[chainId as keyof typeof deployedContracts]?.MKMPOL21?.address as `0x${string}` | undefined;
-};
+import { useDeployedContractInfo, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 const ROLE_LABELS: Record<number, string> = {
   0: "Member Institution",
@@ -53,44 +35,39 @@ const ROLE_LABELS: Record<number, string> = {
 export default function DashboardPage() {
   const { address } = useAccount();
   const chainId = useChainId();
-  const mkmpAddress = useMkmpAddress();
+  const { data: mkmpContract } = useDeployedContractInfo({ contractName: "MKMPOL21" });
+  const mkmpAddress = mkmpContract?.address;
 
   const {
     data: roleRaw,
     isFetching,
     refetch,
-  } = useReadContract({
-    abi: MKMP_ABI,
-    address: mkmpAddress,
+  } = useScaffoldReadContract({
+    contractName: "MKMPOL21",
     functionName: "hasRole",
-    args: [address ?? zeroAddress],
-    query: {
-      enabled: Boolean(address && mkmpAddress),
-      refetchInterval: 5000, // Refetch every 5 seconds to catch role changes
-      refetchOnWindowFocus: true, // Refetch when window gains focus
-      refetchOnMount: true, // Always refetch on mount
-    },
+    args: [address],
+    watch: true,
   });
 
   useEffect(() => {
-    if (address && mkmpAddress) {
+    if (address) {
       refetch();
     }
-  }, [address, mkmpAddress, chainId, refetch]);
+  }, [address, chainId, refetch]);
 
   // Refetch when page becomes visible (user navigates back from onboarding)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && address && mkmpAddress) {
+      if (document.visibilityState === "visible" && address) {
         refetch();
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [address, mkmpAddress, refetch]);
+  }, [address, refetch]);
 
   const { roleValue, roleName, roleIndex, isOwner, isMember } = useMemo(() => {
-    const v = roleRaw ? Number(roleRaw) : 0;
+    const v = roleRaw !== undefined && roleRaw !== null ? Number(roleRaw) : 0;
     const idx = v & 31;
     return {
       roleValue: v,
@@ -234,7 +211,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-base-200">
                     <span className="text-base-content/70">Contract Address</span>
-                    <Address address={mkmpAddress!} />
+                    <Address address={mkmpAddress} />
                   </div>
                   <div className="flex justify-between items-center py-2">
                     <span className="text-base-content/70">Your Role</span>
@@ -447,12 +424,12 @@ export default function DashboardPage() {
                     No Role
                   </div>
                 </div>
-                {roleRaw !== undefined && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-base-content/70">Raw Role Value</span>
-                    <span className="font-mono text-xs">{String(roleRaw)}</span>
-                  </div>
-                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-base-content/70">Raw Role Value</span>
+                  <span className="font-mono text-xs">
+                    {roleRaw !== undefined && roleRaw !== null ? String(roleRaw) : "undefined (query not running)"}
+                  </span>
+                </div>
               </div>
             </div>
 

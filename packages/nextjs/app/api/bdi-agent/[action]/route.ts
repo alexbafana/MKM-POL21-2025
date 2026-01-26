@@ -20,6 +20,8 @@
  * All endpoints require POST method with JSON body.
  */
 import { NextRequest, NextResponse } from "next/server";
+// Contract addresses - set via environment variables or auto-detect from deployedContracts
+import deployedContracts from "~~/contracts/deployedContracts";
 import {
   BDIAgentService,
   DatasetVariant,
@@ -30,21 +32,52 @@ import {
 import { getRDFValidationService } from "~~/services/RDFValidationService";
 import { getTTLStorageService } from "~~/services/TTLStorageService";
 
-// Contract addresses - set via environment variables or defaults for localhost
-const GA_ADDRESS = process.env.GA_DATA_VALIDATION_ADDRESS || process.env.NEXT_PUBLIC_GA_DATA_VALIDATION_ADDRESS || "";
-const MKMPOL21_ADDRESS = process.env.MKMPOL21_ADDRESS || process.env.NEXT_PUBLIC_MKMPOL21_ADDRESS || "";
+// Hardhat account #2 — default Data_Validator for local development
+// This matches signers[2] used in the deploy script's assignRole fallback
+const HARDHAT_ACCOUNT2_PRIVATE_KEY = "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a";
+
+function getContractAddress(contractName: string): string {
+  // Try all chain IDs in deployedContracts (usually 31337 for Hardhat)
+  for (const chainId of Object.keys(deployedContracts)) {
+    const chain = (deployedContracts as any)[chainId];
+    if (chain?.[contractName]?.address) {
+      return chain[contractName].address;
+    }
+  }
+  return "";
+}
+
 const RPC_URL = process.env.HARDHAT_RPC_URL || process.env.NEXT_PUBLIC_HARDHAT_RPC_URL || "http://localhost:8545";
 
+/** Resolve the agent private key: env var > fallback to Hardhat account #2 */
+function getValidatorPrivateKey(bodyKey?: string): string {
+  return bodyKey || process.env.BDI_VALIDATOR_PRIVATE_KEY || HARDHAT_ACCOUNT2_PRIVATE_KEY;
+}
+
 /**
- * Get or create BDI Agent Service instance
+ * Get or create BDI Agent Service instance.
+ * Reads contract addresses fresh each call so that contract redeployments
+ * (which rewrite deployedContracts.ts) are picked up without a server restart.
  */
 function getService(): BDIAgentService {
-  if (!GA_ADDRESS || !MKMPOL21_ADDRESS) {
+  const gaAddr =
+    process.env.GA_DATA_VALIDATION_ADDRESS ||
+    process.env.NEXT_PUBLIC_GA_DATA_VALIDATION_ADDRESS ||
+    getContractAddress("GADataValidation");
+  const mkmpAddr =
+    process.env.MKMPOL21_ADDRESS || process.env.NEXT_PUBLIC_MKMPOL21_ADDRESS || getContractAddress("MKMPOL21");
+  const vcAddr =
+    process.env.VALIDATION_COMMITTEE_ADDRESS ||
+    process.env.NEXT_PUBLIC_VALIDATION_COMMITTEE_ADDRESS ||
+    getContractAddress("ValidationCommittee");
+
+  if (!gaAddr || !mkmpAddr) {
     throw new Error(
-      "Contract addresses not configured. Set GA_DATA_VALIDATION_ADDRESS and MKMPOL21_ADDRESS environment variables.",
+      "Contract addresses not configured. Set GA_DATA_VALIDATION_ADDRESS and MKMPOL21_ADDRESS environment variables, " +
+        "or ensure deployedContracts.ts contains the deployed addresses.",
     );
   }
-  return getBDIAgentService(RPC_URL, GA_ADDRESS, MKMPOL21_ADDRESS);
+  return getBDIAgentService(RPC_URL, gaAddr, mkmpAddr, vcAddr);
 }
 
 /**
@@ -66,6 +99,7 @@ function getBuiltInShapes(shapesType: string): string {
   const shapes: Record<string, string> = {
     article: ARTICLE_SHAPES,
     employment: EMPLOYMENT_SHAPES,
+    "employment-event": EMPLOYMENT_EVENT_SHAPES,
     entity: ENTITY_SHAPES,
   };
 
@@ -76,12 +110,31 @@ function getBuiltInShapes(shapesType: string): string {
   return content;
 }
 
+/**
+ * Auto-select shapes type based on graph type enum value
+ * GraphType: ARTICLES=0, ENTITIES=1, MENTIONS=2, NLP=3, ECONOMICS=4, RELATIONS=5, PROVENANCE=6
+ */
+function getShapesTypeForGraphType(graphType: number): string | null {
+  switch (graphType) {
+    case 0: // ARTICLES
+      return "article";
+    case 1: // ENTITIES
+      return "entity";
+    case 4: // ECONOMICS
+      return "employment-event";
+    default:
+      return null; // No built-in shapes for this graph type
+  }
+}
+
 // Built-in SHACL shapes for MKM data types
+// NOTE: dct prefix is http://purl.org/cdt/terms/ (project-specific), NOT http://purl.org/dc/terms/
 const ARTICLE_SHAPES = `
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix ex: <http://mkm.ee/schema/> .
-@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dct: <http://purl.org/cdt/terms/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 
 ex:ArticleShape a sh:NodeShape ;
     sh:targetClass ex:Article ;
@@ -89,6 +142,7 @@ ex:ArticleShape a sh:NodeShape ;
         sh:path dct:title ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
+        sh:severity sh:Warning ;
         sh:message "Article must have at least one title"
     ] ;
     sh:property [
@@ -98,11 +152,13 @@ ex:ArticleShape a sh:NodeShape ;
             [ sh:datatype xsd:date ]
             [ sh:datatype xsd:dateTime ]
         ) ;
+        sh:severity sh:Warning ;
         sh:message "Article must have a creation date (xsd:date or xsd:dateTime)"
     ] ;
     sh:property [
         sh:path ex:source ;
         sh:minCount 1 ;
+        sh:severity sh:Warning ;
         sh:message "Article must have a source"
     ] .
 `;
@@ -117,8 +173,8 @@ ex:EMTAKShape a sh:NodeShape ;
     sh:targetSubjectsOf cls:hasEMTAKClassification ;
     sh:property [
         sh:path cls:hasEMTAKClassification ;
-        sh:pattern "^cls:[0-9]{5}$" ;
-        sh:message "EMTAK code must be exactly 5 digits"
+        sh:severity sh:Warning ;
+        sh:message "EMTAK classification should reference a valid classification"
     ] .
 
 ex:JobCountShape a sh:NodeShape ;
@@ -127,7 +183,86 @@ ex:JobCountShape a sh:NodeShape ;
         sh:path ex:employeeCount ;
         sh:datatype xsd:integer ;
         sh:minInclusive 0 ;
+        sh:severity sh:Warning ;
         sh:message "Employee count must be a non-negative integer"
+    ] .
+`;
+
+const EMPLOYMENT_EVENT_SHAPES = `
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://mkm.ee/schema/> .
+@prefix emp: <http://mkm.ee/employment/> .
+@prefix cls: <http://mkm.ee/classification/> .
+@prefix dct: <http://purl.org/cdt/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ver: <http://mkm.ee/versioning/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:EmploymentArticleShape a sh:NodeShape ;
+    sh:targetClass ex:Article ;
+    sh:property [
+        sh:path dct:title ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have a title (dct:title)"
+    ] ;
+    sh:property [
+        sh:path dct:created ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have a creation date (dct:created)"
+    ] ;
+    sh:property [
+        sh:path ex:source ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have a source (ex:source)"
+    ] ;
+    sh:property [
+        sh:path emp:employmentEvent ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should declare an employment event type (emp:employmentEvent)"
+    ] ;
+    sh:property [
+        sh:path emp:jobCount ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:severity sh:Warning ;
+        sh:message "Article should include a job count (emp:jobCount, positive integer)"
+    ] ;
+    sh:property [
+        sh:path cls:hasEMTAKClassification ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have EMTAK classification (cls:hasEMTAKClassification)"
+    ] ;
+    sh:property [
+        sh:path ex:mentions ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should mention at least one entity (ex:mentions)"
+    ] ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have provenance (prov:wasGeneratedBy)"
+    ] ;
+    sh:property [
+        sh:path ver:hasProcessingTrajectory ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Article should have processing trajectory (ver:hasProcessingTrajectory)"
+    ] .
+
+ex:EMTAKCodeShape a sh:NodeShape ;
+    sh:targetSubjectsOf cls:hasEMTAKClassification ;
+    sh:property [
+        sh:path cls:hasEMTAKClassification ;
+        sh:severity sh:Warning ;
+        sh:message "EMTAK classification should reference a valid code"
     ] .
 `;
 
@@ -463,50 +598,68 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       // Combined Validation + On-Chain Recording
       // =======================================================================
       case "validate-and-record": {
-        const error = validateRequired(body, ["agentPrivateKey", "graphId"]);
+        const error = validateRequired(body, ["graphId"]);
         if (error) {
           return NextResponse.json({ error }, { status: 400 });
         }
 
-        // Step 1: Fetch content from storage
-        const storageService = getTTLStorageService();
-        let ttlContent: string;
-        try {
-          const stored = await storageService.getByGraphId(body.graphId as string);
-          ttlContent = stored.content;
-        } catch (fetchError) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Failed to fetch content: ${fetchError instanceof Error ? fetchError.message : "Unknown error"}`,
-              syntaxValid: false,
-              semanticValid: false,
-            },
-            { status: 404 },
-          );
+        // Step 1: Get content — prefer body.content, fallback to storage
+        let ttlContent = body.content as string | undefined;
+        if (!ttlContent) {
+          const storageService = getTTLStorageService();
+          try {
+            const stored = await storageService.getByGraphId(body.graphId as string);
+            ttlContent = stored.content;
+          } catch (fetchError) {
+            return NextResponse.json(
+              {
+                success: false,
+                error: `Failed to fetch content: ${fetchError instanceof Error ? fetchError.message : "Unknown error"}. Pass 'content' directly as an alternative.`,
+                syntaxValid: false,
+                semanticValid: false,
+              },
+              { status: 404 },
+            );
+          }
         }
 
         // Step 2: Run syntax validation
         const validationService = getRDFValidationService();
         const syntaxResult = await validationService.validateSyntax(ttlContent);
 
-        // Step 3: Run semantic validation if syntax is valid
-        let semanticResult = null;
-        if (syntaxResult.isValid && body.shapesContent) {
-          semanticResult = await validationService.validateSemantics(ttlContent, body.shapesContent as string);
+        // Step 3: Determine shapes to use
+        // Priority: explicit shapesContent > explicit shapesType > auto-detect from graphType
+        let shapesContentForValidation: string | null = (body.shapesContent as string) || null;
+        if (!shapesContentForValidation && body.shapesType) {
+          shapesContentForValidation = getBuiltInShapes(body.shapesType as string);
+        }
+        if (!shapesContentForValidation && body.graphType !== undefined) {
+          const autoType = getShapesTypeForGraphType(Number(body.graphType));
+          if (autoType) {
+            try {
+              shapesContentForValidation = getBuiltInShapes(autoType);
+            } catch {
+              // No shapes available for this type, skip semantic validation
+            }
+          }
         }
 
-        // Step 4: Determine overall validity
+        // Step 4: Run semantic validation if syntax is valid and shapes are available
+        let semanticResult = null;
+        if (syntaxResult.isValid && shapesContentForValidation) {
+          semanticResult = await validationService.validateSemantics(ttlContent, shapesContentForValidation);
+        }
+
+        // Step 5: Run consistency checks if syntax is valid
+        let consistencyResult = null;
+        if (syntaxResult.isValid) {
+          consistencyResult = await validationService.validateConsistency(ttlContent);
+        }
+
+        // Step 6: Determine overall validity
         const isValid = syntaxResult.isValid && (!semanticResult || semanticResult.conforms);
 
-        // Step 5: Record result on-chain
-        const txResult = await service.markGraphValidated(
-          body.agentPrivateKey as string,
-          body.graphId as string,
-          isValid,
-        );
-
-        // Step 6: Prepare error summary (max 256 chars for contract)
+        // Step 7: Record detailed result on-chain (use markGraphValidatedWithDetails)
         let errorSummary = "";
         if (!syntaxResult.isValid && syntaxResult.errors.length > 0) {
           errorSummary = syntaxResult.errors
@@ -518,6 +671,31 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             .map(v => v.message)
             .join("; ")
             .slice(0, 256);
+        } else if (consistencyResult && !consistencyResult.consistent) {
+          const consistencyWarnings = consistencyResult.checks
+            .filter(c => !c.passed)
+            .map(c => c.message)
+            .join("; ")
+            .slice(0, 256);
+          if (!errorSummary && consistencyWarnings) {
+            errorSummary = `Consistency: ${consistencyWarnings}`;
+          }
+        }
+
+        // Try to use detailed recording if available, fallback to simple
+        const agentKey = getValidatorPrivateKey(body.agentPrivateKey as string | undefined);
+        let txResult;
+        try {
+          txResult = await service.markGraphValidatedWithDetails(
+            agentKey,
+            body.graphId as string,
+            syntaxResult.isValid,
+            semanticResult ? semanticResult.conforms : true,
+            errorSummary,
+          );
+        } catch {
+          // Fallback to simple validation recording
+          txResult = await service.markGraphValidated(agentKey, body.graphId as string, isValid);
         }
 
         return NextResponse.json({
@@ -525,14 +703,47 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           graphId: body.graphId,
           syntaxValid: syntaxResult.isValid,
           semanticValid: semanticResult ? semanticResult.conforms : null,
+          consistencyValid: consistencyResult ? consistencyResult.consistent : null,
           isValid,
           errorSummary,
           syntaxErrors: syntaxResult.errors,
           syntaxWarnings: syntaxResult.warnings,
           syntaxStats: syntaxResult.stats,
           semanticViolations: semanticResult?.violations,
+          consistencyChecks: consistencyResult?.checks,
+          consistencySummary: consistencyResult?.summary,
           txHash: txResult.txHash,
           validatorAddress: txResult.validatorAddress,
+        });
+      }
+
+      // =======================================================================
+      // Consistency Validation Only
+      // =======================================================================
+      case "validate-consistency": {
+        if (!body.content && !body.graphId) {
+          return NextResponse.json({ error: "Either 'content' or 'graphId' is required" }, { status: 400 });
+        }
+
+        let ttlContentForConsistency = body.content as string;
+
+        if (!ttlContentForConsistency && body.graphId) {
+          const consistencyStorage = getTTLStorageService();
+          const stored = await consistencyStorage.getByGraphId(body.graphId as string);
+          ttlContentForConsistency = stored.content;
+        }
+
+        const consistencyValidation = getRDFValidationService();
+        const consistencyCheckResult = await consistencyValidation.validateConsistency(ttlContentForConsistency);
+
+        return NextResponse.json({
+          success: true,
+          graphId: body.graphId,
+          consistency: {
+            consistent: consistencyCheckResult.consistent,
+            checks: consistencyCheckResult.checks,
+            summary: consistencyCheckResult.summary,
+          },
         });
       }
 
@@ -577,6 +788,35 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
 
       // =======================================================================
+      // Create RDF Approval Proposal in Validation Committee
+      // =======================================================================
+      case "create-rdf-proposal": {
+        const error = validateRequired(body, ["graphId"]);
+        if (error) {
+          return NextResponse.json({ error }, { status: 400 });
+        }
+
+        // Use server-side validator private key (falls back to Hardhat account #2)
+        const validatorKey = getValidatorPrivateKey(body.agentPrivateKey as string | undefined);
+
+        const result = await service.createRDFApprovalProposal(validatorKey, body.graphId as string, {
+          graphURI: (body.graphURI as string) || "",
+          graphType: (body.graphType as number) ?? 0,
+          datasetVariant: (body.datasetVariant as number) ?? 0,
+          year: (body.year as number) ?? new Date().getFullYear(),
+          modelVersion: (body.modelVersion as string) || "",
+          syntaxValid: body.syntaxValid as boolean | undefined,
+          semanticValid: body.semanticValid as boolean | undefined,
+          consistencyValid: body.consistencyValid as boolean | undefined,
+        });
+
+        return NextResponse.json({
+          success: true,
+          ...result,
+        });
+      }
+
+      // =======================================================================
       // Unknown Action
       // =======================================================================
       default:
@@ -588,6 +828,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
               "validate",
               "validate-syntax",
               "validate-semantics",
+              "validate-consistency",
               "validate-and-record",
               "record-detailed-validation",
               "validation-details",
@@ -600,6 +841,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
               "graph-info",
               "graph-count",
               "ready-for-publication",
+              "create-rdf-proposal",
             ],
           },
           { status: 400 },
@@ -657,12 +899,17 @@ export async function GET() {
         optionalFields: ["shapesType: 'article' | 'employment' | 'entity'"],
         returns: "SHACL violations with focus nodes and messages",
       },
+      "POST /api/bdi-agent/validate-consistency": {
+        description: "Consistency validation (employment event checks)",
+        requiredFields: ["content OR graphId"],
+        returns: "Consistency check results with pass/fail per check",
+      },
       "POST /api/bdi-agent/validate-and-record": {
-        description: "Combined validation (syntax + semantics) with on-chain recording",
+        description: "Combined validation (syntax + semantics + consistency) with on-chain recording",
         requiredFields: ["agentPrivateKey", "graphId"],
-        optionalFields: ["shapesContent"],
+        optionalFields: ["shapesContent", "shapesType", "graphType"],
         permission: 4,
-        returns: "Full validation results and transaction hash",
+        returns: "Full validation results including consistency checks and transaction hash",
       },
       "POST /api/bdi-agent/fetch-content": {
         description: "Retrieve TTL content from storage by graphId",
@@ -703,6 +950,23 @@ export async function GET() {
         description: "Check if graph is ready for DKG publication",
         requiredFields: ["graphId"],
       },
+      "POST /api/bdi-agent/create-rdf-proposal": {
+        description: "Create governance proposal in Validation Committee to approve an RDF graph",
+        requiredFields: ["graphId"],
+        optionalFields: [
+          "agentPrivateKey",
+          "graphURI",
+          "graphType",
+          "datasetVariant",
+          "year",
+          "modelVersion",
+          "syntaxValid",
+          "semanticValid",
+          "consistencyValid",
+        ],
+        permission: 30,
+        returns: "proposalId, txHash, description",
+      },
     },
     graphTypes: {
       ARTICLES: 0,
@@ -722,6 +986,8 @@ export async function GET() {
     builtInShapes: {
       article: "Validates: dct:title (required), dct:created (date), ex:source (required)",
       employment: "Validates: EMTAK codes (5 digits), employee counts (positive integers)",
+      "employment-event":
+        "Validates: Article with title, date, source (required); employment event, job count, EMTAK, mentions, provenance, trajectory (warnings)",
       entity: "Validates: rdfs:label (required), ex:entityType (enum)",
     },
   });

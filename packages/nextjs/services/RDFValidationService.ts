@@ -52,9 +52,23 @@ export interface SHACLViolation {
   value?: string;
 }
 
+export interface ConsistencyCheck {
+  name: string;
+  passed: boolean;
+  severity: "error" | "warning" | "info";
+  message: string;
+}
+
+export interface ConsistencyResult {
+  consistent: boolean;
+  checks: ConsistencyCheck[];
+  summary: string;
+}
+
 export interface FullValidationResult {
   syntaxResult: SyntaxValidationResult;
   semanticResult?: SemanticValidationResult;
+  consistencyResult?: ConsistencyResult;
   isFullyValid: boolean;
   summary: string;
 }
@@ -308,6 +322,189 @@ export class RDFValidationService {
         resolve({ triples: [], error: message });
       }
     });
+  }
+
+  /**
+   * Validate consistency of employment event data in TTL content.
+   * Runs targeted checks on the parsed N3.js Store for Example D relevance.
+   *
+   * @param content - Raw TTL content
+   * @returns Consistency validation result with individual check results
+   */
+  async validateConsistency(content: string): Promise<ConsistencyResult> {
+    const checks: ConsistencyCheck[] = [];
+
+    try {
+      const store = await this.parseToStore(content);
+
+      const quads: any[] = store.getQuads(null, null, null, null);
+
+      // Check 1: Missing employment event type
+      // Articles with emp: prefix but no emp:employmentEvent
+      const hasEmpPrefix = content.includes("emp:") || content.includes("employment");
+      const hasEmploymentEvent = quads.some(
+        q => q.predicate.value.includes("employmentEvent") || q.predicate.value.includes("emp:employmentEvent"),
+      );
+      if (hasEmpPrefix && !hasEmploymentEvent) {
+        checks.push({
+          name: "Missing employment event type",
+          passed: false,
+          severity: "warning",
+          message: "Content references employment (emp: prefix) but no emp:employmentEvent triple found",
+        });
+      } else if (hasEmpPrefix) {
+        checks.push({
+          name: "Employment event type",
+          passed: true,
+          severity: "info",
+          message: "Employment event type declaration found",
+        });
+      }
+
+      // Check 2: Missing EMTAK classification
+      // Employment articles without cls:hasEMTAKClassification
+      const hasEmtakClassification = quads.some(
+        q => q.predicate.value.includes("hasEMTAKClassification") || q.predicate.value.includes("emtak"),
+      );
+      if (hasEmpPrefix && !hasEmtakClassification) {
+        checks.push({
+          name: "Missing EMTAK classification",
+          passed: false,
+          severity: "warning",
+          message: "Employment data present but no EMTAK classification (cls:hasEMTAKClassification) found",
+        });
+      } else if (hasEmtakClassification) {
+        checks.push({
+          name: "EMTAK classification",
+          passed: true,
+          severity: "info",
+          message: "EMTAK classification found",
+        });
+      }
+
+      // Check 3: Invalid EMTAK format (if present)
+      // EMTAK codes are stored as URIs like http://mkm.ee/classification/84114
+      // Extract the numeric suffix and validate it as a 5-digit code
+      const emtakQuads = quads.filter(
+        q => q.predicate.value.includes("hasEMTAKClassification") || q.predicate.value.includes("emtakCode"),
+      );
+      for (const eq of emtakQuads) {
+        // Extract numeric code from full URI or prefixed value
+        const raw = eq.object.value;
+        const numericPart = raw.replace(/.*[/:#]/, ""); // extract last segment after /, :, or #
+        if (!/^\d{4,5}$/.test(numericPart)) {
+          checks.push({
+            name: "Invalid EMTAK format",
+            passed: false,
+            severity: "warning",
+            message: `EMTAK code "${numericPart}" (from ${raw}) does not match expected 4-5 digit pattern`,
+          });
+        } else {
+          checks.push({
+            name: "EMTAK format",
+            passed: true,
+            severity: "info",
+            message: `EMTAK code ${numericPart} has valid format`,
+          });
+        }
+      }
+
+      // Check 4: Entity mentions (informational — not all data includes mentions)
+      const hasMentions = quads.some(
+        q => q.predicate.value.includes("mentions") || q.predicate.value.includes("ex:mentions"),
+      );
+      const hasArticleSubjects = quads.some(
+        q => q.object.value.includes("Article") && q.predicate.value.includes("type"),
+      );
+      if (hasMentions) {
+        checks.push({
+          name: "Entity mentions",
+          passed: true,
+          severity: "info",
+          message: "Entity mentions found",
+        });
+      } else if (hasArticleSubjects) {
+        checks.push({
+          name: "Entity mentions",
+          passed: true,
+          severity: "info",
+          message: "No entity mentions (ex:mentions) — this is normal for basic article data",
+        });
+      }
+
+      // Check 5: Provenance (informational — checks for wasGeneratedBy or generatedAtTime)
+      const hasProvenance = quads.some(
+        q =>
+          q.predicate.value.includes("wasGeneratedBy") ||
+          q.predicate.value.includes("generatedAtTime") ||
+          q.predicate.value.includes("wasAttributedTo") ||
+          q.predicate.value.includes("wasDerivedFrom"),
+      );
+      if (hasProvenance) {
+        checks.push({
+          name: "Provenance",
+          passed: true,
+          severity: "info",
+          message: "Provenance triples found",
+        });
+      } else {
+        checks.push({
+          name: "Provenance",
+          passed: true,
+          severity: "info",
+          message: "No provenance triples found — this is acceptable for raw data submissions",
+        });
+      }
+
+      // Check 6: Date property
+      const hasDate = quads.some(
+        q =>
+          q.predicate.value.includes("created") ||
+          q.predicate.value.includes("date") ||
+          q.predicate.value.includes("modified") ||
+          q.predicate.value.includes("generatedAtTime"),
+      );
+      if (hasDate) {
+        checks.push({
+          name: "Date property",
+          passed: true,
+          severity: "info",
+          message: "Date properties found",
+        });
+      } else if (hasArticleSubjects) {
+        checks.push({
+          name: "Date property",
+          passed: false,
+          severity: "warning",
+          message: "Articles found but no date property detected",
+        });
+      }
+
+      const allPassed = checks.every(c => c.passed);
+      const warningCount = checks.filter(c => !c.passed && c.severity === "warning").length;
+
+      return {
+        consistent: allPassed,
+        checks,
+        summary: allPassed
+          ? `All ${checks.length} consistency checks passed`
+          : `${warningCount} warning(s) out of ${checks.length} checks`,
+      };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Consistency check error";
+      return {
+        consistent: false,
+        checks: [
+          {
+            name: "Parse error",
+            passed: false,
+            severity: "error",
+            message: `Failed to parse content for consistency checks: ${message}`,
+          },
+        ],
+        summary: `Consistency check failed: ${message}`,
+      };
+    }
   }
 
   // ===========================================================================

@@ -1,0 +1,141 @@
+@prefix ex:    <http://mkm.ee/schema/> .
+@prefix emp:   <http://mkm.ee/employment/> .
+@prefix cls:   <http://mkm.ee/classification/> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix ver:   <http://mkm.ee/versioning/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# =============================================================================
+# Example D: WoodHive Employment Event Detection
+# Estonian news article about employment changes in the timber industry
+# Source: ERR Online, processed by MKM NLP Pipeline v2.3.1
+# =============================================================================
+
+# --- Article -----------------------------------------------------------------
+<http://mkm.ee/articles/err-2024-woodhive-01> a ex:Article ;
+    dct:title "WoodHive AS koondab 150 t\u00F6\u00F6tajat Tartumaa tehases"^^xsd:string ;
+    dct:created "2024-03-15"^^xsd:date ;
+    ex:source "ERR"^^xsd:string ;
+    ex:language "et"^^xsd:string ;
+    ex:url "https://www.err.ee/2024/03/woodhive-koondab-150-tootajat"^^xsd:string ;
+    dct:description "WoodHive AS teatas 150 t\u00F6\u00F6taja koondamisest Tartumaa puidut\u00F6\u00F6tlemistehases seoses turu n\u00F5udluse v\u00E4henemisega."^^xsd:string ;
+    emp:employmentEvent "job_loss"^^xsd:string ;
+    emp:jobCount "150"^^xsd:integer ;
+    cls:hasEMTAKClassification "16102"^^xsd:string ;
+    ex:mentions <http://mkm.ee/entities/org-woodhive-as> ;
+    ex:mentions <http://mkm.ee/entities/loc-tartumaa> ;
+    ex:mentions <http://mkm.ee/entities/person-marten-kask> ;
+    prov:wasGeneratedBy <http://mkm.ee/provenance/pipeline-run-2024-03-15-001> ;
+    ver:hasProcessingTrajectory <http://mkm.ee/versioning/trajectory-2024-03-15-001> .
+
+# --- Employment Event --------------------------------------------------------
+<http://mkm.ee/events/emp-2024-woodhive-01> a emp:EmploymentEvent ;
+    emp:eventType "job_loss"^^xsd:string ;
+    emp:organization <http://mkm.ee/entities/org-woodhive-as> ;
+    emp:jobCount "150"^^xsd:integer ;
+    emp:eventDate "2024-03-15"^^xsd:date ;
+    emp:reason "market_demand_decrease"^^xsd:string ;
+    emp:sourceArticle <http://mkm.ee/articles/err-2024-woodhive-01> ;
+    rdfs:comment "Layoff of 150 workers at WoodHive AS timber processing plant in Tartumaa"^^xsd:string .
+
+# --- Organization Entity -----------------------------------------------------
+<http://mkm.ee/entities/org-woodhive-as> a ex:Organization ;
+    rdfs:label "WoodHive AS"^^xsd:string ;
+    ex:entityType ex:Organization ;
+    ex:registryCode "12345678"^^xsd:string ;
+    cls:hasEMTAKClassification "16102"^^xsd:string ;
+    ex:sector "Timber processing"^^xsd:string ;
+    ex:employeeCount "520"^^xsd:integer ;
+    ex:location <http://mkm.ee/entities/loc-tartumaa> .
+
+# --- Person Entity ------------------------------------------------------------
+<http://mkm.ee/entities/person-marten-kask> a ex:Person ;
+    rdfs:label "Marten Kask"^^xsd:string ;
+    ex:entityType ex:Person ;
+    ex:role "CEO"^^xsd:string ;
+    ex:affiliation <http://mkm.ee/entities/org-woodhive-as> .
+
+# --- Location Entity ----------------------------------------------------------
+<http://mkm.ee/entities/loc-tartumaa> a ex:Location ;
+    rdfs:label "Tartumaa"^^xsd:string ;
+    ex:entityType ex:Location ;
+    ex:locationType "county"^^xsd:string ;
+    ex:countryCode "EE"^^xsd:string .
+
+# --- Entity Mentions ----------------------------------------------------------
+<http://mkm.ee/mentions/m1> a ex:EntityMention ;
+    ex:entity <http://mkm.ee/entities/org-woodhive-as> ;
+    ex:sourceArticle <http://mkm.ee/articles/err-2024-woodhive-01> ;
+    ex:surfaceForm "WoodHive AS"^^xsd:string ;
+    ex:startOffset "0"^^xsd:integer ;
+    ex:endOffset "12"^^xsd:integer ;
+    ex:sentenceIndex "0"^^xsd:integer ;
+    ex:confidence "0.98"^^xsd:decimal .
+
+<http://mkm.ee/mentions/m2> a ex:EntityMention ;
+    ex:entity <http://mkm.ee/entities/loc-tartumaa> ;
+    ex:sourceArticle <http://mkm.ee/articles/err-2024-woodhive-01> ;
+    ex:surfaceForm "Tartumaa"^^xsd:string ;
+    ex:startOffset "32"^^xsd:integer ;
+    ex:endOffset "40"^^xsd:integer ;
+    ex:sentenceIndex "0"^^xsd:integer ;
+    ex:confidence "0.95"^^xsd:decimal .
+
+<http://mkm.ee/mentions/m3> a ex:EntityMention ;
+    ex:entity <http://mkm.ee/entities/person-marten-kask> ;
+    ex:sourceArticle <http://mkm.ee/articles/err-2024-woodhive-01> ;
+    ex:surfaceForm "Marten Kask"^^xsd:string ;
+    ex:startOffset "85"^^xsd:integer ;
+    ex:endOffset "96"^^xsd:integer ;
+    ex:sentenceIndex "1"^^xsd:integer ;
+    ex:confidence "0.92"^^xsd:decimal .
+
+# --- Provenance ---------------------------------------------------------------
+<http://mkm.ee/provenance/pipeline-run-2024-03-15-001> a prov:Activity ;
+    prov:wasAssociatedWith <http://mkm.ee/agents/nlp-pipeline-v2.3.1> ;
+    prov:startedAtTime "2024-03-15T08:30:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2024-03-15T08:30:45Z"^^xsd:dateTime ;
+    prov:used <http://mkm.ee/datasets/err-articles-2024-03> ;
+    rdfs:comment "NLP pipeline run for ERR articles batch 2024-03-15"^^xsd:string .
+
+<http://mkm.ee/agents/nlp-pipeline-v2.3.1> a prov:SoftwareAgent ;
+    rdfs:label "MKM NLP Pipeline"^^xsd:string ;
+    ver:softwareVersion "2.3.1"^^xsd:string ;
+    ver:modelName "EstBERT-1.0"^^xsd:string ;
+    ver:modelVersion "1.0.0-20240115"^^xsd:string .
+
+# --- Processing Trajectory ----------------------------------------------------
+<http://mkm.ee/versioning/trajectory-2024-03-15-001> a ver:ProcessingTrajectory ;
+    ver:step [
+        ver:stepName "article_ingestion"^^xsd:string ;
+        ver:stepOrder "1"^^xsd:integer ;
+        ver:timestamp "2024-03-15T08:30:00Z"^^xsd:dateTime ;
+        ver:status "completed"^^xsd:string
+    ] ;
+    ver:step [
+        ver:stepName "ner_extraction"^^xsd:string ;
+        ver:stepOrder "2"^^xsd:integer ;
+        ver:timestamp "2024-03-15T08:30:15Z"^^xsd:dateTime ;
+        ver:status "completed"^^xsd:string
+    ] ;
+    ver:step [
+        ver:stepName "employment_event_detection"^^xsd:string ;
+        ver:stepOrder "3"^^xsd:integer ;
+        ver:timestamp "2024-03-15T08:30:30Z"^^xsd:dateTime ;
+        ver:status "completed"^^xsd:string
+    ] ;
+    ver:step [
+        ver:stepName "emtak_classification"^^xsd:string ;
+        ver:stepOrder "4"^^xsd:integer ;
+        ver:timestamp "2024-03-15T08:30:40Z"^^xsd:dateTime ;
+        ver:status "completed"^^xsd:string
+    ] ;
+    ver:step [
+        ver:stepName "ttl_serialization"^^xsd:string ;
+        ver:stepOrder "5"^^xsd:integer ;
+        ver:timestamp "2024-03-15T08:30:45Z"^^xsd:dateTime ;
+        ver:status "completed"^^xsd:string
+    ] .

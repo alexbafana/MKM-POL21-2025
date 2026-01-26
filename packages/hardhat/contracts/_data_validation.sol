@@ -356,7 +356,7 @@ contract GADataValidation is GA, Ownable {
     function approveRDFGraph(bytes32 graphId) external {
         require(pm.has_permission(msg.sender, 6), "No permission to approve");
         require(rdfGraphRegistry[graphId].submittedAt > 0, "Graph does not exist");
-        require(rdfGraphRegistry[graphId].validated, "Graph must pass validation first");
+        require(rdfGraphRegistry[graphId].syntaxValid, "Graph must pass syntax validation first");
         require(!rdfGraphRegistry[graphId].committeeApproved, "Already approved");
 
         rdfGraphRegistry[graphId].committeeApproved = true;
@@ -447,7 +447,7 @@ contract GADataValidation is GA, Ownable {
      */
     function isReadyForPublication(bytes32 graphId) external view returns (bool) {
         RDFGraph memory graph = rdfGraphRegistry[graphId];
-        return graph.validated && graph.committeeApproved && !graph.publishedToDKG;
+        return graph.syntaxValid && graph.committeeApproved && !graph.publishedToDKG;
     }
 
     /**

@@ -37,6 +37,10 @@ contract VotingPowerToken is ERC20, ERC20Burnable, ERC20Permit, ERC20Votes, Owna
         override(ERC20, ERC20Votes)
     {
         super._mint(to, amount);
+        // Auto-self-delegate on first token receipt so voting power is active immediately
+        if (delegates(to) == address(0)) {
+            _delegate(to, to);
+        }
     }
 
     function _burn(address from, uint256 amount)

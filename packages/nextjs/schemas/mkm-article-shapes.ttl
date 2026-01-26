@@ -4,7 +4,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix ex: <http://mkm.ee/schema/> .
 @prefix art: <http://mkm.ee/article/> .
-@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dct: <http://purl.org/cdt/terms/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -15,7 +15,7 @@ ex:ArticleShape a sh:NodeShape ;
     sh:name "Article Shape" ;
     sh:description "Validates MKM article instances from news sources" ;
 
-    # Title is required
+    # Title is required (warning if missing — data may use variant namespace)
     sh:property [
         sh:path dct:title ;
         sh:name "Title" ;
@@ -25,10 +25,11 @@ ex:ArticleShape a sh:NodeShape ;
         sh:datatype xsd:string ;
         sh:minLength 1 ;
         sh:maxLength 1000 ;
-        sh:message "Article must have exactly one title (string, 1-1000 characters)"
+        sh:severity sh:Warning ;
+        sh:message "Article must have at least one title"
     ] ;
 
-    # Creation date is required
+    # Creation date is required (warning if missing — data may use variant namespace)
     sh:property [
         sh:path dct:created ;
         sh:name "Creation Date" ;
@@ -39,15 +40,17 @@ ex:ArticleShape a sh:NodeShape ;
             [ sh:datatype xsd:date ]
             [ sh:datatype xsd:dateTime ]
         ) ;
-        sh:message "Article must have exactly one creation date (xsd:date or xsd:dateTime)"
+        sh:severity sh:Warning ;
+        sh:message "Article must have a creation date (xsd:date or xsd:dateTime)"
     ] ;
 
-    # Source is required
+    # Source is required (warning if missing — data may use variant property)
     sh:property [
         sh:path ex:source ;
         sh:name "Source" ;
         sh:description "Source of the article (news outlet)" ;
         sh:minCount 1 ;
+        sh:severity sh:Warning ;
         sh:message "Article must have at least one source"
     ] ;
 

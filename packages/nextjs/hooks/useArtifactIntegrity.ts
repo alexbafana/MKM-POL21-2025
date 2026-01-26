@@ -16,6 +16,7 @@ import {
   CHALLENGE_SETS,
   ChallengeSetInfo,
   ChallengeVerificationStatus,
+  EmploymentEventArtifactData,
   RDFArtifactData,
   initializeChallengeStatuses,
 } from "~~/types/mfssia";
@@ -443,6 +444,43 @@ export function useArtifactIntegrity() {
         const instanceData = await mfssia.getChallengeInstance(instanceId);
 
         const currentState = instanceData?.state || "UNKNOWN";
+
+        // Check if instance has expired (server may not update state to EXPIRED)
+        const expiresAt = instanceData?.expiresAt;
+        if (expiresAt && POLLING_CONFIG.states.pending.includes(currentState)) {
+          const expiryTime = new Date(expiresAt).getTime();
+          if (!isNaN(expiryTime) && Date.now() > expiryTime) {
+            console.warn(
+              "%c[POLLING] ========== INSTANCE EXPIRED (client-side detection) ==========",
+              "background: #f44336; color: #fff; font-size: 14px; padding: 4px;",
+            );
+            console.warn(`[POLLING] expiresAt: ${expiresAt}, currentState: ${currentState}`);
+            logApiCall("error", "Polling", `Instance expired (server state still: ${currentState})`, {
+              expiresAt,
+              currentState,
+              instanceId,
+            });
+
+            verificationCompletedRef.current = true;
+            stopPolling();
+
+            setState(prev => ({
+              ...prev,
+              oracleVerificationState: "error",
+              oracleMessage: `Instance expired while in ${currentState} state. The MFSSIA Oracle did not complete verification before the instance expired. Please create a new instance and try again.`,
+            }));
+
+            if (verificationResolversRef.current.reject) {
+              verificationResolversRef.current.reject(
+                new Error(
+                  `Instance expired (expiresAt: ${expiresAt}) while still in "${currentState}" state. ` +
+                    `The MFSSIA Oracle server did not complete processing in time.`,
+                ),
+              );
+            }
+            return;
+          }
+        }
 
         // Log state changes
         if (currentState !== lastState) {
@@ -1345,6 +1383,112 @@ export function useArtifactIntegrity() {
   );
 
   /**
+   * Generate evidence for Example-D (Employment Event Detection) challenges
+   */
+  const generateEvidenceForExampleD = useCallback(
+    async (challengeCode: string, artifactData: EmploymentEventArtifactData) => {
+      const timestamp = new Date().toISOString();
+      let evidenceData: Record<string, any> = {};
+
+      switch (challengeCode) {
+        case "mfssia:C-D-1":
+          evidenceData = {
+            sourceDomainHash: artifactData.sourceDomainHash || (await hashString("err.ee")),
+            contentHash: artifactData.contentHash || (await hashString(artifactData.content)),
+          };
+          break;
+
+        case "mfssia:C-D-2":
+          evidenceData = {
+            contentHash: artifactData.contentHash || (await hashString(artifactData.content)),
+            csvHash: artifactData.csvHash || (await hashString("source-csv-" + artifactData.content.substring(0, 100))),
+          };
+          break;
+
+        case "mfssia:C-D-3":
+          evidenceData = {
+            modelName: artifactData.modelName || "EstBERT-1.0",
+            modelVersionHash: artifactData.modelVersionHash || (await hashString("EstBERT-1.0-weights-v20240115")),
+            softwareHash: artifactData.softwareHash || (await hashString("mkm-nlp-pipeline-v2.3.1")),
+          };
+          break;
+
+        case "mfssia:C-D-4":
+          evidenceData = {
+            crossConsistencyScore: artifactData.crossConsistencyScore ?? 0.92,
+          };
+          break;
+
+        case "mfssia:C-D-5":
+          evidenceData = {
+            llmConfidence: artifactData.llmConfidence ?? 0.87,
+            numericExtractionTrace:
+              artifactData.numericExtractionTrace ||
+              JSON.stringify({
+                extractedValues: [{ field: "jobCount", value: 150, context: "layoffs of 150 employees" }],
+                model: "EstBERT-1.0",
+                timestamp,
+              }),
+          };
+          break;
+
+        case "mfssia:C-D-6":
+          evidenceData = {
+            emtakCode: artifactData.emtakCode || "16102",
+            registrySectorMatch: artifactData.registrySectorMatch ?? true,
+          };
+          break;
+
+        case "mfssia:C-D-7":
+          evidenceData = {
+            articleDate: artifactData.articleDate || "2024-03-15",
+            ingestionTime: artifactData.ingestionTime || timestamp,
+          };
+          break;
+
+        case "mfssia:C-D-8":
+          evidenceData = {
+            provenanceHash:
+              artifactData.provenanceHash || (await hashString("prov-chain-" + artifactData.content.substring(0, 50))),
+            wasGeneratedBy: artifactData.wasGeneratedBy || "urn:mkm:pipeline:nlp-employment-extraction:v2.3.1",
+          };
+          break;
+
+        case "mfssia:C-D-9":
+          evidenceData = {
+            daoSignature: artifactData.daoSignature || (await hashString(`dao-ack:${address || "0x0"}:${timestamp}`)),
+          };
+          break;
+
+        default:
+          throw new Error(`Unknown Example-D challenge code: ${challengeCode}`);
+      }
+
+      const evidence: CollectedEvidence = {
+        challengeCode,
+        data: evidenceData,
+        collectedAt: timestamp,
+      };
+
+      setState(prev => ({
+        ...prev,
+        collectingChallenge: null,
+        challengeEvidence: {
+          ...prev.challengeEvidence,
+          [challengeCode]: evidence,
+        },
+        challengeEvidenceStatus: {
+          ...prev.challengeEvidenceStatus,
+          [challengeCode]: "collected",
+        },
+      }));
+
+      logApiCall("success", "generateEvidenceForExampleD", `Evidence generated for ${challengeCode}`, evidenceData);
+    },
+    [address, logApiCall],
+  );
+
+  /**
    * Collect evidence for a specific challenge
    */
   const collectChallengeEvidence = useCallback(
@@ -1379,6 +1523,18 @@ export function useArtifactIntegrity() {
           "mfssia:C-A-6",
         ];
 
+        const exampleDChallenges = [
+          "mfssia:C-D-1",
+          "mfssia:C-D-2",
+          "mfssia:C-D-3",
+          "mfssia:C-D-4",
+          "mfssia:C-D-5",
+          "mfssia:C-D-6",
+          "mfssia:C-D-7",
+          "mfssia:C-D-8",
+          "mfssia:C-D-9",
+        ];
+
         if (exampleAChallenges.includes(challengeCode)) {
           if (state.rdfArtifactData) {
             await generateEvidenceFromArtifact(challengeCode, state.rdfArtifactData);
@@ -1390,6 +1546,29 @@ export function useArtifactIntegrity() {
             }));
             logApiCall("info", "collectChallengeEvidence", `Opening RDF Artifact modal for ${challengeCode}`);
           }
+        } else if (exampleDChallenges.includes(challengeCode)) {
+          // Example-D: Generate stub evidence for employment event detection
+          // In production, this would collect real data from the NLP pipeline output
+          const stubData: EmploymentEventArtifactData = {
+            sourceDomainHash: "",
+            contentHash: "",
+            content: "stub-content",
+            csvHash: "",
+            modelName: "EstBERT-1.0",
+            modelVersionHash: "",
+            softwareHash: "",
+            crossConsistencyScore: 0.92,
+            llmConfidence: 0.87,
+            numericExtractionTrace: "",
+            emtakCode: "16102",
+            registrySectorMatch: true,
+            articleDate: "2024-03-15",
+            ingestionTime: new Date().toISOString(),
+            provenanceHash: "",
+            wasGeneratedBy: "urn:mkm:pipeline:nlp-employment-extraction:v2.3.1",
+            daoSignature: "",
+          };
+          await generateEvidenceForExampleD(challengeCode, stubData);
         } else {
           throw new Error(`Unknown challenge code: ${challengeCode}`);
         }
@@ -1412,7 +1591,14 @@ export function useArtifactIntegrity() {
         }));
       }
     },
-    [address, state.nonce, state.rdfArtifactData, generateEvidenceFromArtifact, logApiCall],
+    [
+      address,
+      state.nonce,
+      state.rdfArtifactData,
+      generateEvidenceFromArtifact,
+      generateEvidenceForExampleD,
+      logApiCall,
+    ],
   );
 
   /**

@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { zeroAddress } from "viem";
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { parseEventLogs, zeroAddress } from "viem";
+import { useAccount, useChainId, usePublicClient, useReadContract } from "wagmi";
 import { ArrowRightIcon, CheckCircleIcon, DataIcon, LockIcon, SpinnerIcon, UploadIcon } from "~~/components/dao";
 import { LoadingState } from "~~/components/dao/LoadingState";
+import { RDFSubmissionSuccessModal } from "~~/components/dao/RDFSubmissionSuccessModal";
+import { RDFVerificationModal } from "~~/components/dao/RDFVerificationModal";
 import { Address } from "~~/components/scaffold-eth";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -18,6 +20,21 @@ const MKMP_ABI = [
     stateMutability: "view",
     inputs: [{ name: "user", type: "address" }],
     outputs: [{ type: "uint32" }],
+  },
+] as const;
+
+/** ABI fragment for parsing RDFGraphSubmitted event from tx receipt */
+const RDF_SUBMITTED_EVENT_ABI = [
+  {
+    type: "event",
+    name: "RDFGraphSubmitted",
+    inputs: [
+      { name: "graphId", type: "bytes32", indexed: true },
+      { name: "graphURI", type: "string", indexed: false },
+      { name: "variant", type: "uint8", indexed: true },
+      { name: "year", type: "uint256", indexed: true },
+      { name: "graphType", type: "uint8", indexed: false },
+    ],
   },
 ] as const;
 
@@ -165,6 +182,7 @@ interface RDFDocument {
 export default function DataProvisionPage() {
   const { address } = useAccount();
   const chainId = useChainId();
+  const publicClient = usePublicClient();
   const mkmpAddress = useMkmpAddress();
   const { writeContractAsync } = useScaffoldWriteContract({ contractName: "GADataValidation" });
 
@@ -172,6 +190,22 @@ export default function DataProvisionPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
+
+  // Verification modal state
+  const [verifyingDocId, setVerifyingDocId] = useState<string | null>(null);
+  // Success modal state
+  const [successModalData, setSuccessModalData] = useState<{
+    graphId: string;
+    graphURI: string;
+    graphType: number;
+    datasetVariant: number;
+    year: number;
+    proposalId?: string;
+    proposalError?: string;
+    syntaxValid?: boolean;
+    semanticValid?: boolean | null;
+    consistencyValid?: boolean | null;
+  } | null>(null);
 
   // Graph metadata defaults
   const [graphType, setGraphType] = useState<number>(0); // ARTICLES
@@ -327,7 +361,7 @@ export default function DataProvisionPage() {
     }
   }, [selectedFile, graphType, datasetVariant, year, modelVersion, address]);
 
-  // Submit validated TTL to smart contract
+  // Submit validated TTL to smart contract (called from verification modal)
   const handleSubmit = useCallback(
     async (docId: string) => {
       if (!address) {
@@ -351,16 +385,9 @@ export default function DataProvisionPage() {
         }
 
         console.log("[Data Provision] Submitting to GADataValidation smart contract...");
-        console.log(`  Graph URI: ${doc.graphURI}`);
-        console.log(`  Document Hash: ${doc.documentHash}`);
-        console.log(`  Graph Type: ${doc.graphType}`);
-        console.log(`  Dataset Variant: ${doc.datasetVariant}`);
-        console.log(`  Year: ${doc.year}`);
-        console.log(`  Model Version: ${doc.modelVersion}`);
-        console.log(`  Storage ID: ${doc.storageId || "not stored"}`);
 
-        // Call smart contract submitRDFGraph function
-        const result = await writeContractAsync({
+        // Step 1: On-chain submission — writeContractAsync returns the tx hash, NOT the graphId
+        const txHash = await writeContractAsync({
           functionName: "submitRDFGraph",
           args: [
             doc.graphURI,
@@ -372,33 +399,97 @@ export default function DataProvisionPage() {
           ],
         });
 
-        console.log(`[Data Provision] Transaction result:`, result);
+        console.log(`[Data Provision] Transaction hash:`, txHash);
 
-        // Link storage ID to graph ID (for BDI agent retrieval)
-        if (doc.storageId && result) {
+        // Wait for the transaction to be mined and extract graphId from event logs
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash: txHash as `0x${string}` });
+        const parsedLogs = parseEventLogs({
+          abi: RDF_SUBMITTED_EVENT_ABI,
+          logs: receipt.logs,
+          eventName: "RDFGraphSubmitted",
+        });
+
+        if (parsedLogs.length === 0) {
+          throw new Error("RDFGraphSubmitted event not found in transaction receipt");
+        }
+
+        const graphId = parsedLogs[0].args.graphId as string;
+        console.log(`[Data Provision] Graph ID from event:`, graphId);
+
+        // Step 2: Link storage ID to graph ID
+        if (doc.storageId && graphId) {
           try {
-            console.log(`[Data Provision] Linking storageId ${doc.storageId} to graphId...`);
             const linkResponse = await fetch("/api/ttl-storage/link", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                storageId: doc.storageId,
-                graphId: result as string,
-              }),
+              body: JSON.stringify({ storageId: doc.storageId, graphId }),
             });
-
             const linkResult = await linkResponse.json();
             if (linkResult.success) {
-              console.log(`[Data Provision] Successfully linked to graphId: ${result}`);
-            } else {
-              console.warn("[Data Provision] Failed to link storage:", linkResult.error);
+              console.log(`[Data Provision] Successfully linked to graphId: ${graphId}`);
             }
           } catch (linkError) {
             console.warn("[Data Provision] Link error:", linkError);
-            // Continue anyway - the submission succeeded
           }
         }
 
+        // Step 3: Trigger agent validation (records on-chain, server uses its own key)
+        let syntaxValid: boolean | undefined;
+        let semanticValid: boolean | null | undefined;
+        let consistencyValid: boolean | null | undefined;
+        try {
+          const valRes = await fetch("/api/bdi-agent/validate-and-record", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              graphId,
+              graphType: doc.graphType,
+              content: doc.content,
+            }),
+          });
+          const valData = await valRes.json();
+          if (valData.success) {
+            syntaxValid = valData.syntaxValid;
+            semanticValid = valData.semanticValid;
+            consistencyValid = valData.consistencyValid;
+          }
+        } catch (valError) {
+          console.warn("[Data Provision] Agent validation error:", valError);
+        }
+
+        // Step 4: Create governance proposal
+        let proposalId: string | undefined;
+        let proposalError: string | undefined;
+        try {
+          const proposalRes = await fetch("/api/bdi-agent/create-rdf-proposal", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              graphId,
+              graphURI: doc.graphURI,
+              graphType: doc.graphType,
+              datasetVariant: doc.datasetVariant,
+              year: doc.year,
+              modelVersion: doc.modelVersion,
+              syntaxValid,
+              semanticValid,
+              consistencyValid,
+            }),
+          });
+          const proposalData = await proposalRes.json();
+          if (proposalData.success) {
+            proposalId = proposalData.proposalId;
+            console.log(`[Data Provision] Proposal created: ${proposalId}`);
+          } else {
+            proposalError = proposalData.error || "Unknown error";
+            console.warn("[Data Provision] Proposal creation failed:", proposalError);
+          }
+        } catch (err) {
+          proposalError = err instanceof Error ? err.message : "Network error";
+          console.warn("[Data Provision] Proposal creation error:", err);
+        }
+
+        // Update document state
         setRdfDocuments(prev =>
           prev.map(d => {
             if (d.id === docId) {
@@ -406,31 +497,27 @@ export default function DataProvisionPage() {
                 ...d,
                 isSubmitted: true,
                 submittedAt: new Date(),
-                graphId: result as string,
+                graphId,
               };
             }
             return d;
           }),
         );
 
-        const graphTypeLabel = ["ARTICLES", "ENTITIES", "MENTIONS", "NLP", "ECONOMICS", "RELATIONS", "PROVENANCE"][
-          doc.graphType
-        ];
-        const datasetLabel = ["ERR Online", "Õhtuleht Online", "Õhtuleht Print", "Äriregister"][doc.datasetVariant];
-
-        alert(
-          `TTL file submitted successfully!\n\n` +
-            `Graph URI: ${doc.graphURI}\n` +
-            `Graph Type: ${graphTypeLabel}\n` +
-            `Dataset: ${datasetLabel}\n` +
-            `Year: ${doc.year}\n` +
-            `${doc.isStored ? "Server Storage: Linked for agent validation" : "Note: Content only in browser memory"}\n\n` +
-            `Next steps:\n` +
-            `1. Syntax Validator Agent will verify the TTL structure\n` +
-            `2. Semantic Validator Agent will check RDF consistency\n` +
-            `3. Validation Committee will review and approve\n` +
-            `4. Once approved, the graph will be published to DKG`,
-        );
+        // Close verification modal and show success modal
+        setVerifyingDocId(null);
+        setSuccessModalData({
+          graphId,
+          graphURI: doc.graphURI,
+          graphType: doc.graphType,
+          datasetVariant: doc.datasetVariant,
+          year: doc.year,
+          proposalId,
+          proposalError,
+          syntaxValid,
+          semanticValid,
+          consistencyValid,
+        });
       } catch (error: any) {
         console.error("[Data Provision] Error:", error);
         alert("Submission failed: " + (error?.shortMessage || error?.message || "Unknown error"));
@@ -438,7 +525,7 @@ export default function DataProvisionPage() {
         setSubmittingId(null);
       }
     },
-    [address, rdfDocuments, writeContractAsync],
+    [address, publicClient, rdfDocuments, writeContractAsync],
   );
 
   // Remove document from list
@@ -787,21 +874,24 @@ export default function DataProvisionPage() {
                             <>
                               {doc.syntaxValid && (
                                 <button
-                                  onClick={() => handleSubmit(doc.id)}
-                                  disabled={submittingId === doc.id}
-                                  className="btn btn-sm btn-success gap-2"
+                                  onClick={() => setVerifyingDocId(doc.id)}
+                                  className="btn btn-sm btn-primary gap-2"
                                 >
-                                  {submittingId === doc.id ? (
-                                    <>
-                                      <SpinnerIcon className="w-4 h-4" />
-                                      Submitting...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <CheckCircleIcon className="w-4 h-4" />
-                                      Submit to DAO
-                                    </>
-                                  )}
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-4 h-4"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                                    />
+                                  </svg>
+                                  Verify RDF File
                                 </button>
                               )}
                               <button onClick={() => handleRemove(doc.id)} className="btn btn-sm btn-outline btn-error">
@@ -835,16 +925,16 @@ export default function DataProvisionPage() {
                 <strong>Upload:</strong> Select a pre-processed TTL file and configure metadata
               </li>
               <li>
-                <strong>Syntax Validation:</strong> Basic TTL structure is validated on upload
+                <strong>Verify RDF:</strong> Run syntax, semantic, and consistency validation checks
               </li>
               <li>
                 <strong>Submit to DAO:</strong> File hash and metadata are recorded on-chain
               </li>
               <li>
-                <strong>Agent Validation:</strong> Syntax and Semantic Validator agents verify the RDF
+                <strong>Governance Proposal:</strong> A proposal is automatically created for the Validation Committee
               </li>
               <li>
-                <strong>Committee Review:</strong> Validation Committee approves or rejects the submission
+                <strong>Committee Vote:</strong> Validation Committee members vote to approve or reject
               </li>
               <li>
                 <strong>DKG Publication:</strong> Approved graphs are published to OriginTrail DKG
@@ -853,6 +943,28 @@ export default function DataProvisionPage() {
           </div>
         </div>
       </div>
+
+      {/* Verification Modal */}
+      {verifyingDocId &&
+        (() => {
+          const doc = rdfDocuments.find(d => d.id === verifyingDocId);
+          if (!doc) return null;
+          return (
+            <RDFVerificationModal
+              isOpen={true}
+              onClose={() => setVerifyingDocId(null)}
+              content={doc.content}
+              graphType={doc.graphType}
+              onSubmit={() => handleSubmit(doc.id)}
+              isSubmitting={submittingId === doc.id}
+            />
+          );
+        })()}
+
+      {/* Success Modal */}
+      {successModalData && (
+        <RDFSubmissionSuccessModal isOpen={true} onClose={() => setSuccessModalData(null)} {...successModalData} />
+      )}
     </div>
   );
 }

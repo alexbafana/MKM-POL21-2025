@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Consortium: {
-      address: "0x9A676e781A523b5d0C0e43731313A708CB607508",
+      address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       abi: [
         {
           inputs: [
@@ -1400,10 +1400,10 @@ const deployedContracts = {
         quorumNumerator: "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol",
         updateQuorumNumerator: "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol",
       },
-      deployedOnBlock: 30,
+      deployedOnBlock: 10,
     },
     DisputeResolutionBoard: {
-      address: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+      address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
       abi: [
         {
           inputs: [
@@ -2659,10 +2659,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 34,
+      deployedOnBlock: 14,
     },
     GADataValidation: {
-      address: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
+      address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
       abi: [
         {
           inputs: [
@@ -3613,10 +3613,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 37,
+      deployedOnBlock: 17,
     },
     MKMPOL21: {
-      address: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [],
@@ -4108,6 +4108,13 @@ const deployedContracts = {
         },
         {
           inputs: [],
+          name: "onboard_data_validator",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "onboard_institution",
           outputs: [],
           stateMutability: "nonpayable",
@@ -4243,6 +4250,19 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "address",
+              name: "_token",
+              type: "address",
+            },
+          ],
+          name: "setVotingToken",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "string",
               name: "documentHash",
               type: "string",
@@ -4305,16 +4325,29 @@ const deployedContracts = {
           stateMutability: "view",
           type: "function",
         },
+        {
+          inputs: [],
+          name: "votingToken",
+          outputs: [
+            {
+              internalType: "contract IVotingPowerToken",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
       ],
       inheritedFunctions: {
         canPropose: "contracts/interfaces/IPermissionManager.sol",
         canVote: "contracts/interfaces/IPermissionManager.sol",
         has_permission: "contracts/interfaces/IPermissionManager.sol",
       },
-      deployedOnBlock: 27,
+      deployedOnBlock: 3,
     },
     ValidationCommittee: {
-      address: "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+      address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
       abi: [
         {
           inputs: [
@@ -4327,6 +4360,21 @@ const deployedContracts = {
               internalType: "address",
               name: "_permissionManager",
               type: "address",
+            },
+            {
+              internalType: "uint48",
+              name: "_votingDelay",
+              type: "uint48",
+            },
+            {
+              internalType: "uint32",
+              name: "_votingPeriod",
+              type: "uint32",
+            },
+            {
+              internalType: "uint256",
+              name: "_quorumPercent",
+              type: "uint256",
             },
           ],
           stateMutability: "nonpayable",
@@ -5570,10 +5618,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 32,
+      deployedOnBlock: 12,
     },
     VotingPowerToken: {
-      address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       abi: [
         {
           inputs: [
@@ -6403,7 +6451,7 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 25,
+      deployedOnBlock: 1,
     },
   },
 } as const;
