@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const hre = require("hardhat");
 
 /**
@@ -7,10 +8,11 @@ const hre = require("hardhat");
  */
 async function main() {
   const userAddress = process.argv[2] || "0x787759fD65983eCB94986ab01FE125750d329000";
-  
+
   console.log(`\n🔍 Verifying role for address: ${userAddress}\n`);
 
   // Get the deployed contract
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const deployedContracts = require("../deployedContracts.ts");
   const chainId = hre.network.config.chainId || 31337;
   const contractData = deployedContracts[chainId]?.MKMPOL21;
@@ -68,10 +70,9 @@ async function main() {
       } else {
         console.log(`\n📜 Attestation Status: NOT VERIFIED`);
       }
-    } catch (attestationError) {
+    } catch {
       console.log(`\n📜 Attestation: Not found or error reading`);
     }
-
   } catch (error) {
     console.error(`❌ Error reading role:`, error.message);
   }
@@ -79,8 +80,7 @@ async function main() {
 
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
   });
-

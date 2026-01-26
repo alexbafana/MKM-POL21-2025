@@ -56,7 +56,10 @@ contract GADataValidation is GA, Ownable {
         uint256 version;                // Incremental version number
         address submitter;              // Who submitted the graph
         uint256 submittedAt;            // Timestamp of submission
-        bool validated;                 // Passed RDF syntax validation
+        bool validated;                 // Passed overall validation (syntax AND semantic)
+        bool syntaxValid;               // Passed N3.js syntax validation
+        bool semanticValid;             // Passed SHACL semantic validation
+        string validationErrors;        // Error summary (first 256 chars)
         bool committeeApproved;         // Approved by Validation Committee
         bool publishedToDKG;            // Published to OriginTrail DKG
         string dkgAssetUAL;             // DKG asset identifier
@@ -89,6 +92,13 @@ contract GADataValidation is GA, Ownable {
         GraphType graphType
     );
     event RDFGraphValidated(bytes32 indexed graphId, bool syntaxValid, address indexed validator);
+    event RDFGraphValidatedDetailed(
+        bytes32 indexed graphId,
+        bool syntaxValid,
+        bool semanticValid,
+        string errorSummary,
+        address indexed validator
+    );
     event RDFGraphApproved(bytes32 indexed graphId, address indexed approver);
     event RDFGraphPublishedToDKG(bytes32 indexed graphId, string dkgAssetUAL);
     event RDFGraphVersionIncremented(
@@ -272,7 +282,10 @@ contract GADataValidation is GA, Ownable {
             version: version,
             submitter: msg.sender,
             submittedAt: block.timestamp,
-            validated: false,                // Will be set by validator
+            validated: false,                 // Will be set by validator (overall pass)
+            syntaxValid: false,               // Will be set by syntax validator
+            semanticValid: false,             // Will be set by semantic validator
+            validationErrors: "",             // Will be populated if validation fails
             committeeApproved: false,         // Requires committee vote
             publishedToDKG: false,
             dkgAssetUAL: "",
@@ -301,8 +314,38 @@ contract GADataValidation is GA, Ownable {
         require(rdfGraphRegistry[graphId].submittedAt > 0, "Graph does not exist");
 
         rdfGraphRegistry[graphId].validated = isValid;
+        // For backwards compatibility, also set syntaxValid
+        rdfGraphRegistry[graphId].syntaxValid = isValid;
 
         emit RDFGraphValidated(graphId, isValid, msg.sender);
+    }
+
+    /**
+     * @notice Mark RDF graph as validated with detailed results
+     * @dev Requires permission 4 (Data Validator role)
+     * @param graphId Unique graph identifier
+     * @param _syntaxValid Whether N3.js syntax validation passed
+     * @param _semanticValid Whether SHACL semantic validation passed
+     * @param errorSummary Summary of validation errors (max 256 chars recommended)
+     */
+    function markRDFGraphValidatedWithDetails(
+        bytes32 graphId,
+        bool _syntaxValid,
+        bool _semanticValid,
+        string calldata errorSummary
+    ) external {
+        require(pm.has_permission(msg.sender, 4), "No permission to validate");
+        require(rdfGraphRegistry[graphId].submittedAt > 0, "Graph does not exist");
+
+        // Update validation fields
+        rdfGraphRegistry[graphId].syntaxValid = _syntaxValid;
+        rdfGraphRegistry[graphId].semanticValid = _semanticValid;
+        rdfGraphRegistry[graphId].validationErrors = errorSummary;
+
+        // Overall validated = syntax AND semantic both pass
+        rdfGraphRegistry[graphId].validated = _syntaxValid && _semanticValid;
+
+        emit RDFGraphValidatedDetailed(graphId, _syntaxValid, _semanticValid, errorSummary, msg.sender);
     }
 
     /**
@@ -423,6 +466,25 @@ contract GADataValidation is GA, Ownable {
             graph.validated,
             graph.committeeApproved,
             graph.publishedToDKG
+        );
+    }
+
+    /**
+     * @notice Get detailed validation status
+     * @param graphId Unique graph identifier
+     */
+    function getValidationDetails(bytes32 graphId) external view returns (
+        bool syntaxValid,
+        bool semanticValid,
+        bool overallValid,
+        string memory validationErrors
+    ) {
+        RDFGraph memory graph = rdfGraphRegistry[graphId];
+        return (
+            graph.syntaxValid,
+            graph.semanticValid,
+            graph.validated,
+            graph.validationErrors
         );
     }
 }

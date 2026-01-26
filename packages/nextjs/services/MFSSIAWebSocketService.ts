@@ -19,6 +19,7 @@ export type ConnectionState = "disconnected" | "connecting" | "connected" | "rec
  */
 export type OracleEvent =
   | "oracle.connected"
+  | "oracle_connected"
   | "oracle.subscribed"
   | "oracle.error"
   | "oracle.verification.requested"
@@ -39,7 +40,7 @@ export interface OracleConnectedPayload {
  * Payload for oracle.subscribed event (subscription acknowledgement)
  */
 export interface OracleSubscribedPayload {
-  verificationInstanceId: string;
+  instanceId: string;
   timestamp?: string;
 }
 
@@ -47,7 +48,8 @@ export interface OracleSubscribedPayload {
  * Payload for oracle.error event (general oracle errors)
  */
 export interface OracleGeneralErrorPayload {
-  error: string;
+  error?: string;
+  message?: string;
   code?: string;
   timestamp?: string;
 }
@@ -56,7 +58,8 @@ export interface OracleGeneralErrorPayload {
  * Payload for oracle.verification.requested event
  */
 export interface OracleRequestedPayload {
-  verificationInstanceId: string;
+  instanceId: string;
+  verificationInstanceId?: string;
   timestamp: string;
 }
 
@@ -64,7 +67,8 @@ export interface OracleRequestedPayload {
  * Payload for oracle.verification.processing event
  */
 export interface OracleProcessingPayload {
-  verificationInstanceId: string;
+  instanceId: string;
+  verificationInstanceId?: string;
   timestamp: string;
   step?: string;
   progress?: number;
@@ -74,33 +78,58 @@ export interface OracleProcessingPayload {
  * Payload for oracle.verification.success event
  */
 export interface OracleSuccessPayload {
-  verificationInstanceId: string;
-  finalResult: boolean;
-  passedChallenges: string[];
+  instanceId?: string;
+  verificationInstanceId?: string;
+  requestId?: string;
+  finalResult?: boolean;
+  passedChallenges?: string[];
   confidence: number;
-  ual?: string; // May or may not be included immediately
+  ual?: string;
   timestamp: string;
+  // Updated server nests data under `result`
+  result?: {
+    finalResult?: string | boolean;
+    aggregateConfidence?: number;
+    passedChallenges?: string[];
+    rawResponse?: string;
+    ual?: string;
+  };
 }
 
 /**
  * Payload for oracle.verification.failed event
  */
 export interface OracleFailedPayload {
-  verificationInstanceId: string;
-  finalResult: false;
-  passedChallenges: string[];
-  failedChallenges: string[];
+  instanceId?: string;
+  verificationInstanceId?: string;
+  requestId?: string;
+  finalResult?: false | string;
+  passedChallenges?: string[];
+  failedChallenges?: string[];
   confidence: number;
-  reason: string;
+  reason?: string;
+  message?: string;
+  error?: string;
   timestamp: string;
+  // Updated server nests data under `result`
+  result?: {
+    finalResult?: string | boolean;
+    aggregateConfidence?: number;
+    passedChallenges?: string[];
+    failedChallenges?: string[];
+    rawResponse?: string;
+    reason?: string;
+  };
 }
 
 /**
  * Payload for oracle.verification.error event
  */
 export interface OracleErrorPayload {
-  verificationInstanceId: string;
-  error: string;
+  instanceId: string;
+  verificationInstanceId?: string;
+  error?: string;
+  message?: string;
   timestamp: string;
 }
 
@@ -156,6 +185,9 @@ export class MFSSIAWebSocketService {
 
   // Set of currently subscribed instance IDs
   private subscribedInstances: Set<string> = new Set();
+
+  // Raw event handlers for catch-all event forwarding (used by UI event log)
+  private rawEventHandlers: Set<(eventName: string, data: any) => void> = new Set();
 
   // Connection timeout (ms)
   private connectionTimeout: number = 30000;
@@ -224,9 +256,13 @@ export class MFSSIAWebSocketService {
       console.log("[MFSSIA WS] Connecting to Oracle Gateway...");
       console.log("[MFSSIA WS] Base URL:", this.baseUrl);
 
+      // Local flag to ensure the promise is settled exactly once
+      let settled = false;
+
       // Set up connection timeout
       const timeoutId = setTimeout(() => {
-        if (this.connectionState === "connecting") {
+        if (!settled) {
+          settled = true;
           this.connectionState = "error";
           const error = new Error(`WebSocket connection timeout after ${this.connectionTimeout}ms`);
           this.lastError = error;
@@ -257,6 +293,13 @@ export class MFSSIAWebSocketService {
         console.log("[MFSSIA WS] Using Engine.IO path: /ws/oracle");
         console.log("[MFSSIA WS] Transport: websocket only");
 
+        // Guard: skip socket re-creation if socket already exists but is disconnecting/reconnecting
+        if (this.socket && !this.socket.connected) {
+          console.log("[MFSSIA WS] Socket exists but not connected, reusing existing socket");
+          this.socket.connect();
+          return;
+        }
+
         this.socket = io(wsUrl, {
           // Engine.IO endpoint is /ws/oracle, not /socket.io/
           // This is the HTTP path for the upgrade handshake, NOT a namespace
@@ -264,13 +307,10 @@ export class MFSSIAWebSocketService {
           // MFSSIA docs specify websocket only, no polling fallback
           transports: ["websocket"],
           reconnection: true,
-          reconnectionDelay: 1000,
-          reconnectionDelayMax: 5000,
-          reconnectionAttempts: 5,
-          timeout: this.connectionTimeout,
+          reconnectionDelay: 2000,
+          reconnectionAttempts: Infinity,
+          timeout: 20000,
           autoConnect: true,
-          // Force new connection to avoid reusing stale connections
-          forceNew: true,
         });
 
         // Connection established handler
@@ -283,7 +323,10 @@ export class MFSSIAWebSocketService {
           // Emit internal connected event
           this.emit("oracle.connected", { socketId: this.socket?.id || "" });
 
-          resolve();
+          if (!settled) {
+            settled = true;
+            resolve();
+          }
         });
 
         // Disconnection handler
@@ -360,14 +403,15 @@ export class MFSSIAWebSocketService {
           console.log("  - Server may only accept specific origins");
           console.log("[MFSSIA WS] -------------------------------------");
 
-          // Only reject if this is the initial connection attempt
-          if (this.eventHandlers.size === 0) {
+          // Only reject if the promise hasn't been settled yet (initial connection attempt)
+          if (!settled) {
+            settled = true;
             reject(error);
           }
         });
 
-        // Reconnection handlers
-        this.socket.on("reconnect", attemptNumber => {
+        // Reconnection handlers (Socket.IO v4: reconnect events are on the Manager, not the Socket)
+        this.socket.io.on("reconnect", attemptNumber => {
           console.log("[MFSSIA WS] Reconnected after", attemptNumber, "attempts");
           this.connectionState = "connected";
           this.lastError = null;
@@ -376,17 +420,17 @@ export class MFSSIAWebSocketService {
           this.resubscribeToInstances();
         });
 
-        this.socket.on("reconnecting", attemptNumber => {
+        this.socket.io.on("reconnect_attempt", attemptNumber => {
           console.log("[MFSSIA WS] Reconnecting... attempt", attemptNumber);
           this.connectionState = "reconnecting";
         });
 
-        this.socket.on("reconnect_error", error => {
+        this.socket.io.on("reconnect_error", error => {
           console.error("[MFSSIA WS] Reconnection error:", error.message);
           this.lastError = error;
         });
 
-        this.socket.on("reconnect_failed", () => {
+        this.socket.io.on("reconnect_failed", () => {
           console.error("[MFSSIA WS] Reconnection failed after max attempts");
           this.connectionState = "error";
           this.lastError = new Error("Reconnection failed after maximum attempts");
@@ -399,7 +443,10 @@ export class MFSSIAWebSocketService {
         console.error("[MFSSIA WS] Failed to create socket:", error);
         this.connectionState = "error";
         this.lastError = error instanceof Error ? error : new Error(String(error));
-        reject(this.lastError);
+        if (!settled) {
+          settled = true;
+          reject(this.lastError);
+        }
       }
     });
   }
@@ -418,21 +465,24 @@ export class MFSSIAWebSocketService {
         "%c[MFSSIA WS] ========== ORACLE EVENT: SUBSCRIBED ==========",
         "background: #2196f3; color: #fff; font-size: 12px; padding: 2px;",
       );
-      console.log("[MFSSIA WS] Subscribed to instance:", data.verificationInstanceId);
+      console.log("[MFSSIA WS] Subscribed to instance:", data.instanceId);
       console.log("[MFSSIA WS] Data:", data);
       this.emit("oracle.subscribed", data);
     });
 
     // Oracle general error (non-verification errors)
+    // Server may use either `error` or `message` field depending on version
     this.socket.on("oracle.error", (data: OracleGeneralErrorPayload) => {
+      const errorMsg = data.error || data.message || "Unknown error";
       console.log(
         "%c[MFSSIA WS] ========== ORACLE EVENT: GENERAL ERROR ==========",
         "background: #e91e63; color: #fff; font-size: 12px; padding: 2px;",
       );
-      console.error("[MFSSIA WS] Oracle Error:", data.error);
+      console.error("[MFSSIA WS] Oracle Error:", errorMsg);
       console.error("[MFSSIA WS] Error Code:", data.code);
       console.error("[MFSSIA WS] Full data:", data);
-      this.emit("oracle.error", data);
+      // Normalize: ensure `error` field is populated for downstream handlers
+      this.emit("oracle.error", { ...data, error: errorMsg });
     });
 
     // Oracle verification requested
@@ -463,7 +513,7 @@ export class MFSSIAWebSocketService {
         "%c[MFSSIA WS] ========== ORACLE EVENT: SUCCESS ==========",
         "background: #4caf50; color: #fff; font-size: 14px; padding: 4px;",
       );
-      console.log("[MFSSIA WS] Instance ID:", data.verificationInstanceId);
+      console.log("[MFSSIA WS] Instance ID:", data.instanceId);
       console.log("[MFSSIA WS] Final Result:", data.finalResult);
       console.log("[MFSSIA WS] Confidence:", data.confidence);
       console.log("[MFSSIA WS] Passed Challenges:", data.passedChallenges);
@@ -495,7 +545,7 @@ export class MFSSIAWebSocketService {
       this.emit("oracle.verification.error", data);
     });
 
-    // Listen for ALL events for comprehensive debugging
+    // Listen for ALL events for comprehensive debugging and catch-all forwarding
     // This catches events even if their names are slightly different than expected
     this.socket.onAny((eventName: string, ...args: any[]) => {
       // Log ALL events with prominent styling for debugging
@@ -507,6 +557,16 @@ export class MFSSIAWebSocketService {
       console.log("[MFSSIA WS] Event Args:", JSON.stringify(args, null, 2));
       console.log("[MFSSIA WS] Number of args:", args.length);
 
+      // Forward ALL events to raw event handlers (for UI event log)
+      const eventData = args[0] ?? {};
+      this.rawEventHandlers.forEach(handler => {
+        try {
+          handler(eventName, eventData);
+        } catch (err) {
+          console.error(`[MFSSIA WS] Error in raw event handler for ${eventName}:`, err);
+        }
+      });
+
       // Check for verification events that might have different data shapes
       if (eventName.includes("verification") || eventName.includes("oracle")) {
         console.log("%c[MFSSIA WS] This is an oracle/verification event!", "color: #ff9800; font-weight: bold;");
@@ -516,8 +576,8 @@ export class MFSSIAWebSocketService {
           console.log(`[MFSSIA WS] Arg[${index}]:`, arg);
           if (typeof arg === "object" && arg !== null) {
             console.log(`[MFSSIA WS] Arg[${index}] keys:`, Object.keys(arg));
-            console.log(`[MFSSIA WS] Arg[${index}] verificationInstanceId:`, arg.verificationInstanceId);
             console.log(`[MFSSIA WS] Arg[${index}] instanceId:`, arg.instanceId);
+            console.log(`[MFSSIA WS] Arg[${index}] verificationInstanceId:`, arg.verificationInstanceId);
           }
         });
 
@@ -526,10 +586,10 @@ export class MFSSIAWebSocketService {
         if (args[0] && typeof args[0] === "object") {
           const data = args[0];
 
-          // If verificationInstanceId is missing, try to use instanceId or other fields
-          if (!data.verificationInstanceId && data.instanceId) {
-            console.log("%c[MFSSIA WS] Mapping instanceId to verificationInstanceId", "color: #ff9800;");
-            data.verificationInstanceId = data.instanceId;
+          // If instanceId is missing, try to use verificationInstanceId
+          if (!data.instanceId && data.verificationInstanceId) {
+            console.log("%c[MFSSIA WS] Mapping verificationInstanceId to instanceId", "color: #ff9800;");
+            data.instanceId = data.verificationInstanceId;
           }
 
           // Emit to registered handlers if this looks like a verification event
@@ -608,12 +668,13 @@ export class MFSSIAWebSocketService {
     });
 
     this.socket.on("oracle_error", (data: any) => {
+      const errorMsg = data?.error || data?.message || "Unknown error";
       console.log(
         "%c[MFSSIA WS] ========== UNDERSCORE EVENT: oracle_error ==========",
         "background: #f44336; color: #fff;",
       );
       console.log("[MFSSIA WS] Data:", data);
-      this.emit("oracle.error", data);
+      this.emit("oracle.error", { ...data, error: errorMsg });
     });
 
     this.socket.on("oracle_verification_requested", (data: any) => {
@@ -707,7 +768,7 @@ export class MFSSIAWebSocketService {
     this.subscribedInstances.add(instanceId);
 
     // Send subscription message to server
-    this.socket.emit("oracle.subscribe", { verificationInstanceId: instanceId });
+    this.socket.emit("oracle.subscribe", { instanceId: instanceId });
     console.log("%c[MFSSIA WS] Subscription message sent!", "color: #4caf50");
     console.log("[MFSSIA WS] Currently subscribed instances:", Array.from(this.subscribedInstances));
   }
@@ -724,7 +785,7 @@ export class MFSSIAWebSocketService {
 
     // Send unsubscription message if connected
     if (this.socket?.connected) {
-      this.socket.emit("oracle.unsubscribe", { verificationInstanceId: instanceId });
+      this.socket.emit("oracle.unsubscribe", { instanceId: instanceId });
       console.log("[MFSSIA WS] Unsubscription sent for instance:", instanceId);
     }
   }
@@ -737,7 +798,7 @@ export class MFSSIAWebSocketService {
       console.log("[MFSSIA WS] Re-subscribing to", this.subscribedInstances.size, "instances");
       this.subscribedInstances.forEach(instanceId => {
         if (this.socket?.connected) {
-          this.socket.emit("oracle.subscribe", { verificationInstanceId: instanceId });
+          this.socket.emit("oracle.subscribe", { instanceId: instanceId });
           console.log("[MFSSIA WS] Re-subscribed to instance:", instanceId);
         }
       });
@@ -780,8 +841,28 @@ export class MFSSIAWebSocketService {
       console.log("[MFSSIA WS] Cleared all handlers for event:", event);
     } else {
       this.eventHandlers.clear();
-      console.log("[MFSSIA WS] Cleared all event handlers");
+      this.rawEventHandlers.clear();
+      console.log("[MFSSIA WS] Cleared all event handlers (including raw)");
     }
+  }
+
+  /**
+   * Register a catch-all event handler that receives ALL WebSocket events
+   * Useful for UI event logging
+   * @param handler Callback receiving (eventName, data) for every event
+   */
+  onAnyEvent(handler: (eventName: string, data: any) => void): void {
+    this.rawEventHandlers.add(handler);
+    console.log("[MFSSIA WS] Registered raw event handler (total:", this.rawEventHandlers.size, ")");
+  }
+
+  /**
+   * Remove a catch-all event handler
+   * @param handler The handler to remove
+   */
+  offAnyEvent(handler: (eventName: string, data: any) => void): void {
+    this.rawEventHandlers.delete(handler);
+    console.log("[MFSSIA WS] Removed raw event handler (remaining:", this.rawEventHandlers.size, ")");
   }
 
   /**

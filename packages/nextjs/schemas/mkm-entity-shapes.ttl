@@ -1,0 +1,248 @@
+# MKM Named Entity SHACL Shapes
+# Validates TTL files containing named entities extracted from text
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://mkm.ee/schema/> .
+@prefix ent: <http://mkm.ee/entity/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Shape for Named Entity instances
+ex:NamedEntityShape a sh:NodeShape ;
+    sh:targetClass ex:NamedEntity ;
+    sh:name "Named Entity Shape" ;
+    sh:description "Validates named entity instances extracted from text" ;
+
+    # Label is required
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Entity Label" ;
+        sh:description "Primary label/name of the entity" ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 500 ;
+        sh:message "Named entity must have a label (1-500 characters)"
+    ] ;
+
+    # Entity type is required
+    sh:property [
+        sh:path ex:entityType ;
+        sh:name "Entity Type" ;
+        sh:description "Type classification of the entity" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            ex:Person
+            ex:Organization
+            ex:Location
+            ex:Event
+            ex:Product
+            ex:Date
+            ex:Money
+            ex:Percent
+            ex:Misc
+        ) ;
+        sh:message "Entity must have exactly one valid entity type"
+    ] ;
+
+    # Confidence score (optional but validated)
+    sh:property [
+        sh:path ex:confidence ;
+        sh:name "Confidence Score" ;
+        sh:description "NER confidence score (0.0-1.0)" ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Confidence must be between 0.0 and 1.0"
+    ] ;
+
+    # Alternative labels
+    sh:property [
+        sh:path skos:altLabel ;
+        sh:name "Alternative Labels" ;
+        sh:description "Alternative names/spellings for the entity" ;
+        sh:datatype xsd:string ;
+        sh:message "Alternative labels must be strings"
+    ] .
+
+# Shape for Entity Mention instances
+ex:EntityMentionShape a sh:NodeShape ;
+    sh:targetClass ex:EntityMention ;
+    sh:name "Entity Mention Shape" ;
+    sh:description "Validates entity mention instances (occurrences in text)" ;
+
+    # Reference to entity is required
+    sh:property [
+        sh:path ex:refersTo ;
+        sh:name "Entity Reference" ;
+        sh:description "The named entity this mention refers to" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class ex:NamedEntity ;
+        sh:message "Mention must reference exactly one named entity"
+    ] ;
+
+    # Source article is required
+    sh:property [
+        sh:path ex:inArticle ;
+        sh:name "Source Article" ;
+        sh:description "Article containing this mention" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Mention must reference exactly one source article"
+    ] ;
+
+    # Surface form (actual text)
+    sh:property [
+        sh:path ex:surfaceForm ;
+        sh:name "Surface Form" ;
+        sh:description "Actual text as it appears in the article" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Mention must have surface form text"
+    ] ;
+
+    # Character offset start
+    sh:property [
+        sh:path ex:charOffsetStart ;
+        sh:name "Start Offset" ;
+        sh:description "Character offset where mention starts" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Start offset must be a non-negative integer"
+    ] ;
+
+    # Character offset end
+    sh:property [
+        sh:path ex:charOffsetEnd ;
+        sh:name "End Offset" ;
+        sh:description "Character offset where mention ends" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "End offset must be a positive integer"
+    ] ;
+
+    # Sentence index
+    sh:property [
+        sh:path ex:sentenceIndex ;
+        sh:name "Sentence Index" ;
+        sh:description "Index of the sentence containing this mention" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Sentence index must be a non-negative integer"
+    ] .
+
+# Shape for Person entities (more specific validation)
+ex:PersonEntityShape a sh:NodeShape ;
+    sh:targetSubjectsOf ex:entityType ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX ex: <http://mkm.ee/schema/>
+            SELECT ?this WHERE {
+                ?this ex:entityType ex:Person .
+            }
+        """
+    ] ;
+    sh:name "Person Entity Shape" ;
+    sh:description "Additional validation for Person entities" ;
+
+    # First name (optional)
+    sh:property [
+        sh:path ex:firstName ;
+        sh:name "First Name" ;
+        sh:datatype xsd:string ;
+        sh:message "First name must be a string if specified"
+    ] ;
+
+    # Last name (optional)
+    sh:property [
+        sh:path ex:lastName ;
+        sh:name "Last Name" ;
+        sh:datatype xsd:string ;
+        sh:message "Last name must be a string if specified"
+    ] ;
+
+    # Title/role (optional)
+    sh:property [
+        sh:path ex:title ;
+        sh:name "Title" ;
+        sh:datatype xsd:string ;
+        sh:message "Title must be a string if specified"
+    ] .
+
+# Shape for Organization entities
+ex:OrganizationEntityShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX ex: <http://mkm.ee/schema/>
+            SELECT ?this WHERE {
+                ?this ex:entityType ex:Organization .
+            }
+        """
+    ] ;
+    sh:name "Organization Entity Shape" ;
+    sh:description "Additional validation for Organization entities" ;
+
+    # Organization type
+    sh:property [
+        sh:path ex:orgType ;
+        sh:name "Organization Type" ;
+        sh:in (
+            ex:Company
+            ex:Government
+            ex:NGO
+            ex:Educational
+            ex:Media
+            ex:Political
+            ex:Religious
+            ex:Sports
+            ex:Other
+        ) ;
+        sh:message "Organization type must be a valid classification"
+    ] .
+
+# Shape for Location entities
+ex:LocationEntityShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX ex: <http://mkm.ee/schema/>
+            SELECT ?this WHERE {
+                ?this ex:entityType ex:Location .
+            }
+        """
+    ] ;
+    sh:name "Location Entity Shape" ;
+    sh:description "Additional validation for Location entities" ;
+
+    # Location type
+    sh:property [
+        sh:path ex:locationType ;
+        sh:name "Location Type" ;
+        sh:in (
+            ex:Country
+            ex:Region
+            ex:City
+            ex:Address
+            ex:Facility
+            ex:GeographicFeature
+        ) ;
+        sh:message "Location type must be a valid classification"
+    ] ;
+
+    # Country code
+    sh:property [
+        sh:path ex:countryCode ;
+        sh:name "Country Code" ;
+        sh:pattern "^[A-Z]{2}$" ;
+        sh:message "Country code must be ISO 3166-1 alpha-2 format"
+    ] .

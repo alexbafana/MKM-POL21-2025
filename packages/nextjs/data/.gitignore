@@ -1,0 +1,6 @@
+# TTL Storage data files
+ttl-storage/*.enc
+ttl-storage/index.json
+
+# Keep the directory structure
+!.gitignore

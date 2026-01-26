@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Consortium: {
-      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      address: "0x9A676e781A523b5d0C0e43731313A708CB607508",
       abi: [
         {
           inputs: [
@@ -1400,10 +1400,10 @@ const deployedContracts = {
         quorumNumerator: "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol",
         updateQuorumNumerator: "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol",
       },
-      deployedOnBlock: 8,
+      deployedOnBlock: 30,
     },
     DisputeResolutionBoard: {
-      address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      address: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
       abi: [
         {
           inputs: [
@@ -2659,10 +2659,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 12,
+      deployedOnBlock: 34,
     },
     GADataValidation: {
-      address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      address: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
       abi: [
         {
           inputs: [
@@ -2854,6 +2854,43 @@ const deployedContracts = {
             },
           ],
           name: "RDFGraphValidated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "graphId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "syntaxValid",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "semanticValid",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "errorSummary",
+              type: "string",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "validator",
+              type: "address",
+            },
+          ],
+          name: "RDFGraphValidatedDetailed",
           type: "event",
         },
         {
@@ -3175,6 +3212,40 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "bytes32",
+              name: "graphId",
+              type: "bytes32",
+            },
+          ],
+          name: "getValidationDetails",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "syntaxValid",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "semanticValid",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overallValid",
+              type: "bool",
+            },
+            {
+              internalType: "string",
+              name: "validationErrors",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "uint256",
               name: "sessionId",
               type: "uint256",
@@ -3262,6 +3333,34 @@ const deployedContracts = {
             },
           ],
           name: "markRDFGraphValidated",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "graphId",
+              type: "bytes32",
+            },
+            {
+              internalType: "bool",
+              name: "_syntaxValid",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "_semanticValid",
+              type: "bool",
+            },
+            {
+              internalType: "string",
+              name: "errorSummary",
+              type: "string",
+            },
+          ],
+          name: "markRDFGraphValidatedWithDetails",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -3359,6 +3458,21 @@ const deployedContracts = {
               internalType: "bool",
               name: "validated",
               type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "syntaxValid",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "semanticValid",
+              type: "bool",
+            },
+            {
+              internalType: "string",
+              name: "validationErrors",
+              type: "string",
             },
             {
               internalType: "bool",
@@ -3499,10 +3613,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 15,
+      deployedOnBlock: 37,
     },
     MKMPOL21: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
       abi: [
         {
           inputs: [],
@@ -4197,10 +4311,10 @@ const deployedContracts = {
         canVote: "contracts/interfaces/IPermissionManager.sol",
         has_permission: "contracts/interfaces/IPermissionManager.sol",
       },
-      deployedOnBlock: 5,
+      deployedOnBlock: 27,
     },
     ValidationCommittee: {
-      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      address: "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
       abi: [
         {
           inputs: [
@@ -5456,10 +5570,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10,
+      deployedOnBlock: 32,
     },
     VotingPowerToken: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
       abi: [
         {
           inputs: [
@@ -6289,7 +6403,7 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 3,
+      deployedOnBlock: 25,
     },
   },
 } as const;

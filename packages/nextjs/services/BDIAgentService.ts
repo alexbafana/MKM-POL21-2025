@@ -24,11 +24,13 @@ const GA_DATA_VALIDATION_ABI = [
 
   // Validation operations
   "function markRDFGraphValidated(bytes32 graphId, bool isValid) external",
+  "function markRDFGraphValidatedWithDetails(bytes32 graphId, bool syntaxValid, bool semanticValid, string errorSummary) external",
   "function approveRDFGraph(bytes32 graphId) external",
   "function markRDFGraphPublished(bytes32 graphId, string dkgAssetUAL) external",
 
   // View functions
   "function getGraphStatus(bytes32 graphId) external view returns (bool exists, bool validated, bool approved, bool published)",
+  "function getValidationDetails(bytes32 graphId) external view returns (bool syntaxValid, bool semanticValid, bool overallValid, string validationErrors)",
   "function getRDFGraphBasicInfo(bytes32 graphId) external view returns (bytes32 graphHash, string graphURI, uint8 graphType, uint8 datasetVariant, uint256 year, uint256 version)",
   "function getRDFGraphMetadata(bytes32 graphId) external view returns (address submitter, uint256 submittedAt, string modelVersion, string dkgAssetUAL)",
   "function isReadyForPublication(bytes32 graphId) external view returns (bool)",
@@ -37,6 +39,7 @@ const GA_DATA_VALIDATION_ABI = [
   // Events
   "event RDFGraphSubmitted(bytes32 indexed graphId, string graphURI, uint8 indexed variant, uint256 indexed year, uint8 graphType)",
   "event RDFGraphValidated(bytes32 indexed graphId, bool syntaxValid, address indexed validator)",
+  "event RDFGraphValidatedDetailed(bytes32 indexed graphId, bool syntaxValid, bool semanticValid, string errorSummary, address indexed validator)",
   "event RDFGraphApproved(bytes32 indexed graphId, address indexed approver)",
   "event RDFGraphPublishedToDKG(bytes32 indexed graphId, string dkgAssetUAL)",
 ];
@@ -95,6 +98,24 @@ export interface ValidationResult {
   isValid: boolean;
   validatorAddress: string;
   txHash: string;
+}
+
+/** Result of detailed validation operation */
+export interface DetailedValidationResult {
+  graphId: string;
+  syntaxValid: boolean;
+  semanticValid: boolean;
+  errorSummary: string;
+  validatorAddress: string;
+  txHash: string;
+}
+
+/** Detailed validation status from contract */
+export interface ValidationDetails {
+  syntaxValid: boolean;
+  semanticValid: boolean;
+  overallValid: boolean;
+  validationErrors: string;
 }
 
 /** Graph status from contract */
@@ -269,6 +290,22 @@ export class BDIAgentService {
   }
 
   /**
+   * Get detailed validation status
+   * @param graphId - Graph identifier (bytes32 hex)
+   */
+  async getValidationDetails(graphId: string): Promise<ValidationDetails> {
+    const ga = this.getGAContract();
+    const [syntaxValid, semanticValid, overallValid, validationErrors] = await ga.getValidationDetails(graphId);
+
+    return {
+      syntaxValid,
+      semanticValid,
+      overallValid,
+      validationErrors,
+    };
+  }
+
+  /**
    * Get total number of RDF graphs in registry
    */
   async getGraphCount(): Promise<number> {
@@ -353,6 +390,42 @@ export class BDIAgentService {
     return {
       graphId,
       isValid,
+      validatorAddress: wallet.address,
+      txHash: tx.hash,
+    };
+  }
+
+  /**
+   * Mark RDF graph as validated with detailed results
+   * Requires Permission 4 (Data_Validator role)
+   *
+   * @param agentPrivateKey - Agent's private key for signing
+   * @param graphId - Graph identifier (bytes32 hex)
+   * @param syntaxValid - Whether N3.js syntax validation passed
+   * @param semanticValid - Whether SHACL semantic validation passed
+   * @param errorSummary - Summary of validation errors (max 256 chars)
+   */
+  async markGraphValidatedWithDetails(
+    agentPrivateKey: string,
+    graphId: string,
+    syntaxValid: boolean,
+    semanticValid: boolean,
+    errorSummary: string,
+  ): Promise<DetailedValidationResult> {
+    const wallet = this.getAgentWallet(agentPrivateKey);
+    const ga = this.getGAContract(wallet);
+
+    // Truncate error summary to 256 characters for gas efficiency
+    const truncatedErrors = errorSummary.slice(0, 256);
+
+    const tx = await ga.markRDFGraphValidatedWithDetails(graphId, syntaxValid, semanticValid, truncatedErrors);
+    await tx.wait();
+
+    return {
+      graphId,
+      syntaxValid,
+      semanticValid,
+      errorSummary: truncatedErrors,
       validatorAddress: wallet.address,
       txHash: tx.hash,
     };

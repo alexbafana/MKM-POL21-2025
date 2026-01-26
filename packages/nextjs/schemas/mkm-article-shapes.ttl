@@ -1,0 +1,139 @@
+# MKM Article SHACL Shapes
+# Validates TTL files containing article data from news sources
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://mkm.ee/schema/> .
+@prefix art: <http://mkm.ee/article/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Shape for Article instances
+ex:ArticleShape a sh:NodeShape ;
+    sh:targetClass ex:Article ;
+    sh:name "Article Shape" ;
+    sh:description "Validates MKM article instances from news sources" ;
+
+    # Title is required
+    sh:property [
+        sh:path dct:title ;
+        sh:name "Title" ;
+        sh:description "Article title" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 1000 ;
+        sh:message "Article must have exactly one title (string, 1-1000 characters)"
+    ] ;
+
+    # Creation date is required
+    sh:property [
+        sh:path dct:created ;
+        sh:name "Creation Date" ;
+        sh:description "Date when the article was created/published" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:date ]
+            [ sh:datatype xsd:dateTime ]
+        ) ;
+        sh:message "Article must have exactly one creation date (xsd:date or xsd:dateTime)"
+    ] ;
+
+    # Source is required
+    sh:property [
+        sh:path ex:source ;
+        sh:name "Source" ;
+        sh:description "Source of the article (news outlet)" ;
+        sh:minCount 1 ;
+        sh:message "Article must have at least one source"
+    ] ;
+
+    # Body text is optional but if present must be string
+    sh:property [
+        sh:path ex:bodyText ;
+        sh:name "Body Text" ;
+        sh:description "Full text content of the article" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Body text must be a string if present"
+    ] ;
+
+    # Author is optional
+    sh:property [
+        sh:path dct:creator ;
+        sh:name "Author" ;
+        sh:description "Author(s) of the article" ;
+        sh:nodeKind sh:IRIOrLiteral ;
+        sh:message "Author must be an IRI or literal"
+    ] ;
+
+    # URL is optional but if present must be valid
+    sh:property [
+        sh:path ex:url ;
+        sh:name "URL" ;
+        sh:description "Original URL of the article" ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "URL must be a valid IRI if present"
+    ] ;
+
+    # Language is optional
+    sh:property [
+        sh:path dct:language ;
+        sh:name "Language" ;
+        sh:description "Language of the article content" ;
+        sh:pattern "^[a-z]{2,3}(-[A-Z]{2})?$" ;
+        sh:message "Language must be a valid ISO language code (e.g., 'et', 'en', 'et-EE')"
+    ] .
+
+# Shape for Article with NLP annotations
+ex:AnnotatedArticleShape a sh:NodeShape ;
+    sh:targetSubjectsOf ex:hasAnnotation ;
+    sh:name "Annotated Article Shape" ;
+    sh:description "Validates articles with NLP annotations" ;
+
+    # Must have model version if annotated
+    sh:property [
+        sh:path ex:modelVersion ;
+        sh:name "Model Version" ;
+        sh:description "NLP model version used for annotation" ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Za-z]+-[0-9]+\\.[0-9]+$" ;
+        sh:message "Annotated articles must specify model version (e.g., 'EstBERT-1.0')"
+    ] ;
+
+    # Annotation timestamp
+    sh:property [
+        sh:path ex:annotatedAt ;
+        sh:name "Annotation Timestamp" ;
+        sh:description "When the NLP annotation was performed" ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Annotation timestamp is required for annotated articles"
+    ] .
+
+# Shape for Article provenance
+ex:ArticleProvenanceShape a sh:NodeShape ;
+    sh:targetSubjectsOf prov:wasGeneratedBy ;
+    sh:name "Article Provenance Shape" ;
+    sh:description "Validates provenance information for articles" ;
+
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:name "Generation Activity" ;
+        sh:description "Activity that generated this article record" ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Provenance activity must be an IRI"
+    ] ;
+
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:name "Generation Time" ;
+        sh:description "Time when the record was generated" ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Generation time must be xsd:dateTime"
+    ] .

@@ -9,8 +9,6 @@ import { LoadingState } from "~~/components/dao/LoadingState";
 import { Address } from "~~/components/scaffold-eth";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { getMFSSIAService } from "~~/services/MFSSIAService";
-import { generateAllExampleDEvidence, sha256Hash, validateRDFSyntax } from "~~/utils/evidenceGeneration";
 
 /* Minimal ABI for reading roles */
 const MKMP_ABI = [
@@ -29,32 +27,139 @@ const useMkmpAddress = (): `0x${string}` | undefined => {
   return deployedContracts?.[chainId as keyof typeof deployedContracts]?.MKMPOL21?.address as `0x${string}` | undefined;
 };
 
+/**
+ * Hash a string using Web Crypto API (SHA-256)
+ */
+async function sha256Hash(data: string): Promise<string> {
+  if (typeof window !== "undefined" && window.crypto && window.crypto.subtle) {
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(data);
+    const hashBuffer = await window.crypto.subtle.digest("SHA-256", dataBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return "0x" + hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  // Fallback for environments without Web Crypto
+  const crypto = await import("crypto");
+  return "0x" + crypto.createHash("sha256").update(data).digest("hex");
+}
+
+/**
+ * Validate TTL (Turtle) RDF syntax
+ * Checks for proper structure of pre-processed TTL files
+ */
+function validateTTLSyntax(content: string): {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+} {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Check for empty content
+  if (!content || content.trim().length === 0) {
+    errors.push("File is empty");
+    return { isValid: false, errors, warnings };
+  }
+
+  // Check for @prefix declarations
+  const prefixPattern = /@prefix\s+\w*:\s*<[^>]+>\s*\./g;
+  const prefixes = content.match(prefixPattern);
+  if (!prefixes || prefixes.length === 0) {
+    errors.push("No @prefix declarations found. TTL files must have namespace declarations.");
+  }
+
+  // Check for required prefixes for MKM data
+  const requiredPrefixes = [
+    { prefix: "art:", uri: "http://mkm.ee/article/", description: "Article namespace" },
+    { prefix: "ex:", uri: "http://mkm.ee/schema/", description: "Schema namespace" },
+    { prefix: "dct:", description: "Dublin Core Terms" },
+    { prefix: "prov:", description: "Provenance namespace" },
+  ];
+
+  for (const req of requiredPrefixes) {
+    if (!content.includes(`@prefix ${req.prefix}`)) {
+      if (req.prefix === "art:" || req.prefix === "ex:") {
+        errors.push(`Missing required prefix: ${req.prefix} (${req.description})`);
+      } else {
+        warnings.push(`Recommended prefix not found: ${req.prefix} (${req.description})`);
+      }
+    }
+  }
+
+  // Check for at least one subject definition (article)
+  const subjectPattern = /art:\w+\s+a\s+ex:Article/;
+  if (!subjectPattern.test(content)) {
+    errors.push("No article definition found. Expected pattern: art:ID a ex:Article");
+  }
+
+  // Check for basic triple structure (subject predicate object)
+  const triplePattern = /\w+:\w+\s+[\w:]+/;
+  if (!triplePattern.test(content)) {
+    errors.push("No valid RDF triples found");
+  }
+
+  // Check for unterminated strings
+  const unclosedQuotes = (content.match(/"""/g) || []).length;
+  if (unclosedQuotes % 2 !== 0) {
+    errors.push("Unterminated multi-line string literal (unmatched triple quotes)");
+  }
+
+  // Check for statement terminators
+  if (!content.includes(".") && !content.includes(";")) {
+    errors.push("No statement terminators found (missing '.' or ';')");
+  }
+
+  // Check for common TTL elements
+  if (content.includes("ex:bodyText") && !content.includes('"""')) {
+    warnings.push("bodyText property found but no multi-line string literal detected");
+  }
+
+  // Validate date format if present
+  const datePattern = /"\d{4}-\d{2}-\d{2}"\^\^xsd:date/;
+  if (content.includes("dct:created") && !datePattern.test(content)) {
+    warnings.push("dct:created found but date format may be incorrect (expected YYYY-MM-DD^^xsd:date)");
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+  };
+}
+
 interface RDFDocument {
   id: string;
   filename: string;
   content: string;
   uploadedAt: Date;
-  isValidated: boolean;
-  validationError: string | null;
+  // Validation status
+  syntaxValid: boolean | null;
+  syntaxErrors: string[];
+  syntaxWarnings: string[];
+  // Storage status
+  storageId: string | null;
+  isStored: boolean;
+  // Submission status
   isSubmitted: boolean;
   submittedAt: Date | null;
-  // MFSSIA-specific fields
-  did?: string;
-  instanceId?: string;
-  attestationUAL?: string;
-  challengesPassed?: number;
-  documentHash?: string;
-  // New RDF graph fields
-  graphType?: number; // 0=ARTICLES, 1=ENTITIES, 2=MENTIONS, 3=NLP, 4=ECONOMICS, 5=RELATIONS, 6=PROVENANCE
-  datasetVariant?: number; // 0=ERR_ONLINE, 1=OL_ONLINE, 2=OL_PRINT, 3=ARIREGISTER
-  year?: number;
-  modelVersion?: string;
-  graphURI?: string;
-  graphId?: string; // Returned from contract
+  graphId: string | null;
+  // Graph metadata (extracted or selected)
+  graphType: number;
+  datasetVariant: number;
+  year: number;
+  modelVersion: string;
+  graphURI: string;
+  documentHash: string | null;
 }
 
 /**
- * Data Provision Page - RDF Upload and Management
+ * Data Provision Page - TTL File Upload and Submission
+ * Simplified workflow:
+ * 1. Upload pre-processed TTL files
+ * 2. Validate TTL syntax
+ * 3. Submit to blockchain for Validation Committee review
+ * 4. Committee approves -> DKG publication (stubbed)
+ *
  * Only accessible to Member Institution role (index 0) and Owner (index 5)
  */
 export default function DataProvisionPage() {
@@ -63,19 +168,15 @@ export default function DataProvisionPage() {
   const mkmpAddress = useMkmpAddress();
   const { writeContractAsync } = useScaffoldWriteContract({ contractName: "GADataValidation" });
 
-  // Check if MFSSIA is enabled
-  const mfssiaEnabled = process.env.NEXT_PUBLIC_MFSSIA_ENABLED === "true";
-
   const [rdfDocuments, setRdfDocuments] = useState<RDFDocument[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [validatingId, setValidatingId] = useState<string | null>(null);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
-  // RDF Graph metadata
-  const [graphType, setGraphType] = useState<number>(0); // Default: ARTICLES
-  const [datasetVariant, setDatasetVariant] = useState<number>(0); // Default: ERR_ONLINE
-  const [year, setYear] = useState<number>(new Date().getFullYear());
+  // Graph metadata defaults
+  const [graphType, setGraphType] = useState<number>(0); // ARTICLES
+  const [datasetVariant, setDatasetVariant] = useState<number>(1); // OL_ONLINE (Õhtuleht)
+  const [year, setYear] = useState<number>(2024);
   const [modelVersion, setModelVersion] = useState<string>("EstBERT-1.0");
 
   const {
@@ -108,16 +209,16 @@ export default function DataProvisionPage() {
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Check file extension
-      if (!file.name.endsWith(".rdf") && !file.name.endsWith(".ttl") && !file.name.endsWith(".xml")) {
-        alert("Please select a valid RDF file (.rdf, .ttl, or .xml)");
+      // Check file extension - TTL is the primary format
+      if (!file.name.endsWith(".ttl") && !file.name.endsWith(".rdf") && !file.name.endsWith(".xml")) {
+        alert("Please select a valid RDF file (.ttl preferred, or .rdf, .xml)");
         return;
       }
       setSelectedFile(file);
     }
   }, []);
 
-  // Upload RDF file
+  // Upload and validate TTL file
   const handleUpload = useCallback(async () => {
     if (!selectedFile) return;
 
@@ -126,184 +227,107 @@ export default function DataProvisionPage() {
       // Read file content
       const content = await selectedFile.text();
 
-      // Generate graphURI based on graph type
+      // Validate TTL syntax
+      const validationResult = validateTTLSyntax(content);
+
+      // Generate document hash
+      const documentHash = await sha256Hash(content);
+
+      // Generate graphURI based on metadata
       const graphTypeNames = ["articles", "entities", "mentions", "nlp", "economics", "relations", "provenance"];
       const graphTypeName = graphTypeNames[graphType] || "graph";
-      const graphURI = `urn:graph:${graphTypeName}:${datasetVariant}:${year}`;
+      const graphURI = `urn:mkm:${graphTypeName}:${datasetVariant}:${year}`;
+
+      // Upload to server-side storage for BDI agents
+      let storageId: string | null = null;
+      let isStored = false;
+
+      if (validationResult.isValid) {
+        try {
+          console.log("[Data Provision] Uploading to TTL storage...");
+          const storageResponse = await fetch("/api/ttl-storage/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content,
+              expectedHash: documentHash,
+              metadata: {
+                graphType,
+                datasetVariant,
+                year,
+                modelVersion,
+                graphURI,
+                submitter: address,
+              },
+            }),
+          });
+
+          const storageResult = await storageResponse.json();
+
+          if (storageResult.success) {
+            storageId = storageResult.storageId;
+            isStored = true;
+            console.log(`[Data Provision] Stored with ID: ${storageId}`);
+          } else {
+            console.warn("[Data Provision] Storage upload failed:", storageResult.error);
+            // Continue without storage - fallback to browser-only
+          }
+        } catch (storageError) {
+          console.warn("[Data Provision] Storage upload error:", storageError);
+          // Continue without storage - fallback to browser-only
+        }
+      }
 
       // Create new document entry
       const newDoc: RDFDocument = {
-        id: `rdf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `ttl-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
         filename: selectedFile.name,
         content,
         uploadedAt: new Date(),
-        isValidated: false,
-        validationError: null,
+        syntaxValid: validationResult.isValid,
+        syntaxErrors: validationResult.errors,
+        syntaxWarnings: validationResult.warnings,
+        storageId,
+        isStored,
         isSubmitted: false,
         submittedAt: null,
+        graphId: null,
         graphType,
         datasetVariant,
         year,
         modelVersion,
         graphURI,
+        documentHash,
       };
 
       setRdfDocuments(prev => [...prev, newDoc]);
       setSelectedFile(null);
 
       // Reset file input
-      const fileInput = document.getElementById("rdf-file-input") as HTMLInputElement;
+      const fileInput = document.getElementById("ttl-file-input") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
+
+      // Show validation result
+      if (!validationResult.isValid) {
+        alert(
+          `TTL syntax validation failed:\n\n${validationResult.errors.join("\n")}\n\nPlease fix the errors and re-upload.`,
+        );
+      } else if (validationResult.warnings.length > 0) {
+        alert(
+          `TTL file uploaded with warnings:\n\n${validationResult.warnings.join("\n")}\n\n${isStored ? "File stored for agent validation." : "Note: Server storage unavailable - agents may not be able to validate."}`,
+        );
+      } else if (isStored) {
+        // Silently stored - no alert needed for success
+        console.log("[Data Provision] File validated and stored successfully");
+      }
     } catch (error) {
       alert("Failed to upload file: " + (error as Error).message);
     } finally {
       setIsUploading(false);
     }
-  }, [selectedFile, graphType, datasetVariant, year, modelVersion]);
+  }, [selectedFile, graphType, datasetVariant, year, modelVersion, address]);
 
-  // Validate RDF with MFSSIA Example D
-  const handleValidate = useCallback(
-    async (docId: string) => {
-      if (!address) {
-        alert("Please connect your wallet first");
-        return;
-      }
-
-      setValidatingId(docId);
-      try {
-        const doc = rdfDocuments.find(d => d.id === docId);
-        if (!doc) return;
-
-        console.log("[RDF Validation] Starting MFSSIA Example D validation...");
-
-        // Step 1: Basic RDF syntax validation
-        const syntaxCheck = validateRDFSyntax(doc.content);
-        if (!syntaxCheck.isValid) {
-          setRdfDocuments(prev =>
-            prev.map(d =>
-              d.id === docId
-                ? {
-                    ...d,
-                    isValidated: false,
-                    validationError: `RDF Syntax Error: ${syntaxCheck.errors.join(", ")}`,
-                  }
-                : d,
-            ),
-          );
-          return;
-        }
-
-        // If MFSSIA is not enabled, use basic validation only
-        if (!mfssiaEnabled) {
-          console.log("[RDF Validation] MFSSIA disabled - using basic validation");
-          setRdfDocuments(prev =>
-            prev.map(d =>
-              d.id === docId
-                ? {
-                    ...d,
-                    isValidated: true,
-                    validationError: null,
-                    challengesPassed: 9, // Mock all challenges passed
-                  }
-                : d,
-            ),
-          );
-          return;
-        }
-
-        // Real MFSSIA Example D validation
-        const mfssia = getMFSSIAService();
-        const did = `did:web:rdf:${address}:${docId}`;
-
-        // Step 2: Register DID with Example-D challenge set
-        console.log(`[RDF Validation] Registering DID: ${did}`);
-        await mfssia.registerDID(did, "mfssia:Example-D", {
-          roleType: "DATA_VALIDATOR",
-          documentId: docId,
-          filename: doc.filename,
-        });
-
-        // Step 3: Create Challenge Instance for Example D
-        console.log("[RDF Validation] Creating Example-D challenge instance...");
-        const instance = await mfssia.createChallengeInstance(did, "mfssia:Example-D");
-
-        // Step 4: Generate all Example D evidence
-        console.log("[RDF Validation] Generating evidence for 9 challenges...");
-        const documentHash = await sha256Hash(doc.content);
-        const allEvidence = await generateAllExampleDEvidence(doc.content, {
-          companyName: "Institution", // Could be extracted from user profile
-          governanceSignature: "", // Optional governance signature
-        });
-
-        // Step 5: Submit all evidence
-        console.log("[RDF Validation] Submitting evidence to MFSSIA...");
-        const evidenceList = Object.entries(allEvidence).map(([challengeCode, evidence]) => ({
-          challengeCode,
-          evidence,
-        }));
-
-        await mfssia.submitEvidenceBatch({
-          challengeInstanceId: instance.id,
-          responses: evidenceList.map(e => ({ challengeId: e.challengeCode, evidence: e.evidence })),
-        });
-        console.log("[RDF Validation] All evidence submitted successfully");
-
-        // Step 6: Poll for attestation
-        console.log("[RDF Validation] Waiting for oracle verification...");
-        const attestation = await mfssia.pollForAttestation(did, 30, 2000);
-
-        const challengesPassed = attestation.oracleProof.passedChallenges.length;
-        const isValid = challengesPassed >= 8; // Require 8/9 challenges
-
-        console.log(
-          `[RDF Validation] Attestation received: ${challengesPassed}/9 challenges passed (${attestation.oracleProof.confidence * 100}% confidence)`,
-        );
-
-        // Update document with validation results
-        setRdfDocuments(prev =>
-          prev.map(d =>
-            d.id === docId
-              ? {
-                  ...d,
-                  isValidated: isValid,
-                  validationError: isValid ? null : `Only ${challengesPassed}/9 challenges passed (8 required)`,
-                  did,
-                  instanceId: instance.id,
-                  attestationUAL: attestation.ual,
-                  challengesPassed,
-                  documentHash,
-                }
-              : d,
-          ),
-        );
-
-        if (isValid) {
-          alert(`RDF validated successfully! ${challengesPassed}/9 challenges passed.`);
-        } else {
-          alert(`Validation failed: Only ${challengesPassed}/9 challenges passed (8 required).`);
-        }
-      } catch (error: any) {
-        console.error("[RDF Validation] Error:", error);
-        setRdfDocuments(prev =>
-          prev.map(d =>
-            d.id === docId
-              ? {
-                  ...d,
-                  isValidated: false,
-                  validationError: error.message || "Validation failed",
-                }
-              : d,
-          ),
-        );
-        alert("Validation failed: " + error.message);
-      } finally {
-        setValidatingId(null);
-      }
-    },
-    [address, rdfDocuments, mfssiaEnabled],
-  );
-
-  // Submit RDF document to smart contract
+  // Submit validated TTL to smart contract
   const handleSubmit = useCallback(
     async (docId: string) => {
       if (!address) {
@@ -316,35 +340,24 @@ export default function DataProvisionPage() {
         const doc = rdfDocuments.find(d => d.id === docId);
         if (!doc) return;
 
-        if (!doc.isValidated) {
-          alert("Please validate the document before submitting");
+        if (!doc.syntaxValid) {
+          alert("Cannot submit: TTL syntax validation failed. Please fix errors and re-upload.");
           return;
         }
 
         if (!doc.documentHash) {
-          alert("Missing document hash. Please validate again.");
+          alert("Missing document hash. Please re-upload the file.");
           return;
         }
 
-        // Ensure all required graph metadata is present
-        if (
-          doc.graphType === undefined ||
-          doc.datasetVariant === undefined ||
-          !doc.year ||
-          !doc.modelVersion ||
-          !doc.graphURI
-        ) {
-          alert("Missing graph metadata. Please re-upload the file.");
-          return;
-        }
-
-        console.log("[RDF Submission] Submitting to GADataValidation smart contract...");
-        console.log(`Graph URI: ${doc.graphURI}`);
-        console.log(`Document Hash: ${doc.documentHash}`);
-        console.log(`Graph Type: ${doc.graphType}`);
-        console.log(`Dataset Variant: ${doc.datasetVariant}`);
-        console.log(`Year: ${doc.year}`);
-        console.log(`Model Version: ${doc.modelVersion}`);
+        console.log("[Data Provision] Submitting to GADataValidation smart contract...");
+        console.log(`  Graph URI: ${doc.graphURI}`);
+        console.log(`  Document Hash: ${doc.documentHash}`);
+        console.log(`  Graph Type: ${doc.graphType}`);
+        console.log(`  Dataset Variant: ${doc.datasetVariant}`);
+        console.log(`  Year: ${doc.year}`);
+        console.log(`  Model Version: ${doc.modelVersion}`);
+        console.log(`  Storage ID: ${doc.storageId || "not stored"}`);
 
         // Call smart contract submitRDFGraph function
         const result = await writeContractAsync({
@@ -359,7 +372,32 @@ export default function DataProvisionPage() {
           ],
         });
 
-        console.log(`[RDF Submission] Transaction result:`, result);
+        console.log(`[Data Provision] Transaction result:`, result);
+
+        // Link storage ID to graph ID (for BDI agent retrieval)
+        if (doc.storageId && result) {
+          try {
+            console.log(`[Data Provision] Linking storageId ${doc.storageId} to graphId...`);
+            const linkResponse = await fetch("/api/ttl-storage/link", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                storageId: doc.storageId,
+                graphId: result as string,
+              }),
+            });
+
+            const linkResult = await linkResponse.json();
+            if (linkResult.success) {
+              console.log(`[Data Provision] Successfully linked to graphId: ${result}`);
+            } else {
+              console.warn("[Data Provision] Failed to link storage:", linkResult.error);
+            }
+          } catch (linkError) {
+            console.warn("[Data Provision] Link error:", linkError);
+            // Continue anyway - the submission succeeded
+          }
+        }
 
         setRdfDocuments(prev =>
           prev.map(d => {
@@ -368,18 +406,33 @@ export default function DataProvisionPage() {
                 ...d,
                 isSubmitted: true,
                 submittedAt: new Date(),
-                graphId: result as string, // Store graphId returned from contract
+                graphId: result as string,
               };
             }
             return d;
           }),
         );
 
+        const graphTypeLabel = ["ARTICLES", "ENTITIES", "MENTIONS", "NLP", "ECONOMICS", "RELATIONS", "PROVENANCE"][
+          doc.graphType
+        ];
+        const datasetLabel = ["ERR Online", "Õhtuleht Online", "Õhtuleht Print", "Äriregister"][doc.datasetVariant];
+
         alert(
-          `RDF graph submitted successfully!\n\nGraph URI: ${doc.graphURI}\nGraph Type: ${["ARTICLES", "ENTITIES", "MENTIONS", "NLP", "ECONOMICS", "RELATIONS", "PROVENANCE"][doc.graphType]}\nDataset: ${["ERR Online", "ÕL Online", "ÕL Print", "Äriregister"][doc.datasetVariant]}\nYear: ${doc.year}\n\nThe Validation Committee will review your submission.`,
+          `TTL file submitted successfully!\n\n` +
+            `Graph URI: ${doc.graphURI}\n` +
+            `Graph Type: ${graphTypeLabel}\n` +
+            `Dataset: ${datasetLabel}\n` +
+            `Year: ${doc.year}\n` +
+            `${doc.isStored ? "Server Storage: Linked for agent validation" : "Note: Content only in browser memory"}\n\n` +
+            `Next steps:\n` +
+            `1. Syntax Validator Agent will verify the TTL structure\n` +
+            `2. Semantic Validator Agent will check RDF consistency\n` +
+            `3. Validation Committee will review and approve\n` +
+            `4. Once approved, the graph will be published to DKG`,
         );
       } catch (error: any) {
-        console.error("[RDF Submission] Error:", error);
+        console.error("[Data Provision] Error:", error);
         alert("Submission failed: " + (error?.shortMessage || error?.message || "Unknown error"));
       } finally {
         setSubmittingId(null);
@@ -387,6 +440,11 @@ export default function DataProvisionPage() {
     },
     [address, rdfDocuments, writeContractAsync],
   );
+
+  // Remove document from list
+  const handleRemove = useCallback((docId: string) => {
+    setRdfDocuments(prev => prev.filter(d => d.id !== docId));
+  }, []);
 
   // Not connected state
   if (!address) {
@@ -469,7 +527,7 @@ export default function DataProvisionPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold mb-2">Data Provision</h1>
-              <p className="text-base-content/70">Upload and manage RDF data files for committee validation</p>
+              <p className="text-base-content/70">Upload pre-processed TTL files for committee validation</p>
             </div>
           </div>
         </div>
@@ -482,10 +540,10 @@ export default function DataProvisionPage() {
           <div className="card-body">
             <h2 className="card-title flex items-center gap-2">
               <UploadIcon className="w-6 h-6 text-primary" />
-              Upload RDF Document
+              Upload TTL File
             </h2>
             <p className="text-sm text-base-content/70 mb-4">
-              Select and upload RDF files (.rdf, .ttl, or .xml format) with metadata
+              Upload pre-processed Turtle (.ttl) files containing RDF article data
             </p>
 
             {/* Graph Metadata Form */}
@@ -499,29 +557,29 @@ export default function DataProvisionPage() {
                   onChange={e => setGraphType(Number(e.target.value))}
                   className="select select-bordered select-primary"
                 >
-                  <option value={0}>ARTICLES - Article metadata</option>
+                  <option value={0}>ARTICLES - Article content and metadata</option>
                   <option value={1}>ENTITIES - Named entities</option>
-                  <option value={2}>MENTIONS - Entity mentions</option>
+                  <option value={2}>MENTIONS - Entity mentions in text</option>
                   <option value={3}>NLP - NLP analysis results</option>
-                  <option value={4}>ECONOMICS - Economic data</option>
-                  <option value={5}>RELATIONS - Entity relations</option>
+                  <option value={4}>ECONOMICS - Economic classifications</option>
+                  <option value={5}>RELATIONS - Entity relationships</option>
                   <option value={6}>PROVENANCE - Data provenance</option>
                 </select>
               </div>
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Dataset Variant</span>
+                  <span className="label-text">Dataset Source</span>
                 </label>
                 <select
                   value={datasetVariant}
                   onChange={e => setDatasetVariant(Number(e.target.value))}
                   className="select select-bordered select-primary"
                 >
-                  <option value={0}>ERR Online - ERR online content</option>
-                  <option value={1}>Õhtuleht Online - ÕL online content</option>
-                  <option value={2}>Õhtuleht Print - ÕL print content</option>
-                  <option value={3}>Äriregister - Business Registry</option>
+                  <option value={0}>ERR Online - Estonian Public Broadcasting</option>
+                  <option value={1}>Õhtuleht Online - Evening newspaper (online)</option>
+                  <option value={2}>Õhtuleht Print - Evening newspaper (print)</option>
+                  <option value={3}>Äriregister - Estonian Business Registry</option>
                 </select>
               </div>
 
@@ -532,11 +590,10 @@ export default function DataProvisionPage() {
                 <input
                   type="number"
                   min="2000"
-                  max="2100"
+                  max="2030"
                   value={year}
                   onChange={e => setYear(Number(e.target.value))}
                   className="input input-bordered input-primary"
-                  placeholder="e.g., 2024"
                 />
               </div>
 
@@ -559,12 +616,12 @@ export default function DataProvisionPage() {
             <div className="flex flex-col sm:flex-row gap-4 items-end">
               <div className="form-control flex-1">
                 <label className="label">
-                  <span className="label-text">Select RDF File</span>
+                  <span className="label-text">Select TTL File</span>
                 </label>
                 <input
-                  id="rdf-file-input"
+                  id="ttl-file-input"
                   type="file"
-                  accept=".rdf,.ttl,.xml"
+                  accept=".ttl,.rdf,.xml"
                   onChange={handleFileSelect}
                   className="file-input file-input-bordered file-input-primary w-full"
                 />
@@ -577,12 +634,12 @@ export default function DataProvisionPage() {
                 {isUploading ? (
                   <>
                     <SpinnerIcon className="w-5 h-5" />
-                    Uploading...
+                    Validating...
                   </>
                 ) : (
                   <>
                     <UploadIcon className="w-5 h-5" />
-                    Upload File
+                    Upload & Validate
                   </>
                 )}
               </button>
@@ -605,128 +662,158 @@ export default function DataProvisionPage() {
           <div className="card-body">
             <h2 className="card-title flex items-center gap-2 mb-4">
               <DataIcon className="w-6 h-6 text-accent" />
-              Uploaded Documents ({rdfDocuments.length})
+              Uploaded Files ({rdfDocuments.length})
             </h2>
 
             {rdfDocuments.length === 0 ? (
               <div className="text-center py-12">
                 <DataIcon className="w-16 h-16 text-base-content/20 mx-auto mb-4" />
-                <p className="text-base-content/60">No documents uploaded yet</p>
-                <p className="text-sm text-base-content/50 mt-2">Upload your first RDF document to get started</p>
+                <p className="text-base-content/60">No files uploaded yet</p>
+                <p className="text-sm text-base-content/50 mt-2">Upload your first TTL file to get started</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {rdfDocuments.map(doc => (
-                  <div key={doc.id} className="card bg-base-200 border border-base-300">
+                  <div
+                    key={doc.id}
+                    className={`card border ${doc.syntaxValid === false ? "bg-error/5 border-error/30" : "bg-base-200 border-base-300"}`}
+                  >
                     <div className="card-body">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg mb-2">{doc.filename}</h3>
-                          <div className="flex flex-wrap gap-2 text-xs mb-2">
+
+                          {/* Status badges */}
+                          <div className="flex flex-wrap gap-2 text-xs mb-3">
                             <div className="badge badge-outline">Uploaded: {doc.uploadedAt.toLocaleDateString()}</div>
-                            {doc.isValidated && !doc.validationError && (
+
+                            {doc.syntaxValid === true && (
                               <div className="badge badge-success gap-1">
                                 <CheckCircleIcon className="w-3 h-3" />
-                                Validated
+                                Syntax Valid
                               </div>
                             )}
-                            {doc.validationError && <div className="badge badge-error">Validation Failed</div>}
+                            {doc.syntaxValid === false && <div className="badge badge-error gap-1">Syntax Invalid</div>}
+                            {doc.isStored && (
+                              <div className="badge badge-secondary gap-1">
+                                <CheckCircleIcon className="w-3 h-3" />
+                                Stored for Agents
+                              </div>
+                            )}
+                            {doc.syntaxValid && !doc.isStored && (
+                              <div className="badge badge-warning gap-1">Browser Only</div>
+                            )}
                             {doc.isSubmitted && (
                               <div className="badge badge-info gap-1">
                                 <CheckCircleIcon className="w-3 h-3" />
-                                Submitted
+                                Submitted to DAO
                               </div>
                             )}
                           </div>
-                          {/* RDF Graph Metadata */}
-                          {doc.graphType !== undefined && (
-                            <div className="grid grid-cols-2 gap-2 text-xs bg-base-300/30 rounded-lg p-2 mt-2">
-                              <div>
-                                <span className="text-base-content/60">Graph Type:</span>{" "}
-                                <span className="font-semibold">
-                                  {
-                                    ["ARTICLES", "ENTITIES", "MENTIONS", "NLP", "ECONOMICS", "RELATIONS", "PROVENANCE"][
-                                      doc.graphType
-                                    ]
-                                  }
-                                </span>
+
+                          {/* Graph Metadata */}
+                          <div className="grid grid-cols-2 gap-2 text-xs bg-base-300/30 rounded-lg p-3 mb-3">
+                            <div>
+                              <span className="text-base-content/60">Graph Type:</span>{" "}
+                              <span className="font-semibold">
+                                {
+                                  ["ARTICLES", "ENTITIES", "MENTIONS", "NLP", "ECONOMICS", "RELATIONS", "PROVENANCE"][
+                                    doc.graphType
+                                  ]
+                                }
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-base-content/60">Dataset:</span>{" "}
+                              <span className="font-semibold">
+                                {["ERR Online", "ÕL Online", "ÕL Print", "Äriregister"][doc.datasetVariant]}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-base-content/60">Year:</span>{" "}
+                              <span className="font-semibold">{doc.year}</span>
+                            </div>
+                            <div>
+                              <span className="text-base-content/60">Model:</span>{" "}
+                              <span className="font-semibold">{doc.modelVersion}</span>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-base-content/60">Graph URI:</span>{" "}
+                              <span className="font-mono text-xs">{doc.graphURI}</span>
+                            </div>
+                            {doc.documentHash && (
+                              <div className="col-span-2">
+                                <span className="text-base-content/60">Hash:</span>{" "}
+                                <span className="font-mono text-xs truncate">{doc.documentHash.slice(0, 20)}...</span>
                               </div>
-                              <div>
-                                <span className="text-base-content/60">Dataset:</span>{" "}
-                                <span className="font-semibold">
-                                  {["ERR Online", "ÕL Online", "ÕL Print", "Äriregister"][doc.datasetVariant || 0]}
-                                </span>
-                              </div>
-                              <div>
-                                <span className="text-base-content/60">Year:</span>{" "}
-                                <span className="font-semibold">{doc.year}</span>
-                              </div>
-                              <div>
-                                <span className="text-base-content/60">Model:</span>{" "}
-                                <span className="font-semibold">{doc.modelVersion}</span>
-                              </div>
-                              {doc.graphURI && (
-                                <div className="col-span-2">
-                                  <span className="text-base-content/60">Graph URI:</span>{" "}
-                                  <span className="font-mono text-xs">{doc.graphURI}</span>
-                                </div>
-                              )}
+                            )}
+                          </div>
+
+                          {/* Validation errors */}
+                          {doc.syntaxErrors.length > 0 && (
+                            <div className="bg-error/10 rounded-lg p-3 mb-3">
+                              <p className="text-sm font-semibold text-error mb-1">Syntax Errors:</p>
+                              <ul className="text-xs text-error/80 list-disc list-inside">
+                                {doc.syntaxErrors.map((err, i) => (
+                                  <li key={i}>{err}</li>
+                                ))}
+                              </ul>
                             </div>
                           )}
-                          {doc.validationError && <p className="text-sm text-error mt-2">{doc.validationError}</p>}
+
+                          {/* Validation warnings */}
+                          {doc.syntaxWarnings.length > 0 && (
+                            <div className="bg-warning/10 rounded-lg p-3 mb-3">
+                              <p className="text-sm font-semibold text-warning mb-1">Warnings:</p>
+                              <ul className="text-xs text-warning/80 list-disc list-inside">
+                                {doc.syntaxWarnings.map((warn, i) => (
+                                  <li key={i}>{warn}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
                           {doc.isSubmitted && doc.submittedAt && (
-                            <p className="text-sm text-base-content/60 mt-2">
-                              Submitted: {doc.submittedAt.toLocaleString()}
+                            <p className="text-sm text-success">
+                              Submitted: {doc.submittedAt.toLocaleString()} - Awaiting agent validation and committee
+                              review
                             </p>
                           )}
                         </div>
 
+                        {/* Action buttons */}
                         <div className="flex flex-wrap gap-2">
-                          {!doc.isValidated && (
-                            <button
-                              onClick={() => handleValidate(doc.id)}
-                              disabled={validatingId === doc.id}
-                              className="btn btn-sm btn-outline btn-primary gap-2"
-                            >
-                              {validatingId === doc.id ? (
-                                <>
-                                  <SpinnerIcon className="w-4 h-4" />
-                                  Validating...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircleIcon className="w-4 h-4" />
-                                  Validate RDF Syntax
-                                </>
+                          {!doc.isSubmitted && (
+                            <>
+                              {doc.syntaxValid && (
+                                <button
+                                  onClick={() => handleSubmit(doc.id)}
+                                  disabled={submittingId === doc.id}
+                                  className="btn btn-sm btn-success gap-2"
+                                >
+                                  {submittingId === doc.id ? (
+                                    <>
+                                      <SpinnerIcon className="w-4 h-4" />
+                                      Submitting...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircleIcon className="w-4 h-4" />
+                                      Submit to DAO
+                                    </>
+                                  )}
+                                </button>
                               )}
-                            </button>
-                          )}
-
-                          {doc.isValidated && !doc.validationError && !doc.isSubmitted && (
-                            <button
-                              onClick={() => handleSubmit(doc.id)}
-                              disabled={submittingId === doc.id}
-                              className="btn btn-sm btn-success gap-2"
-                            >
-                              {submittingId === doc.id ? (
-                                <>
-                                  <SpinnerIcon className="w-4 h-4" />
-                                  Submitting...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircleIcon className="w-4 h-4" />
-                                  Submit for Approval
-                                </>
-                              )}
-                            </button>
+                              <button onClick={() => handleRemove(doc.id)} className="btn btn-sm btn-outline btn-error">
+                                Remove
+                              </button>
+                            </>
                           )}
 
                           {doc.isSubmitted && (
-                            <div className="badge badge-lg badge-success gap-2">
-                              <CheckCircleIcon className="w-4 h-4" />
-                              Awaiting Committee Review
-                            </div>
+                            <Link href="/rdf-status" className="btn btn-sm btn-outline btn-info">
+                              View Status
+                            </Link>
                           )}
                         </div>
                       </div>
@@ -738,39 +825,31 @@ export default function DataProvisionPage() {
           </div>
         </div>
 
-        {/* Info Card */}
+        {/* Workflow Info */}
         <div className="alert bg-primary/10 border border-primary/20 mt-8">
           <DataIcon className="w-6 h-6 text-primary shrink-0" />
           <div className="text-sm">
-            <p className="font-semibold">RDF Graph Submission Workflow</p>
+            <p className="font-semibold">TTL Submission Workflow</p>
             <ol className="list-decimal list-inside mt-2 text-base-content/70 space-y-1">
               <li>
-                <strong>Configure Graph Metadata:</strong> Select graph type, dataset variant, year, and NLP model
-                version
+                <strong>Upload:</strong> Select a pre-processed TTL file and configure metadata
               </li>
               <li>
-                <strong>Upload RDF File:</strong> Choose your .rdf, .ttl, or .xml file
+                <strong>Syntax Validation:</strong> Basic TTL structure is validated on upload
               </li>
               <li>
-                <strong>Validate Syntax:</strong> Click &quot;Validate RDF Syntax&quot; to check document structure and
-                run MFSSIA authentication
+                <strong>Submit to DAO:</strong> File hash and metadata are recorded on-chain
               </li>
               <li>
-                <strong>Submit for Approval:</strong> Once validated, submit to the GADataValidation contract
+                <strong>Agent Validation:</strong> Syntax and Semantic Validator agents verify the RDF
               </li>
               <li>
-                <strong>Committee Review:</strong> The Validation Committee will review and approve your submission
+                <strong>Committee Review:</strong> Validation Committee approves or rejects the submission
               </li>
               <li>
-                <strong>DKG Publication:</strong> After approval, the graph will be published to OriginTrail DKG
+                <strong>DKG Publication:</strong> Approved graphs are published to OriginTrail DKG
               </li>
             </ol>
-            <div className="mt-3 pt-3 border-t border-primary/20">
-              <p className="text-xs text-base-content/60">
-                <strong>Note:</strong> Each submission creates a versioned RDF graph entry in the smart contract. The
-                version number increments automatically for graphs with the same dataset variant and year.
-              </p>
-            </div>
           </div>
         </div>
       </div>

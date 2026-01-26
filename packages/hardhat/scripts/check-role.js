@@ -5,6 +5,7 @@
  * Usage: node check-role.js <your-address>
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { ethers } = require("hardhat");
 
 async function main() {
@@ -39,7 +40,7 @@ async function main() {
       5: "MKMPOL21Owner",
       6: "Consortium",
       7: "Validation_Committee",
-      8: "Dispute_Resolution_Board"
+      8: "Dispute_Resolution_Board",
     };
 
     console.log("\n📊 Role Status:");
@@ -80,7 +81,6 @@ async function main() {
     }
 
     console.log("\n" + "━".repeat(60) + "\n");
-
   } catch (error) {
     console.error("\n❌ Error:", error.message);
     console.log("\n💡 Make sure:");
@@ -92,7 +92,7 @@ async function main() {
 
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
   });

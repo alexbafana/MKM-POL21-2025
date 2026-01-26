@@ -1,0 +1,194 @@
+# MKM Employment/Economics SHACL Shapes
+# Validates TTL files containing employment events and economic data
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://mkm.ee/schema/> .
+@prefix cls: <http://mkm.ee/classification/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+
+# Shape for EMTAK classification codes
+ex:EMTAKShape a sh:NodeShape ;
+    sh:targetSubjectsOf cls:hasEMTAKClassification ;
+    sh:name "EMTAK Classification Shape" ;
+    sh:description "Validates Estonian EMTAK economic classification codes" ;
+
+    sh:property [
+        sh:path cls:hasEMTAKClassification ;
+        sh:name "EMTAK Code" ;
+        sh:description "Estonian economic activity classification code (5 digits)" ;
+        sh:pattern "^[0-9]{5}$" ;
+        sh:message "EMTAK code must be exactly 5 digits"
+    ] .
+
+# Shape for employment event instances
+ex:EmploymentEventShape a sh:NodeShape ;
+    sh:targetClass ex:EmploymentEvent ;
+    sh:name "Employment Event Shape" ;
+    sh:description "Validates employment event instances" ;
+
+    # Event type is required
+    sh:property [
+        sh:path ex:eventType ;
+        sh:name "Event Type" ;
+        sh:description "Type of employment event" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            ex:Hiring
+            ex:Layoff
+            ex:Restructuring
+            ex:Expansion
+            ex:Closure
+            ex:Bankruptcy
+        ) ;
+        sh:message "Employment event must have a valid event type"
+    ] ;
+
+    # Organization is required
+    sh:property [
+        sh:path ex:organization ;
+        sh:name "Organization" ;
+        sh:description "Organization involved in the event" ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Employment event must reference an organization"
+    ] ;
+
+    # Job count (if applicable)
+    sh:property [
+        sh:path ex:jobCount ;
+        sh:name "Job Count" ;
+        sh:description "Number of jobs affected" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Job count must be a positive integer if specified"
+    ] ;
+
+    # Event date
+    sh:property [
+        sh:path ex:eventDate ;
+        sh:name "Event Date" ;
+        sh:description "Date of the employment event" ;
+        sh:minCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:date ]
+            [ sh:datatype xsd:dateTime ]
+            [ sh:datatype xsd:gYearMonth ]
+            [ sh:datatype xsd:gYear ]
+        ) ;
+        sh:message "Employment event must have a date"
+    ] ;
+
+    # Source article reference
+    sh:property [
+        sh:path ex:extractedFrom ;
+        sh:name "Source Article" ;
+        sh:description "Article from which this event was extracted" ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Source article must be an IRI if specified"
+    ] .
+
+# Shape for organization/company instances
+ex:OrganizationShape a sh:NodeShape ;
+    sh:targetClass org:Organization ;
+    sh:name "Organization Shape" ;
+    sh:description "Validates organization/company instances" ;
+
+    # Name is required
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Organization Name" ;
+        sh:description "Official name of the organization" ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Organization must have a name"
+    ] ;
+
+    # Registry code (optional but validated)
+    sh:property [
+        sh:path ex:registryCode ;
+        sh:name "Registry Code" ;
+        sh:description "Estonian business registry code" ;
+        sh:pattern "^[0-9]{8}$" ;
+        sh:message "Estonian registry code must be exactly 8 digits"
+    ] ;
+
+    # Employee count (optional but validated)
+    sh:property [
+        sh:path ex:employeeCount ;
+        sh:name "Employee Count" ;
+        sh:description "Number of employees" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Employee count must be a non-negative integer"
+    ] ;
+
+    # EMTAK classification
+    sh:property [
+        sh:path cls:hasEMTAKClassification ;
+        sh:name "EMTAK Classification" ;
+        sh:description "Primary economic activity classification" ;
+        sh:pattern "^[0-9]{5}$" ;
+        sh:message "EMTAK classification must be a 5-digit code"
+    ] .
+
+# Shape for employment statistics aggregates
+ex:EmploymentStatsShape a sh:NodeShape ;
+    sh:targetClass ex:EmploymentStatistics ;
+    sh:name "Employment Statistics Shape" ;
+    sh:description "Validates aggregated employment statistics" ;
+
+    # Period is required
+    sh:property [
+        sh:path ex:period ;
+        sh:name "Period" ;
+        sh:description "Time period for the statistics" ;
+        sh:minCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:gYear ]
+            [ sh:datatype xsd:gYearMonth ]
+        ) ;
+        sh:message "Statistics must specify a time period (year or year-month)"
+    ] ;
+
+    # Region is required
+    sh:property [
+        sh:path ex:region ;
+        sh:name "Region" ;
+        sh:description "Geographic region" ;
+        sh:minCount 1 ;
+        sh:message "Statistics must specify a region"
+    ] ;
+
+    # Total jobs
+    sh:property [
+        sh:path ex:totalJobs ;
+        sh:name "Total Jobs" ;
+        sh:description "Total number of jobs in the region/period" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Total jobs must be a non-negative integer"
+    ] ;
+
+    # Hiring count
+    sh:property [
+        sh:path ex:hiringCount ;
+        sh:name "Hiring Count" ;
+        sh:description "Number of new hires" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Hiring count must be a non-negative integer"
+    ] ;
+
+    # Layoff count
+    sh:property [
+        sh:path ex:layoffCount ;
+        sh:name "Layoff Count" ;
+        sh:description "Number of layoffs" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Layoff count must be a non-negative integer"
+    ] .

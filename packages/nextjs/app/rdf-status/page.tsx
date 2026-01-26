@@ -22,6 +22,10 @@ interface GraphDetails {
   validated: boolean;
   approved: boolean;
   published: boolean;
+  // Detailed validation
+  syntaxValid?: boolean;
+  semanticValid?: boolean;
+  validationErrors?: string;
   // Basic info
   graphHash?: string;
   graphURI?: string;
@@ -69,12 +73,24 @@ export default function RDFStatusPage() {
     query: { enabled: !!searchedId },
   });
 
+  // Query detailed validation status
+  const { data: validationDetails, refetch: refetchValidation } = useScaffoldReadContract({
+    contractName: "GADataValidation",
+    functionName: "getValidationDetails",
+    args: [searchedId as `0x${string}`],
+    query: { enabled: !!searchedId },
+  });
+
   const graphDetails: GraphDetails | null = statusData
     ? {
         exists: statusData[0],
         validated: statusData[1],
         approved: statusData[2],
         published: statusData[3],
+        // Detailed validation from separate call
+        syntaxValid: validationDetails?.[0],
+        semanticValid: validationDetails?.[1],
+        validationErrors: validationDetails?.[3],
         // Basic info from separate call
         graphHash: basicInfo?.[0],
         graphURI: basicInfo?.[1],
@@ -104,9 +120,10 @@ export default function RDFStatusPage() {
       await refetchStatus();
       await refetchBasic();
       await refetchMetadata();
+      await refetchValidation();
       setIsSearching(false);
     }, 500);
-  }, [graphId, refetchStatus, refetchBasic, refetchMetadata]);
+  }, [graphId, refetchStatus, refetchBasic, refetchMetadata, refetchValidation]);
 
   return (
     <div className="min-h-[calc(100vh-5rem)]">
@@ -212,27 +229,69 @@ export default function RDFStatusPage() {
                         <div className="badge badge-success">Complete</div>
                       </div>
 
-                      {/* Step 2: Validated */}
+                      {/* Step 2: Syntax Validation */}
                       <div className="flex items-center gap-4">
                         <div className="flex-shrink-0">
-                          {graphDetails.validated ? (
+                          {graphDetails.syntaxValid === true ? (
                             <CheckCircleIcon className="w-8 h-8 text-success" />
+                          ) : graphDetails.syntaxValid === false ? (
+                            <XCircleIcon className="w-8 h-8 text-error" />
                           ) : (
                             <ClockIcon className="w-8 h-8 text-warning" />
                           )}
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold">RDF Syntax Validation</h3>
+                          <h3 className="font-semibold">N3.js Syntax Validation</h3>
                           <p className="text-sm text-base-content/70">
-                            {graphDetails.validated
-                              ? "Graph passed RDF syntax validation"
-                              : "Awaiting validation by Data Validator"}
+                            {graphDetails.syntaxValid === true
+                              ? "TTL syntax validated successfully"
+                              : graphDetails.syntaxValid === false
+                                ? "Syntax validation failed"
+                                : "Awaiting validation by Data Validator"}
                           </p>
                         </div>
-                        {graphDetails.validated ? (
-                          <div className="badge badge-success">Complete</div>
+                        {graphDetails.syntaxValid === true ? (
+                          <div className="badge badge-success">Passed</div>
+                        ) : graphDetails.syntaxValid === false ? (
+                          <div className="badge badge-error">Failed</div>
                         ) : (
                           <div className="badge badge-warning">Pending</div>
+                        )}
+                      </div>
+
+                      {/* Step 2.5: Semantic Validation */}
+                      <div className="flex items-center gap-4">
+                        <div className="flex-shrink-0">
+                          {graphDetails.semanticValid === true ? (
+                            <CheckCircleIcon className="w-8 h-8 text-success" />
+                          ) : graphDetails.semanticValid === false ? (
+                            <XCircleIcon className="w-8 h-8 text-error" />
+                          ) : graphDetails.syntaxValid === true ? (
+                            <ClockIcon className="w-8 h-8 text-warning" />
+                          ) : (
+                            <ClockIcon className="w-8 h-8 text-base-content/30" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">SHACL Semantic Validation</h3>
+                          <p className="text-sm text-base-content/70">
+                            {graphDetails.semanticValid === true
+                              ? "RDF conforms to SHACL shapes"
+                              : graphDetails.semanticValid === false
+                                ? "SHACL validation failed"
+                                : graphDetails.syntaxValid === true
+                                  ? "Awaiting semantic validation"
+                                  : "Requires syntax validation first"}
+                          </p>
+                        </div>
+                        {graphDetails.semanticValid === true ? (
+                          <div className="badge badge-success">Passed</div>
+                        ) : graphDetails.semanticValid === false ? (
+                          <div className="badge badge-error">Failed</div>
+                        ) : graphDetails.syntaxValid === true ? (
+                          <div className="badge badge-warning">Pending</div>
+                        ) : (
+                          <div className="badge badge-ghost">Locked</div>
                         )}
                       </div>
 
@@ -298,6 +357,25 @@ export default function RDFStatusPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Validation Errors (if any) */}
+                {graphDetails.validationErrors && graphDetails.validationErrors.length > 0 && (
+                  <div className="card bg-error/10 border border-error/30 mb-8">
+                    <div className="card-body">
+                      <h2 className="card-title text-error mb-4">
+                        <XCircleIcon className="w-6 h-6" />
+                        Validation Errors
+                      </h2>
+                      <div className="bg-error/5 rounded-lg p-4">
+                        <p className="font-mono text-sm whitespace-pre-wrap">{graphDetails.validationErrors}</p>
+                      </div>
+                      <p className="text-sm text-base-content/70 mt-2">
+                        These errors were recorded by the validation agent. The original submitter should fix these
+                        issues and resubmit.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Graph Details */}
                 <div className="card bg-base-100 shadow-xl border border-base-300 mb-8">
