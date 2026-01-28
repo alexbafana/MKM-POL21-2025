@@ -1,14 +1,12 @@
 /**
  * DKG Publisher Service
  *
- * Stubbed service for publishing validated TTL (Turtle RDF) content to the
- * OriginTrail Decentralized Knowledge Graph (DKG). Provides step-by-step
+ * Publishes validated TTL (Turtle RDF) content to the MFSSIA API endpoint
+ * (POST /api/rdf with Content-Type: text/turtle). Provides step-by-step
  * progress tracking for the publish workflow.
  *
- * Current status: STUBBED - DKG submission and blockchain recording are
- * simulated. Set DKG_PUBLISHER_ENABLED=true in .env to enable.
+ * Set DKG_PUBLISHER_ENABLED=true in .env to enable.
  */
-import { randomBytes } from "crypto";
 import { getTTLStorageService } from "~~/services/TTLStorageService";
 
 // =============================================================================
@@ -53,10 +51,6 @@ function updateStep(step: PublishStep, status: PublishStep["status"], message: s
   };
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 // =============================================================================
 // DKG Publisher Service
 // =============================================================================
@@ -74,18 +68,19 @@ export class DKGPublisherService {
   }
 
   /**
-   * Publish TTL content associated with a graphId to the OriginTrail DKG.
+   * Publish TTL content associated with a graphId to the MFSSIA API.
    *
    * Workflow:
-   *  1. Fetch TTL content from TTLStorageService by graphId
-   *  2. Prepare a JSON-LD wrapper with TTL content and metadata
-   *  3. Submit to OriginTrail DKG (STUBBED - simulated with delay)
-   *  4. Record the resulting UAL on the blockchain (STUBBED - logged only)
+   *  1. Fetch TTL content from TTLStorageService by graphId (skipped if ttlContent provided)
+   *  2. Prepare metadata for the publish request
+   *  3. POST raw TTL to MFSSIA API /api/rdf (Content-Type: text/turtle)
+   *  4. Log note about on-chain recording (done separately from frontend via wagmi)
    *
    * @param graphId - The on-chain graph identifier to publish
+   * @param ttlContent - Optional pre-fetched TTL content (skips Step 1 if provided)
    * @returns PublishResult with step-by-step progress and the resulting UAL
    */
-  async publishToDKG(graphId: string): Promise<PublishResult> {
+  async publishToDKG(graphId: string, ttlContent?: string): Promise<PublishResult> {
     if (!this.enabled) {
       console.warn(`${LOG_PREFIX} Publishing is disabled. Set DKG_PUBLISHER_ENABLED=true to enable.`);
       return {
@@ -103,39 +98,50 @@ export class DKGPublisherService {
       createStep("Recording UAL on blockchain"),
     ];
 
-    let ttlContent = "";
+    let resolvedTtlContent = ttlContent || "";
     let metadata: Record<string, unknown> = {};
     let dkgAssetUAL = "";
 
     // -------------------------------------------------------------------------
-    // Step 1: Fetch TTL content from storage
+    // Step 1: Fetch TTL content from storage (skipped if ttlContent provided)
     // -------------------------------------------------------------------------
-    steps[0] = updateStep(steps[0], "in_progress", "Retrieving TTL content for graphId: " + graphId);
-    console.log(`${LOG_PREFIX} Step 1: Fetching TTL content for graphId ${graphId}`);
-
-    try {
-      const ttlStorage = getTTLStorageService();
-      const result = await ttlStorage.getByGraphId(graphId);
-      ttlContent = result.content;
-      metadata = (result.metadata as Record<string, unknown>) ?? {};
-
+    if (resolvedTtlContent) {
       steps[0] = updateStep(
         steps[0],
         "completed",
-        `Retrieved ${ttlContent.length} characters (hash: ${result.contentHash})`,
+        `Using provided TTL content (${resolvedTtlContent.length} characters)`,
       );
-      console.log(`${LOG_PREFIX} Step 1 completed: ${ttlContent.length} chars retrieved`);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      steps[0] = updateStep(steps[0], "failed", `Failed to fetch TTL content: ${errorMessage}`);
-      console.error(`${LOG_PREFIX} Step 1 failed:`, errorMessage);
+      console.log(
+        `${LOG_PREFIX} Step 1: TTL content provided directly (${resolvedTtlContent.length} chars), skipping storage fetch`,
+      );
+    } else {
+      steps[0] = updateStep(steps[0], "in_progress", "Retrieving TTL content for graphId: " + graphId);
+      console.log(`${LOG_PREFIX} Step 1: Fetching TTL content for graphId ${graphId}`);
 
-      return {
-        success: false,
-        graphId,
-        dkgAssetUAL: "",
-        steps,
-      };
+      try {
+        const ttlStorage = getTTLStorageService();
+        const result = await ttlStorage.getByGraphId(graphId);
+        resolvedTtlContent = result.content;
+        metadata = (result.metadata as Record<string, unknown>) ?? {};
+
+        steps[0] = updateStep(
+          steps[0],
+          "completed",
+          `Retrieved ${resolvedTtlContent.length} characters (hash: ${result.contentHash})`,
+        );
+        console.log(`${LOG_PREFIX} Step 1 completed: ${resolvedTtlContent.length} chars retrieved`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        steps[0] = updateStep(steps[0], "failed", `Failed to fetch TTL content: ${errorMessage}`);
+        console.error(`${LOG_PREFIX} Step 1 failed:`, errorMessage);
+
+        return {
+          success: false,
+          graphId,
+          dkgAssetUAL: "",
+          steps,
+        };
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -145,29 +151,21 @@ export class DKGPublisherService {
     console.log(`${LOG_PREFIX} Step 2: Preparing DKG publish request`);
 
     try {
-      const jsonLdPayload = {
-        "@context": {
-          schema: "http://schema.org/",
-          dkg: "https://dkg.origintrail.io/schema/",
-          mkmpol: "https://mkmpol21.eu/ontology/",
-        },
-        "@type": "dkg:KnowledgeAsset",
-        "dkg:graphId": graphId,
-        "dkg:contentType": "text/turtle",
-        "dkg:content": ttlContent,
-        "mkmpol:metadata": {
-          ...metadata,
-          publishedAt: new Date().toISOString(),
-          source: "MKMPOL21-DAO",
-        },
+      const ttlSize = resolvedTtlContent.length;
+      const metadataInfo = {
+        graphId,
+        contentType: "text/turtle",
+        contentSize: ttlSize,
+        publishedAt: new Date().toISOString(),
+        source: "MKMPOL21-DAO",
+        ...metadata,
       };
 
-      const payloadSize = JSON.stringify(jsonLdPayload).length;
-      steps[1] = updateStep(steps[1], "completed", `JSON-LD payload prepared (${payloadSize} bytes)`);
-      console.log(`${LOG_PREFIX} Step 2 completed: JSON-LD payload is ${payloadSize} bytes`);
+      steps[1] = updateStep(steps[1], "completed", `Metadata prepared (TTL size: ${ttlSize} bytes)`);
+      console.log(`${LOG_PREFIX} Step 2 completed: TTL content is ${ttlSize} bytes`, metadataInfo);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      steps[1] = updateStep(steps[1], "failed", `Failed to prepare JSON-LD: ${errorMessage}`);
+      steps[1] = updateStep(steps[1], "failed", `Failed to prepare metadata: ${errorMessage}`);
       console.error(`${LOG_PREFIX} Step 2 failed:`, errorMessage);
 
       return {
@@ -179,25 +177,63 @@ export class DKGPublisherService {
     }
 
     // -------------------------------------------------------------------------
-    // Step 3: Submit to OriginTrail DKG (STUBBED)
+    // Step 3: POST raw TTL to MFSSIA API /api/rdf
     // -------------------------------------------------------------------------
-    steps[2] = updateStep(steps[2], "in_progress", "Submitting knowledge asset to DKG node...");
-    console.log(`${LOG_PREFIX} Step 3: Submitting to OriginTrail DKG (STUBBED - simulating 2s delay)`);
+    steps[2] = updateStep(steps[2], "in_progress", "Posting TTL content to MFSSIA API...");
+    const mfssiaApiUrl = process.env.MFSSIA_API_URL || "https://api.dymaxion-ou.co";
+    console.log(`${LOG_PREFIX} Step 3: POSTing TTL to ${mfssiaApiUrl}/api/rdf`);
 
     try {
-      // STUB: Simulate network delay for DKG submission
-      await delay(2000);
+      const response = await fetch(`${mfssiaApiUrl}/api/rdf`, {
+        method: "POST",
+        headers: { "Content-Type": "text/turtle" },
+        body: resolvedTtlContent,
+      });
 
-      // STUB: Generate a mock UAL (Universal Asset Locator)
-      const randomHex = randomBytes(20).toString("hex");
-      const mockTokenId = Math.floor(Math.random() * 100000);
-      dkgAssetUAL = `did:dkg:otp/0x${randomHex}/${mockTokenId}`;
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => "");
+        throw new Error(
+          `MFSSIA API error: ${response.status} ${response.statusText}${errorBody ? ` - ${errorBody}` : ""}`,
+        );
+      }
 
-      steps[2] = updateStep(steps[2], "completed", `Knowledge asset created with UAL: ${dkgAssetUAL}`);
-      console.log(`${LOG_PREFIX} Step 3 completed (STUBBED): UAL = ${dkgAssetUAL}`);
+      const result = await response.json();
+      console.log(`${LOG_PREFIX} MFSSIA API response:`, JSON.stringify(result));
+
+      // The MFSSIA /api/rdf response wraps data in { success, data: { status, bytes, ... } }
+      const data = result.data || result;
+
+      // Extract UAL - check multiple possible locations in the response
+      dkgAssetUAL =
+        data.ual ||
+        data.UAL ||
+        data.assetUAL ||
+        result.ual ||
+        result.UAL ||
+        result.assetUAL ||
+        data.id ||
+        data.assetId ||
+        "";
+
+      if (dkgAssetUAL) {
+        steps[2] = updateStep(steps[2], "completed", `Published to DKG. UAL: ${dkgAssetUAL}`);
+        console.log(`${LOG_PREFIX} Step 3 completed: UAL = ${dkgAssetUAL}`);
+      } else {
+        // API accepted the TTL but did not return a UAL
+        // DKG Knowledge Asset creation may happen asynchronously on the server
+        steps[2] = updateStep(
+          steps[2],
+          "completed",
+          `TTL ingested by MFSSIA (${data.bytes || resolvedTtlContent.length} bytes). UAL not yet assigned - DKG asset creation may be asynchronous.`,
+        );
+        console.log(
+          `${LOG_PREFIX} Step 3 completed: TTL ingested, no UAL returned yet. Response:`,
+          JSON.stringify(data),
+        );
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      steps[2] = updateStep(steps[2], "failed", `DKG submission failed: ${errorMessage}`);
+      steps[2] = updateStep(steps[2], "failed", `MFSSIA API submission failed: ${errorMessage}`);
       console.error(`${LOG_PREFIX} Step 3 failed:`, errorMessage);
 
       return {
@@ -209,35 +245,18 @@ export class DKGPublisherService {
     }
 
     // -------------------------------------------------------------------------
-    // Step 4: Record UAL on blockchain (STUBBED)
+    // Step 4: On-chain recording note (done from frontend via wagmi)
     // -------------------------------------------------------------------------
-    steps[3] = updateStep(steps[3], "in_progress", "Recording DKG UAL on-chain...");
-    console.log(`${LOG_PREFIX} Step 4: Recording UAL on blockchain (STUBBED)`);
-
-    try {
-      // STUB: In a real implementation, this would call:
-      //   markRDFGraphPublished(graphId, dkgAssetUAL)
-      // on the _RDF_data_retrieval contract via the appropriate committee.
-      console.log(`${LOG_PREFIX} STUB: Would call markRDFGraphPublished(graphId=${graphId}, ual=${dkgAssetUAL})`);
-
+    if (dkgAssetUAL) {
       steps[3] = updateStep(
         steps[3],
         "completed",
-        `UAL recorded for graphId ${graphId} (STUBBED - blockchain call not executed)`,
+        `On-chain recording available: markRDFGraphPublished(${graphId.slice(0, 10)}..., ${dkgAssetUAL.slice(0, 30)}...)`,
       );
-      console.log(`${LOG_PREFIX} Step 4 completed (STUBBED): UAL recorded for graphId ${graphId}`);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      steps[3] = updateStep(steps[3], "failed", `Blockchain recording failed: ${errorMessage}`);
-      console.error(`${LOG_PREFIX} Step 4 failed:`, errorMessage);
-
-      return {
-        success: false,
-        graphId,
-        dkgAssetUAL: "",
-        steps,
-      };
+    } else {
+      steps[3] = updateStep(steps[3], "completed", `On-chain recording deferred until UAL is assigned by MFSSIA/DKG.`);
     }
+    console.log(`${LOG_PREFIX} Step 4: On-chain recording will be triggered from frontend via wagmi`);
 
     // -------------------------------------------------------------------------
     // Success

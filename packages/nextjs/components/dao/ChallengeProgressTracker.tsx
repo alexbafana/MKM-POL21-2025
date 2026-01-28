@@ -111,7 +111,7 @@ export const ChallengeProgressTracker = ({
         {/* Oracle Message */}
         {oracleMessage && (
           <div
-            className={`mt-3 p-2 rounded text-xs ${
+            className={`mt-3 p-2 rounded text-xs whitespace-pre-wrap break-words ${
               oracleVerificationState === "success"
                 ? "bg-success/10 text-success"
                 : oracleVerificationState === "failed"

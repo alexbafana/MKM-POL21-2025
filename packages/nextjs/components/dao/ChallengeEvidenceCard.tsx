@@ -236,11 +236,50 @@ export const ChallengeEvidenceCard = ({
               <span className={`font-semibold text-sm ${oracleResult.passed ? "text-success" : "text-error"}`}>
                 {oracleResult.passed ? "✓ Verified" : "✗ Failed"}
               </span>
-              <span className="text-xs text-base-content/60">
-                Confidence: {(oracleResult.confidence * 100).toFixed(0)}%
-              </span>
+              {oracleResult.confidence > 0 && (
+                <span className="text-xs text-base-content/60">
+                  Confidence: {(oracleResult.confidence * 100).toFixed(1)}%
+                </span>
+              )}
             </div>
-            {oracleResult.message && <p className="text-xs text-base-content/70 mt-1">{oracleResult.message}</p>}
+            {oracleResult.message && (
+              <div className="mt-2 space-y-1">
+                {oracleResult.message.split(". ").map((part, i) => (
+                  <p key={i} className="text-xs text-base-content/70">
+                    {part.includes("Expected evidence:") ? (
+                      <>
+                        <span className="font-semibold text-base-content/80">Expected evidence: </span>
+                        <code className="bg-base-200 px-1 rounded text-base-content/60">
+                          {part.replace(/.*Expected evidence:\s*/, "").replace(/\.\s*Pass condition:.*/, "")}
+                        </code>
+                        {part.includes("Pass condition:") && (
+                          <>
+                            <br />
+                            <span className="font-semibold text-base-content/80">Pass condition: </span>
+                            <span className="italic">{part.replace(/.*Pass condition:\s*/, "")}</span>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      part
+                    )}
+                  </p>
+                ))}
+              </div>
+            )}
+            {/* Show submitted evidence fields for failed challenges */}
+            {!oracleResult.passed && collectedEvidence && (
+              <div className="mt-2 pt-2 border-t border-error/10">
+                <p className="text-xs font-semibold text-base-content/60 mb-1">Submitted evidence fields:</p>
+                <div className="flex flex-wrap gap-1">
+                  {Object.keys(collectedEvidence.data).map(field => (
+                    <code key={field} className="text-xs px-1.5 py-0.5 rounded bg-error/10 text-error/80">
+                      {field}
+                    </code>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

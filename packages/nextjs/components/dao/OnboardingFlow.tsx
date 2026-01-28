@@ -126,10 +126,30 @@ const EventLogPanel = ({
         <div className="p-4 bg-base-100 max-h-64 overflow-y-auto">
           {/* Oracle Status */}
           {oracleMessage && (
-            <div className="mb-3 p-2 rounded-lg bg-info/10 border border-info/20">
-              <div className="flex items-center gap-2">
-                <SpinnerIcon className="w-4 h-4 text-info animate-spin" />
-                <span className="text-sm text-info">{oracleMessage}</span>
+            <div
+              className={`mb-3 p-2 rounded-lg border ${
+                oracleVerificationState === "success"
+                  ? "bg-success/10 border-success/20"
+                  : oracleVerificationState === "failed"
+                    ? "bg-error/10 border-error/20"
+                    : "bg-info/10 border-info/20"
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                {oracleVerificationState !== "failed" && oracleVerificationState !== "success" && (
+                  <SpinnerIcon className="w-4 h-4 text-info animate-spin mt-0.5" />
+                )}
+                <span
+                  className={`text-sm whitespace-pre-wrap break-words ${
+                    oracleVerificationState === "success"
+                      ? "text-success"
+                      : oracleVerificationState === "failed"
+                        ? "text-error"
+                        : "text-info"
+                  }`}
+                >
+                  {oracleMessage}
+                </span>
               </div>
             </div>
           )}

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     // Action: "publish" - Publish a single graph by graphId
     // -------------------------------------------------------------------------
     if (action === "publish") {
-      const { graphId } = body;
+      const { graphId, ttlContent } = body;
 
       if (!graphId || typeof graphId !== "string") {
         return NextResponse.json(
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       }
 
       const service = getDKGPublisherService();
-      const result = await service.publishToDKG(graphId);
+      const result = await service.publishToDKG(graphId, ttlContent);
 
       return NextResponse.json(result, { status: result.success ? 200 : 500 });
     }

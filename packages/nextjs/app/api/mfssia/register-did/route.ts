@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       const errorData = await response.json().catch(() => ({
         message: `HTTP ${response.status}: ${response.statusText}`,
       }));
+      console.error(`[MFSSIA API Route] Register DID failed (${response.status}):`, JSON.stringify(errorData, null, 2));
 
       // If DID is already registered (409 Conflict), treat it as success
       if (

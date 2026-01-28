@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatEther } from "viem";
 import { useAccount, useChainId, usePublicClient } from "wagmi";
-import { CheckCircleIcon, DataIcon, GovernanceIcon, LockIcon, SpinnerIcon } from "~~/components/dao";
+import { CheckCircleIcon, DataIcon, GovernanceIcon, IdentityIcon, LockIcon, SpinnerIcon } from "~~/components/dao";
 import { LoadingState } from "~~/components/dao/LoadingState";
 import { Address } from "~~/components/scaffold-eth";
 import deployedContracts from "~~/contracts/deployedContracts";
@@ -24,7 +24,15 @@ const ROLE_LABELS: Record<number, string> = {
   5: "MKMPOL21 Owner",
 };
 
-type LifecycleStage = "All" | "Submitted" | "Validated" | "In Review" | "Approved" | "Published" | "Rejected";
+type LifecycleStage =
+  | "All"
+  | "Submitted"
+  | "Validated"
+  | "In Review"
+  | "Approved"
+  | "MFSSIA Verified"
+  | "Published"
+  | "Rejected";
 
 const LIFECYCLE_TABS: LifecycleStage[] = [
   "All",
@@ -32,9 +40,12 @@ const LIFECYCLE_TABS: LifecycleStage[] = [
   "Validated",
   "In Review",
   "Approved",
+  "MFSSIA Verified",
   "Published",
   "Rejected",
 ];
+
+const MFSSIA_VERIFIED_STORAGE_KEY = "mkmpol21_mfssia_verified_graphs";
 
 // ─── ABI Fragments ───────────────────────────────────────────────────────────
 
@@ -116,17 +127,39 @@ interface GraphDetails {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function getLifecycleStage(details: GraphDetails | undefined, proposalState: string | undefined): LifecycleStage {
+function getMFSSIAVerifiedGraphs(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const stored = localStorage.getItem(MFSSIA_VERIFIED_STORAGE_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function getLifecycleStage(
+  details: GraphDetails | undefined,
+  proposalState: string | undefined,
+  mfssiaVerifiedGraphs: Set<string>,
+): LifecycleStage {
   if (!details || !details.exists) return "Submitted";
   if (proposalState === "Defeated") return "Rejected";
   if (details.published) return "Published";
+  if (details.approved && mfssiaVerifiedGraphs.has(details.graphId)) return "MFSSIA Verified";
   if (details.approved) return "Approved";
   if (proposalState && ["Pending", "Active", "Succeeded"].includes(proposalState)) return "In Review";
   if (details.validated) return "Validated";
   return "Submitted";
 }
 
-const STAGE_ORDER: LifecycleStage[] = ["Submitted", "Validated", "In Review", "Approved", "Published"];
+const STAGE_ORDER: LifecycleStage[] = [
+  "Submitted",
+  "Validated",
+  "In Review",
+  "Approved",
+  "MFSSIA Verified",
+  "Published",
+];
 
 function getStageIndex(stage: LifecycleStage): number {
   const idx = STAGE_ORDER.indexOf(stage);
@@ -146,7 +179,31 @@ export default function DataValidationPage() {
   const [publishingGraphId, setPublishingGraphId] = useState<string | null>(null);
   const [publishSteps, setPublishSteps] = useState<PublishStep[]>([]);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [mfssiaVerifiedGraphs, setMfssiaVerifiedGraphs] = useState<Set<string>>(new Set());
   const fetchedIdsRef = useRef<Set<string>>(new Set());
+
+  // Load MFSSIA verified graphs from localStorage
+  useEffect(() => {
+    setMfssiaVerifiedGraphs(getMFSSIAVerifiedGraphs());
+
+    // Listen for storage changes (e.g., from mfssia-verify page)
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === MFSSIA_VERIFIED_STORAGE_KEY) {
+        setMfssiaVerifiedGraphs(getMFSSIAVerifiedGraphs());
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    // Also poll periodically to detect same-window changes
+    const interval = setInterval(() => {
+      setMfssiaVerifiedGraphs(getMFSSIAVerifiedGraphs());
+    }, 5000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Role check
   const { data: roleRaw, isFetching: isFetchingRole } = useScaffoldReadContract({
@@ -284,7 +341,7 @@ export default function DataValidationPage() {
   const graphsWithStage = graphIds.map(graphId => {
     const details = graphDetails.get(graphId);
     const proposal = proposals.get(graphId);
-    const stage = getLifecycleStage(details, proposal?.state);
+    const stage = getLifecycleStage(details, proposal?.state, mfssiaVerifiedGraphs);
     return { graphId, details, proposal, stage };
   });
 
@@ -295,7 +352,10 @@ export default function DataValidationPage() {
   const stats = {
     total: graphsWithStage.length,
     validated: graphsWithStage.filter(g => g.details?.validated).length,
-    approved: graphsWithStage.filter(g => g.stage === "Approved" || g.stage === "Published").length,
+    approved: graphsWithStage.filter(
+      g => g.stage === "Approved" || g.stage === "MFSSIA Verified" || g.stage === "Published",
+    ).length,
+    mfssiaVerified: graphsWithStage.filter(g => g.stage === "MFSSIA Verified").length,
     published: graphsWithStage.filter(g => g.stage === "Published").length,
   };
 
@@ -419,8 +479,14 @@ export default function DataValidationPage() {
                 Track RDF graph submissions through validation, committee review, and DKG publication
               </p>
             </div>
-            <div className="flex items-center gap-2 text-sm text-base-content/60">
-              <Address address={address} />
+            <div className="flex items-center gap-3">
+              <Link href="/governance/data-validation/published/" className="btn btn-sm btn-accent gap-1">
+                <DataIcon className="w-3 h-3" />
+                View Published Assets
+              </Link>
+              <div className="text-sm text-base-content/60">
+                <Address address={address} />
+              </div>
             </div>
           </div>
         </div>
@@ -428,7 +494,7 @@ export default function DataValidationPage() {
 
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
             <div className="stat-title text-xs">Total Submitted</div>
             <div className="stat-value text-2xl">{stats.total}</div>
@@ -440,6 +506,10 @@ export default function DataValidationPage() {
           <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
             <div className="stat-title text-xs">Committee Approved</div>
             <div className="stat-value text-2xl text-success">{stats.approved}</div>
+          </div>
+          <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
+            <div className="stat-title text-xs">MFSSIA Verified</div>
+            <div className="stat-value text-2xl text-secondary">{stats.mfssiaVerified}</div>
           </div>
           <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
             <div className="stat-title text-xs">Published to DKG</div>
@@ -519,15 +589,17 @@ export default function DataValidationPage() {
                       className={`badge ${
                         stage === "Published"
                           ? "badge-accent"
-                          : stage === "Approved"
-                            ? "badge-success"
-                            : stage === "In Review"
-                              ? "badge-primary"
-                              : stage === "Validated"
-                                ? "badge-info"
-                                : stage === "Rejected"
-                                  ? "badge-error"
-                                  : "badge-ghost"
+                          : stage === "MFSSIA Verified"
+                            ? "badge-secondary"
+                            : stage === "Approved"
+                              ? "badge-success"
+                              : stage === "In Review"
+                                ? "badge-primary"
+                                : stage === "Validated"
+                                  ? "badge-info"
+                                  : stage === "Rejected"
+                                    ? "badge-error"
+                                    : "badge-ghost"
                       }`}
                     >
                       {stage}
@@ -669,6 +741,41 @@ export default function DataValidationPage() {
                       </div>
                       <p className="text-xs text-base-content/70 mt-1">
                         The Validation Committee has rejected this RDF graph. The data provider may revise and resubmit.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* MFSSIA Verification section */}
+                  {details?.approved &&
+                    !details.published &&
+                    stage !== "Rejected" &&
+                    stage !== "MFSSIA Verified" &&
+                    (roleIndex === 4 || roleIndex === 5) && (
+                      <div className="mt-3 pt-3 border-t border-base-200">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 text-xs text-base-content/60">
+                            <IdentityIcon className="w-3.5 h-3.5" />
+                            MFSSIA verification available
+                          </div>
+                          <Link href={`/governance/data-validation/mfssia-verify/${graphId}`}>
+                            <button className="btn btn-sm btn-secondary gap-1">
+                              <IdentityIcon className="w-3 h-3" />
+                              MFSSIA Verify
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+
+                  {/* MFSSIA Verified banner */}
+                  {stage === "MFSSIA Verified" && (
+                    <div className="mt-3 p-3 rounded-lg bg-secondary/10 border border-secondary/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircleIcon className="w-4 h-4 text-secondary" />
+                        <span className="font-semibold text-sm text-secondary">MFSSIA Verified</span>
+                      </div>
+                      <p className="text-xs text-base-content/70">
+                        Employment event detection verified via MFSSIA Example-D challenge set.
                       </p>
                     </div>
                   )}

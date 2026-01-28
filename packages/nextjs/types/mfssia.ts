@@ -19,7 +19,12 @@ export type FactorClass =
   | "Provenance"
   | "DistributionIntegrity"
   | "ProcessIntegrity"
-  | "DataIntegrity";
+  | "DataIntegrity"
+  | "SemanticCorrectness"
+  | "EconomicConsistency"
+  | "TemporalPlausibility"
+  | "ProvenanceIntegrity"
+  | "InstitutionalOversight";
 
 /**
  * Challenge status during verification
@@ -102,23 +107,22 @@ export interface VerificationSession {
  */
 export interface EmploymentEventArtifactData {
   // Source information (C-D-1)
-  sourceDomainHash: string; // SHA-256 hash of normalized domain (e.g., "err.ee")
+  sourceDomainHash: string; // Raw domain string (e.g., "err.ee") for whitelist check
   contentHash: string; // SHA-256 hash of TTL content
 
   // Content integrity (C-D-2)
-  csvHash: string; // SHA-256 hash of source CSV data
-  content: string; // The actual TTL content
+  content: string; // The actual TTL content (used to compute sha256ContentHash)
 
   // NLP determinism (C-D-3)
   modelName: string; // e.g., "EstBERT-1.0"
   modelVersionHash: string; // SHA-256 hash of model weights/config
-  softwareHash: string; // SHA-256 hash of NLP pipeline software
+  softwareTrajectoryHash: string; // SHA-256 hash of NLP pipeline software trajectory
 
   // Semantic coherence (C-D-4)
   crossConsistencyScore: number; // 0-1 score of cross-triple consistency
 
   // Employment plausibility (C-D-5)
-  llmConfidence: number; // 0-1 LLM adjudication confidence
+  llmConfidenceScore: number; // 0-1 LLM adjudication confidence (pass >= 0.9)
   numericExtractionTrace: string; // JSON string of extraction trace
 
   // EMTAK consistency (C-D-6)
@@ -127,14 +131,14 @@ export interface EmploymentEventArtifactData {
 
   // Temporal validity (C-D-7)
   articleDate: string; // ISO date of article
-  ingestionTime: string; // ISO timestamp of pipeline ingestion
+  ingestionTimestamp: string; // ISO timestamp of pipeline ingestion
 
   // Provenance closure (C-D-8)
   provenanceHash: string; // SHA-256 hash of provenance chain
-  wasGeneratedBy: string; // URI of generating process
+  provWasGeneratedBy: string; // prov:wasGeneratedBy URI of generating PipelineRun
 
   // Governance acknowledgement (C-D-9)
-  daoSignature: string; // DAO governance signature
+  governanceSignature: string; // DAO governance signature
 }
 
 /**
@@ -298,123 +302,116 @@ export const CHALLENGE_SETS: ChallengeSetInfo[] = [
   {
     id: "mfssia:Example-D",
     code: "mfssia:Example-D",
-    name: "Example D \u2013 Employment Event Detection",
+    name: "Example D \u2013 Employment Event Detection & Publication Pipeline",
     description:
-      "MFSSIA challenge set for verifying employment event detection from Estonian news articles. Ensures source authenticity, NLP pipeline determinism, employment plausibility, EMTAK classification consistency, and provenance completeness.",
+      "Policy-grade MFSSIA challenge set authenticating employment gain/loss events using multi-source, multi-model analytical pipelines.",
     version: "1.0",
     status: "ACTIVE",
-    mandatoryChallenges: 9,
-    optionalChallenges: 0,
+    mandatoryChallenges: 6, // C-D-1, C-D-2, C-D-3, C-D-5, C-D-6, C-D-8
+    optionalChallenges: 3, // C-D-4, C-D-7, C-D-9
     challenges: [
       {
         code: "mfssia:C-D-1",
-        name: "Source Authenticity",
-        description: "Verifies that the article originates from a whitelisted institutional publisher (ERR).",
+        name: "Source Authenticity Challenge",
+        description: "Verifies that the ingested article originates from a whitelisted institutional publisher (ERR).",
         factorClass: "SourceIntegrity",
         mandatory: true,
-        expectedEvidence: ["sourceDomainHash", "contentHash"],
+        expectedEvidence: ["source"],
         oracleEndpoint: "ERRArchiveOracle",
-        question: "Does the article originate from a whitelisted institutional publisher?",
-        evaluationPassCondition: "sourceDomainHash matches whitelisted ERR domain",
+        question: "Does the article originate from a whitelisted institutional publisher (ERR)?",
+        evaluationPassCondition: "source matches whitelisted publisher domain",
       },
       {
         code: "mfssia:C-D-2",
-        name: "Content Integrity",
-        description: "Verifies that the TTL content has not been tampered with since generation from the source CSV.",
-        factorClass: "DataIntegrity",
+        name: "Content Integrity Challenge",
+        description: "Ensures byte-level identity between the ingested article and downstream CSV/JSON payload.",
+        factorClass: "ProcessIntegrity",
         mandatory: true,
-        expectedEvidence: ["contentHash", "csvHash"],
-        oracleEndpoint: "InternalHashOracle",
-        question: "Is the TTL content hash consistent with the source data hash?",
-        evaluationPassCondition:
-          "contentHash and csvHash are valid SHA-256 hashes and content is internally consistent",
+        expectedEvidence: ["content", "contentHash"],
+        oracleEndpoint: "InternalHashingOracle",
+        question: "Is the CSV \u2192 JSON payload byte-identical to the ingested article?",
+        evaluationPassCondition: "Computed hash equals ingested content hash",
       },
       {
         code: "mfssia:C-D-3",
-        name: "NLP Determinism",
-        description:
-          "Verifies that the NLP pipeline produces deterministic output given the same input and model version.",
+        name: "NLP Determinism Challenge",
+        description: "Verifies that NLP components were executed with declared and approved model versions.",
         factorClass: "ProcessIntegrity",
         mandatory: true,
-        expectedEvidence: ["modelName", "modelVersionHash", "softwareHash"],
-        oracleEndpoint: "ContainerRegistryOracle",
-        question: "Is the NLP pipeline version verifiable and deterministic?",
-        evaluationPassCondition: "modelVersionHash matches registered model, softwareHash matches container registry",
+        expectedEvidence: ["modelName", "versionHash", "softwareHash"],
+        oracleEndpoint: "CIAttestationOracle",
+        question: "Were EstBERT, KeyBERT, and EstNER executed with declared versions?",
+        evaluationPassCondition: "All hashes match declared pipeline configuration",
       },
       {
         code: "mfssia:C-D-4",
-        name: "Semantic Coherence",
-        description:
-          "Checks cross-consistency of extracted triples (e.g., employment events reference valid entities).",
-        factorClass: "ContentIntegrity",
-        mandatory: true,
+        name: "Semantic Coherence Challenge",
+        description: "Evaluates whether extracted entities, keywords, and lemmas jointly support an employment event.",
+        factorClass: "SemanticCorrectness",
+        mandatory: false, // Optional per spec
         expectedEvidence: ["crossConsistencyScore"],
         oracleEndpoint: "SemanticValidationOracle",
-        question: "Are the extracted RDF triples semantically coherent and cross-consistent?",
-        evaluationPassCondition: "crossConsistencyScore >= 0.7",
+        question: "Do NER entities, keywords, and lemmas jointly support an employment event?",
+        evaluationPassCondition: "crossConsistencyScore \u2265 policy threshold",
       },
       {
         code: "mfssia:C-D-5",
-        name: "Employment Plausibility",
-        description:
-          "Uses LLM adjudication to verify whether extracted employment events are plausible given the article text.",
-        factorClass: "ContentIntegrity",
+        name: "Employment Event Plausibility Challenge",
+        description: "Validates linguistic and contextual support for extracted employment change values.",
+        factorClass: "SemanticCorrectness",
         mandatory: true,
         expectedEvidence: ["llmConfidence", "numericExtractionTrace"],
         oracleEndpoint: "LLMAdjudicationOracle",
-        question: "Are the extracted employment events plausible given the source article?",
-        evaluationPassCondition: "llmConfidence >= 0.6 and numericExtractionTrace is valid JSON",
+        question: "Is the extracted job gain/loss value linguistically and contextually supported?",
+        evaluationPassCondition: "llmConfidence \u2265 0.9",
       },
       {
         code: "mfssia:C-D-6",
-        name: "EMTAK Consistency",
-        description:
-          "Verifies that the EMTAK classification code is consistent with the business registry sector data.",
-        factorClass: "ContentIntegrity",
+        name: "EMTAK Consistency Challenge",
+        description: "Checks alignment between EMTAK classification and official business registry data.",
+        factorClass: "EconomicConsistency",
         mandatory: true,
-        expectedEvidence: ["emtakCode", "registrySectorMatch"],
-        oracleEndpoint: "BusinessRegistryOracle",
-        question: "Is the EMTAK classification consistent with the Estonian Business Registry?",
-        evaluationPassCondition: "emtakCode matches 5-digit pattern and registrySectorMatch is true",
+        expectedEvidence: ["ariregisterSectorMatch"],
+        oracleEndpoint: "EstonianBusinessRegistryOracle",
+        question: "Does the EMTAK code align with official registry data for the entity?",
+        evaluationPassCondition: 'ariregisterSectorMatch = "true"',
       },
       {
         code: "mfssia:C-D-7",
-        name: "Temporal Validity",
-        description:
-          "Checks that the article date and pipeline ingestion timestamp are within acceptable temporal bounds.",
-        factorClass: "TemporalValidity",
-        mandatory: true,
+        name: "Temporal Validity Challenge",
+        description: "Ensures the article falls within the allowed policy time window.",
+        factorClass: "TemporalPlausibility",
+        mandatory: false, // Optional per spec
         expectedEvidence: ["articleDate", "ingestionTime"],
         oracleEndpoint: "TimeOracle",
-        question: "Are the temporal claims (article date, ingestion time) valid and consistent?",
-        evaluationPassCondition: "articleDate <= ingestionTime and ingestionTime <= now + 24h",
+        question: "Is the article within the allowed policy time window?",
+        evaluationPassCondition: "Date difference \u2264 policy threshold",
       },
       {
         code: "mfssia:C-D-8",
-        name: "Provenance Closure",
-        description:
-          "Validates that the RDF graph has complete provenance metadata (prov:wasGeneratedBy chain is closed).",
-        factorClass: "Provenance",
+        name: "Provenance Closure Challenge",
+        description: "Ensures every RDF triple is cryptographically linked to the generating PipelineRun.",
+        factorClass: "ProvenanceIntegrity",
         mandatory: true,
-        expectedEvidence: ["provenanceHash", "wasGeneratedBy"],
-        oracleEndpoint: "RDFValidatorOracle",
-        question: "Does the RDF graph have a complete and valid provenance chain?",
-        evaluationPassCondition: "provenanceHash is valid SHA-256 and wasGeneratedBy URI resolves",
+        expectedEvidence: ["wasGeneratedBy", "provenanceHash"],
+        oracleEndpoint: "DKGRDFValidationOracle",
+        question: "Is every RDF triple prov-linked to this PipelineRun?",
+        evaluationPassCondition: "All triples prov-linked and hash-valid",
       },
       {
         code: "mfssia:C-D-9",
-        name: "Governance Acknowledgement",
-        description: "Verifies that the DAO governance system has acknowledged and signed off on the data submission.",
-        factorClass: "DataIntegrity",
-        mandatory: true,
+        name: "Governance Acknowledgement Challenge",
+        description: "Determines eligibility of analytical output for ministry-level usage.",
+        factorClass: "InstitutionalOversight",
+        mandatory: false, // Optional per spec
         expectedEvidence: ["daoSignature"],
         oracleEndpoint: "GovernanceOracle",
-        question: "Has the DAO governance system acknowledged this data submission?",
-        evaluationPassCondition: "daoSignature is a valid cryptographic signature from a DAO committee member",
+        question: "Is this output eligible for ministry-level analytics?",
+        evaluationPassCondition: "Signature issued by authorized governance body",
       },
     ],
     applicableRoles: ["MEMBER_INSTITUTION", "DATA_VALIDATOR"],
-    requiredConfidence: 0.8,
+    requiredConfidence: 0.85,
   },
 ];
 
