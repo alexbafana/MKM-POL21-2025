@@ -35,21 +35,32 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
   log(`MKMPOL21 at: ${mkmpm.address}`);
 
-  // 2.5) Mint voting tokens to test accounts BEFORE ownership transfer
-  // (VotingPowerToken auto-self-delegates on first mint, no manual delegate needed)
+  // Get signers for later use
   const signers = await ethers.getSigners();
-  const mintAmount = ethers.parseEther("1");
-  for (const idx of [1, 2, 3]) {
-    if (signers[idx]) {
-      await execute("VotingPowerToken", { from: deployer, log: true }, "mint", signers[idx].address, mintAmount);
-      log(`Minted token for signer[${idx}]: ${signers[idx].address}`);
-    }
-  }
 
-  // 3) Transfer token ownership to MKMPOL21, then set token reference
-  await execute("VotingPowerToken", { from: deployer, log: true }, "transferOwnership", mkmpm.address);
-  await execute("MKMPOL21", { from: deployer, log: true }, "setVotingToken", token.address);
-  log(`MKMPOL21 votingToken set to: ${token.address}`);
+  // Check if ownership was already transferred (for idempotency)
+  const tokenContract = await ethers.getContractAt("VotingPowerToken", token.address);
+  const currentOwner = await tokenContract.owner();
+  const ownershipAlreadyTransferred = currentOwner.toLowerCase() === mkmpm.address.toLowerCase();
+
+  if (!ownershipAlreadyTransferred) {
+    // 2.5) Mint voting tokens to test accounts BEFORE ownership transfer
+    // (VotingPowerToken auto-self-delegates on first mint, no manual delegate needed)
+    const mintAmount = ethers.parseEther("1");
+    for (const idx of [1, 2, 3]) {
+      if (signers[idx]) {
+        await execute("VotingPowerToken", { from: deployer, log: true }, "mint", signers[idx].address, mintAmount);
+        log(`Minted token for signer[${idx}]: ${signers[idx].address}`);
+      }
+    }
+
+    // 3) Transfer token ownership to MKMPOL21, then set token reference
+    await execute("VotingPowerToken", { from: deployer, log: true }, "transferOwnership", mkmpm.address);
+    await execute("MKMPOL21", { from: deployer, log: true }, "setVotingToken", token.address);
+    log(`MKMPOL21 votingToken set to: ${token.address}`);
+  } else {
+    log("Token ownership already transferred to MKMPOL21, skipping mint and transfer steps.");
+  }
 
   // 4) Optional governance contracts
   const challengePeriod = 60 * 60 * 24 * 3; // 3 days
@@ -76,10 +87,21 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   // DisputeResolutionBoard uses simple majority (2 args)
   const dispute = await deployIfPresent("DisputeResolutionBoard", [token.address, mkmpm.address]);
 
-  // 5) Initialize committees ONLY if all three contracts exist
+  // Get MKMPOL21 contract instance for idempotency checks
+  const mkmp = await ethers.getContractAt("MKMPOL21", mkmpm.address);
+
+  // 5) Initialize committees ONLY if all three contracts exist and not already initialized
   if (consortium && validation && dispute) {
-    await execute("MKMPOL21", { from: deployer, log: true }, "initializeCommittees", consortium, validation, dispute);
-    log("Committees initialized.");
+    // Check if committees are already initialized by checking if consortium address has a role
+    const consortiumRole = await mkmp.hasRole(consortium);
+    const committeesAlreadyInitialized = Number(consortiumRole) !== 0;
+
+    if (!committeesAlreadyInitialized) {
+      await execute("MKMPOL21", { from: deployer, log: true }, "initializeCommittees", consortium, validation, dispute);
+      log("Committees initialized.");
+    } else {
+      log("Committees already initialized, skipping.");
+    }
   } else {
     log("Skipping initializeCommittees — not all committee contracts are deployed. Owner preserved.");
   }
@@ -93,12 +115,19 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   // 7) Assign Data_Validator role (index 4, value 1156) to agent wallet
   const validatorAddress = process.env.BDI_VALIDATOR_ADDRESS || signers[2]?.address;
   if (validatorAddress) {
-    await execute("MKMPOL21", { from: deployer, log: true }, "assignRole", validatorAddress, 1156);
-    log(`Data_Validator role assigned to: ${validatorAddress}`);
+    // Check if role is already assigned
+    const existingRole = await mkmp.hasRole(validatorAddress);
+    const roleIndex = Number(existingRole) & 31;
+
+    if (roleIndex === 0) {
+      await execute("MKMPOL21", { from: deployer, log: true }, "assignRole", validatorAddress, 1156);
+      log(`Data_Validator role assigned to: ${validatorAddress}`);
+    } else {
+      log(`Role already assigned to ${validatorAddress} (index: ${roleIndex}), skipping.`);
+    }
   }
 
   // 8) Sanity check: confirm deployer still has Owner (index 5)
-  const mkmp = await ethers.getContractAt("MKMPOL21", mkmpm.address);
   const rawRole = await mkmp.hasRole(deployer); // uint32 (Ethers v6 returns bigint)
   const ownerIndex = Number(rawRole) & 31;
   log(`Deployer ${deployer} role index: ${ownerIndex} (expect 5)`);
