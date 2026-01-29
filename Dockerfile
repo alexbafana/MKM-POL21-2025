@@ -13,6 +13,9 @@ COPY . .
 # Install all workspace deps using the pinned Yarn version
 RUN corepack yarn install
 
+# Compile contracts to generate typechain-types
+RUN corepack yarn hardhat:compile
+
 # Expose:
 # - 3000: Next.js frontend
 # - 8545: Hardhat chain (internal, optional to expose externally)

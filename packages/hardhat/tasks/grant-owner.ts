@@ -1,11 +1,13 @@
 // packages/hardhat/tasks/grant-owner.ts
 import { task } from "hardhat/config";
-import { MKMPOL21__factory } from "../typechain-types"; // <-- use the factory for strong typing
 
 task("grant-owner", "Grants MKMPOL21Owner role to an address")
   .addParam("to", "Recipient address")
   .setAction(async ({ to }, hre) => {
     const { ethers, deployments } = hre;
+
+    // Dynamic import to avoid chicken-and-egg problem with typechain-types
+    const { MKMPOL21__factory } = await import("../typechain-types");
 
     // read deployed address from hardhat-deploy
     const dep = await deployments.get("MKMPOL21");
