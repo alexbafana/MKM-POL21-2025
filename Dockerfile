@@ -21,6 +21,5 @@ RUN corepack yarn hardhat:compile
 # - 8545: Hardhat chain (internal, optional to expose externally)
 EXPOSE 3000 8545
 
-# Start Hardhat chain in background, deploy contracts, build Next.js, then start in production mode.
-# Building after deploy ensures deployedContracts.ts is included.
-CMD ["sh", "-c", "corepack yarn chain & sleep 15 && corepack yarn deploy && corepack yarn next:build && corepack yarn next:start"]
+# Start Hardhat chain in background, deploy contracts, then start frontend in dev mode.
+CMD ["sh", "-c", "corepack yarn chain & sleep 15 && corepack yarn deploy && corepack yarn start"]
