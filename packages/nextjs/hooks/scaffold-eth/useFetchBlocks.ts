@@ -5,19 +5,36 @@ import {
   Transaction,
   TransactionReceipt,
   createTestClient,
+  http,
   publicActions,
   walletActions,
-  webSocket,
 } from "viem";
 import { hardhat } from "viem/chains";
 import { decodeTransactionData } from "~~/utils/scaffold-eth";
 
 const BLOCKS_PER_PAGE = 20;
 
+/**
+ * Get the RPC URL for the test client.
+ * Uses /api/rpc proxy for remote deployments to avoid needing port 8545 open.
+ */
+const getTestClientRpcUrl = (): string => {
+  if (typeof window === "undefined") {
+    return "http://localhost:8545"; // SSR
+  }
+  const hostname = window.location.hostname;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return "http://localhost:8545";
+  }
+  // For remote access, use the RPC proxy
+  const port = window.location.port || (window.location.protocol === "https:" ? "443" : "80");
+  return `${window.location.protocol}//${hostname}:${port}/api/rpc`;
+};
+
 export const testClient = createTestClient({
   chain: hardhat,
   mode: "hardhat",
-  transport: webSocket("ws://127.0.0.1:8545"),
+  transport: http(getTestClientRpcUrl()),
 })
   .extend(publicActions)
   .extend(walletActions);
