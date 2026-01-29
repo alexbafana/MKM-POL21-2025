@@ -14,19 +14,21 @@ export const enabledChains = targetNetworks.find((network: Chain) => network.id 
 
 /**
  * Get the dynamic RPC URL for Hardhat network.
- * In Docker deployment, uses the same hostname as the frontend with port 8545.
+ * In Docker deployment, uses the /api/rpc proxy to avoid needing port 8545 open.
  */
 const getHardhatRpcUrl = (): string | undefined => {
   if (typeof window === "undefined") {
     return undefined; // SSR - use default
   }
-  // Use the same hostname as the frontend, with port 8545 for the RPC
+  // Use the same hostname as the frontend
   const hostname = window.location.hostname;
-  // If accessing via localhost, use localhost; otherwise use the server hostname
+  // If accessing via localhost, use localhost:8545 directly
   if (hostname === "localhost" || hostname === "127.0.0.1") {
     return undefined; // Use default localhost:8545
   }
-  return `http://${hostname}:8545`;
+  // For remote access, use the RPC proxy through the same port as the frontend
+  const port = window.location.port || (window.location.protocol === "https:" ? "443" : "80");
+  return `${window.location.protocol}//${hostname}:${port}/api/rpc`;
 };
 
 export const wagmiConfig = createConfig({
