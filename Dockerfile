@@ -11,13 +11,13 @@ WORKDIR /app
 COPY . .
 
 # Install all workspace deps using the pinned Yarn version
-RUN yarn install
+RUN corepack yarn install
 
 # Expose:
 # - 3000: Next.js frontend
 # - 8545: Hardhat chain (internal, optional to expose externally)
 EXPOSE 3000 8545
 
-# Start Hardhat chain in background, then start frontend.
+# Start Hardhat chain in background, deploy contracts, then start frontend.
 # For a quick PoC this is fine.
-CMD ["sh", "-c", "yarn chain & sleep 15 && yarn start"]
+CMD ["sh", "-c", "corepack yarn chain & sleep 15 && corepack yarn deploy && corepack yarn start"]
