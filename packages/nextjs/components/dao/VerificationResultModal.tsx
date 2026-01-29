@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CollectedEvidence } from "~~/components/dao/ChallengeEvidenceCard";
 import type { ChallengeOracleResult } from "~~/hooks/useEmploymentEventVerification";
 import { ChallengeSetInfo } from "~~/types/mfssia";
+import { getDkgExplorerUrl } from "~~/utils/dkg";
 
 interface VerificationResultModalProps {
   isOpen: boolean;
@@ -281,7 +282,7 @@ export const VerificationResultModal = ({
                   {dkgAssetUAL}
                 </div>
                 <a
-                  href={`https://dkg.origintrail.io/explore?ual=${encodeURIComponent(dkgAssetUAL)}`}
+                  href={getDkgExplorerUrl(dkgAssetUAL)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-sm btn-ghost gap-1 mt-2 text-accent"

@@ -366,12 +366,14 @@ contract GADataValidation is GA, Ownable {
 
     /**
      * @notice Mark RDF graph as published to DKG
-     * @dev Requires permission 5 (Owner) - called after successful OriginTrail publication
+     * @dev Requires Data Validator (role 4) or Owner (role 5) - called after successful OriginTrail publication
      * @param graphId Unique graph identifier
      * @param dkgAssetUAL DKG asset UAL from OriginTrail
      */
     function markRDFGraphPublished(bytes32 graphId, string memory dkgAssetUAL) external {
-        require(pm.has_permission(msg.sender, 5), "No permission to mark published");
+        uint32 senderRole = pm.hasRole(msg.sender);
+        uint32 roleIndex = senderRole & 31;
+        require(roleIndex == 4 || roleIndex == 5, "Only Data Validator or Owner can mark published");
         require(rdfGraphRegistry[graphId].submittedAt > 0, "Graph does not exist");
         require(rdfGraphRegistry[graphId].committeeApproved, "Graph must be approved first");
         require(!rdfGraphRegistry[graphId].publishedToDKG, "Already published");

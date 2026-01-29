@@ -27,6 +27,7 @@ import type { EmploymentEventArtifactData } from "~~/types/mfssia";
 // ─── MFSSIA Verification Storage ─────────────────────────────────────────────
 
 const MFSSIA_VERIFIED_STORAGE_KEY = "mkmpol21_mfssia_verified_graphs";
+const PENDING_DKG_UAL_STORAGE_KEY = "mkmpol21_pending_dkg_uals";
 
 function markGraphAsMFSSIAVerified(graphId: string): void {
   if (typeof window === "undefined") return;
@@ -37,6 +38,46 @@ function markGraphAsMFSSIAVerified(graphId: string): void {
       set.push(graphId);
       localStorage.setItem(MFSSIA_VERIFIED_STORAGE_KEY, JSON.stringify(set));
     }
+  } catch {
+    // localStorage may be unavailable
+  }
+}
+
+// Store pending DKG UAL for later on-chain recording (e.g., when Owner visits)
+function storePendingDkgUal(graphId: string, ual: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const stored = localStorage.getItem(PENDING_DKG_UAL_STORAGE_KEY);
+    const pending: Record<string, string> = stored ? JSON.parse(stored) : {};
+    pending[graphId] = ual;
+    localStorage.setItem(PENDING_DKG_UAL_STORAGE_KEY, JSON.stringify(pending));
+  } catch {
+    // localStorage may be unavailable
+  }
+}
+
+// Get pending DKG UAL for a graph (returns null if not found or already recorded)
+function getPendingDkgUal(graphId: string): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = localStorage.getItem(PENDING_DKG_UAL_STORAGE_KEY);
+    if (!stored) return null;
+    const pending: Record<string, string> = JSON.parse(stored);
+    return pending[graphId] || null;
+  } catch {
+    return null;
+  }
+}
+
+// Remove pending DKG UAL after successful on-chain recording
+function clearPendingDkgUal(graphId: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const stored = localStorage.getItem(PENDING_DKG_UAL_STORAGE_KEY);
+    if (!stored) return;
+    const pending: Record<string, string> = JSON.parse(stored);
+    delete pending[graphId];
+    localStorage.setItem(PENDING_DKG_UAL_STORAGE_KEY, JSON.stringify(pending));
   } catch {
     // localStorage may be unavailable
   }
@@ -153,6 +194,18 @@ export default function MFSSIAVerifyPage() {
   const ttlContentRef = useRef<string>("");
   const [showApiLog, setShowApiLog] = useState(true);
   const [onChainState, setOnChainState] = useState<"idle" | "recording" | "recorded" | "error">("idle");
+  const [pendingDkgUal, setPendingDkgUal] = useState<string | null>(null);
+
+  // Load pending DKG UAL from localStorage on mount
+  useEffect(() => {
+    if (graphId) {
+      const pending = getPendingDkgUal(graphId);
+      if (pending) {
+        setPendingDkgUal(pending);
+        console.log(`[DKG] Loaded pending UAL from localStorage: ${pending}`);
+      }
+    }
+  }, [graphId]);
 
   // Role check
   const { data: roleRaw, isFetching: isFetchingRole } = useScaffoldReadContract({
@@ -167,6 +220,8 @@ export default function MFSSIAVerifyPage() {
   const roleName = roleValue === 0 ? "No Role" : (ROLE_LABELS[roleIndex] ?? "Unknown");
   const hasAccess = roleValue !== 0 && (roleIndex === 4 || roleIndex === 5);
   const isOwner = roleIndex === 5 && roleValue !== 0;
+  const isDataValidator = roleIndex === 4 && roleValue !== 0;
+  const canRecordOnChain = isOwner || isDataValidator; // Data Validators and Owners can record on-chain
 
   // Contract address
   const gaAddress = (deployedContracts as any)?.[chainId]?.GADataValidation?.address as `0x${string}` | undefined;
@@ -224,6 +279,56 @@ export default function MFSSIAVerifyPage() {
       markGraphAsMFSSIAVerified(graphId);
     }
   }, [oracleVerificationState, graphId]);
+
+  // ─── Store DKG UAL in localStorage after successful publish ─────────────────
+
+  useEffect(() => {
+    if (dkgSubmissionState === "submitted" && dkgAssetUAL && graphId) {
+      storePendingDkgUal(graphId, dkgAssetUAL);
+      setPendingDkgUal(dkgAssetUAL);
+      console.log(`[DKG] Stored pending UAL in localStorage: ${dkgAssetUAL}`);
+    }
+  }, [dkgSubmissionState, dkgAssetUAL, graphId]);
+
+  // ─── Auto-record on-chain after successful DKG publish ─────────────────────
+
+  const autoRecordAttemptedRef = useRef(false);
+
+  useEffect(() => {
+    // Auto-record on-chain if:
+    // 1. DKG publish was successful (state is "submitted" and we have a UAL)
+    // 2. User has permission (Data Validator or Owner)
+    // 3. Not already recording or recorded
+    // 4. Haven't already attempted auto-record in this session
+    if (
+      dkgSubmissionState === "submitted" &&
+      dkgAssetUAL &&
+      canRecordOnChain &&
+      onChainState === "idle" &&
+      !autoRecordAttemptedRef.current
+    ) {
+      autoRecordAttemptedRef.current = true;
+      console.log(`[DKG] Auto-recording on-chain: ${dkgAssetUAL}`);
+
+      // Trigger on-chain recording
+      (async () => {
+        setOnChainState("recording");
+        try {
+          await writeContractAsync({
+            functionName: "markRDFGraphPublished",
+            args: [graphId as `0x${string}`, dkgAssetUAL],
+          });
+          setOnChainState("recorded");
+          clearPendingDkgUal(graphId);
+          setPendingDkgUal(null);
+          console.log(`[DKG] Auto-recording successful`);
+        } catch (err: any) {
+          console.error("[DKG] Auto-recording failed:", err);
+          setOnChainState("error");
+        }
+      })();
+    }
+  }, [dkgSubmissionState, dkgAssetUAL, canRecordOnChain, onChainState, graphId, writeContractAsync]);
 
   // ─── Fetch graph details ────────────────────────────────────────────────────
 
@@ -319,21 +424,28 @@ export default function MFSSIAVerifyPage() {
 
   // ─── On-chain recording (Owner only) ─────────────────────────────────────────
 
+  // Use UAL from hook state OR from localStorage (for when Owner visits later)
+  const effectiveUAL = dkgAssetUAL || pendingDkgUal;
+
   const handleRecordOnChain = useCallback(async () => {
-    if (!dkgAssetUAL || !graphId) return;
+    if (!effectiveUAL || !graphId) return;
 
     setOnChainState("recording");
     try {
       await writeContractAsync({
         functionName: "markRDFGraphPublished",
-        args: [graphId as `0x${string}`, dkgAssetUAL],
+        args: [graphId as `0x${string}`, effectiveUAL],
       });
       setOnChainState("recorded");
+      // Clear pending UAL from localStorage after successful recording
+      clearPendingDkgUal(graphId);
+      setPendingDkgUal(null);
+      console.log(`[DKG] On-chain recording successful, cleared pending UAL`);
     } catch (err: any) {
       console.error("[OnChain] markRDFGraphPublished failed:", err);
       setOnChainState("error");
     }
-  }, [dkgAssetUAL, graphId, writeContractAsync]);
+  }, [effectiveUAL, graphId, writeContractAsync]);
 
   // ─── Compute initial data for modal pre-population ────────────────────────────
 
@@ -1062,20 +1174,73 @@ export default function MFSSIAVerifyPage() {
                     <span className="font-semibold text-success">{(oracleConfidence * 100).toFixed(1)}%</span>
                   </div>
                 )}
-                {dkgSubmissionState === "submitted" && (
+                {(dkgSubmissionState === "submitted" || pendingDkgUal) && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-base-content/70">DKG Status</span>
-                    <span className={`badge ${dkgAssetUAL ? "badge-success" : "badge-info"}`}>
-                      {dkgAssetUAL ? "Published" : "Ingested (awaiting UAL)"}
+                    <span className={`badge ${effectiveUAL ? "badge-success" : "badge-info"}`}>
+                      {effectiveUAL ? "Published" : "Ingested (awaiting UAL)"}
                     </span>
                   </div>
                 )}
-                {dkgAssetUAL && (
+                {effectiveUAL && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-base-content/70">DKG UAL</span>
-                    <span className="font-mono text-xs max-w-[200px] truncate" title={dkgAssetUAL}>
-                      {dkgAssetUAL}
+                    <span className="font-mono text-xs max-w-[200px] truncate" title={effectiveUAL}>
+                      {effectiveUAL}
                     </span>
+                  </div>
+                )}
+                {/* On-chain recording for Owner when UAL is pending */}
+                {canRecordOnChain && effectiveUAL && onChainState !== "recorded" && (
+                  <div className="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/30">
+                    <div className="text-sm font-medium text-warning mb-2">On-Chain Recording Required</div>
+                    <p className="text-xs text-base-content/60 mb-3">
+                      This asset was published to DKG but not yet recorded on-chain. Record it to finalize the
+                      publication.
+                    </p>
+                    <button
+                      onClick={handleRecordOnChain}
+                      disabled={onChainState === "recording"}
+                      className="btn btn-sm btn-warning gap-2"
+                    >
+                      {onChainState === "recording" ? (
+                        <>
+                          <span className="loading loading-spinner loading-xs" />
+                          Recording...
+                        </>
+                      ) : onChainState === "error" ? (
+                        "Retry Recording"
+                      ) : (
+                        <>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                            />
+                          </svg>
+                          Record on Blockchain
+                        </>
+                      )}
+                    </button>
+                    {onChainState === "error" && (
+                      <p className="text-xs text-error mt-2">Recording failed. Please try again.</p>
+                    )}
+                  </div>
+                )}
+                {onChainState === "recorded" && (
+                  <div className="mt-4 p-3 rounded-lg bg-success/10 border border-success/30">
+                    <div className="flex items-center gap-2 text-success text-sm">
+                      <CheckCircleIcon className="w-5 h-5" />
+                      Successfully recorded on blockchain
+                    </div>
                   </div>
                 )}
               </div>
@@ -1293,9 +1458,11 @@ export default function MFSSIAVerifyPage() {
           challengeResults={challengeOracleResults}
           challengeEvidence={challengeEvidence}
           challengeSet={selectedChallengeSet}
-          dkgSubmissionState={dkgSubmissionState}
-          dkgAssetUAL={dkgAssetUAL}
-          onRecordOnChain={isOwner && dkgSubmissionState === "submitted" ? handleRecordOnChain : undefined}
+          dkgSubmissionState={pendingDkgUal ? "submitted" : dkgSubmissionState}
+          dkgAssetUAL={effectiveUAL}
+          onRecordOnChain={
+            canRecordOnChain && (dkgSubmissionState === "submitted" || pendingDkgUal) ? handleRecordOnChain : undefined
+          }
           onChainState={onChainState}
         />
       )}

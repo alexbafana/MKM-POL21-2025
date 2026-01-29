@@ -8,6 +8,7 @@ import { LoadingState } from "~~/components/dao/LoadingState";
 import { Address } from "~~/components/scaffold-eth";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldEventHistory, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { getDkgExplorerUrl } from "~~/utils/dkg";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -74,6 +75,7 @@ export default function PublishedAssetsPage() {
   const publicClient = usePublicClient();
   const [assets, setAssets] = useState<PublishedAsset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [detailsLoaded, setDetailsLoaded] = useState(false);
 
   // Role check
   const { data: roleRaw, isFetching: isFetchingRole } = useScaffoldReadContract({
@@ -91,18 +93,18 @@ export default function PublishedAssetsPage() {
   // Contract address
   const gaAddress = (deployedContracts as any)?.[chainId]?.GADataValidation?.address as `0x${string}` | undefined;
 
-  // Fetch published events
+  // Fetch published events - disable watch to prevent flickering
   const { data: publishedEvents } = useScaffoldEventHistory({
     contractName: "GADataValidation",
     eventName: "RDFGraphPublishedToDKG",
-    watch: true,
+    watch: false,
     fromBlock: 0n,
   });
 
-  // Fetch details for each published graph
+  // Fetch details for each published graph - only once
   useEffect(() => {
-    if (!publicClient || !gaAddress || !publishedEvents || publishedEvents.length === 0) {
-      if (publishedEvents !== undefined) {
+    if (!publicClient || !gaAddress || !publishedEvents || publishedEvents.length === 0 || detailsLoaded) {
+      if (publishedEvents !== undefined && !detailsLoaded) {
         setIsLoading(false);
       }
       return;
@@ -168,6 +170,7 @@ export default function PublishedAssetsPage() {
       if (!cancelled) {
         setAssets(results);
         setIsLoading(false);
+        setDetailsLoaded(true);
       }
     }
 
@@ -175,7 +178,7 @@ export default function PublishedAssetsPage() {
     return () => {
       cancelled = true;
     };
-  }, [publicClient, gaAddress, publishedEvents]);
+  }, [publicClient, gaAddress, publishedEvents, detailsLoaded]);
 
   // ─── Access Control ──────────────────────────────────────────────────────────
 
@@ -339,7 +342,7 @@ export default function PublishedAssetsPage() {
                     <div className="text-xs text-base-content/50 mb-1">DKG Asset UAL</div>
                     <div className="font-mono text-sm break-all">{asset.dkgAssetUAL}</div>
                     <a
-                      href={`https://dkg.origintrail.io/explore?ual=${encodeURIComponent(asset.dkgAssetUAL)}`}
+                      href={getDkgExplorerUrl(asset.dkgAssetUAL)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-xs btn-ghost gap-1 mt-2 text-accent"

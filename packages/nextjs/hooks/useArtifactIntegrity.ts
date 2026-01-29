@@ -120,8 +120,9 @@ export function useArtifactIntegrity() {
   // Check if MFSSIA is enabled
   const mfssiaEnabled = process.env.NEXT_PUBLIC_MFSSIA_ENABLED === "true";
 
-  // Stub mode: bypass MFSSIA API calls but show the UI flow (for pilots/demos)
-  const mfssiaStubMode = process.env.NEXT_PUBLIC_MFSSIA_STUB_MODE === "true";
+  // Artifact Integrity page should ALWAYS use real MFSSIA API, never stub mode.
+  // Only the Onboarding page uses stub mode for demos/pilots.
+  const mfssiaStubMode = false;
 
   // Get Example-A challenge set
   const exampleAChallengeSet = CHALLENGE_SETS.find(set => set.code === "mfssia:Example-A");

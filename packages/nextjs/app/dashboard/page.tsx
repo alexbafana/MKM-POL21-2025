@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, usePublicClient } from "wagmi";
 import {
   AdminIcon,
   BlockchainIcon,
+  CheckCircleIcon,
   CommitteeIcon,
   DataIcon,
   GovernanceIcon,
@@ -14,7 +15,11 @@ import {
 } from "~~/components/dao";
 import { LoadingState } from "~~/components/dao/LoadingState";
 import { Address } from "~~/components/scaffold-eth";
-import { useDeployedContractInfo, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import deployedContracts from "~~/contracts/deployedContracts";
+import { useDeployedContractInfo, useScaffoldEventHistory, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { getDkgExplorerUrl } from "~~/utils/dkg";
+
+// ─── Constants ───────────────────────────────────────────────────────────────
 
 const ROLE_LABELS: Record<number, string> = {
   0: "Member Institution",
@@ -28,16 +33,79 @@ const ROLE_LABELS: Record<number, string> = {
   8: "Dispute Resolution Board",
 };
 
-/**
- * Dashboard Page - Role-based dashboard for DAO members
- * Shows different views based on user's role in the system
- */
+const GRAPH_TYPE_LABELS = ["ARTICLES", "ENTITIES", "MENTIONS", "NLP", "ECONOMICS", "RELATIONS", "PROVENANCE"];
+const DATASET_LABELS = ["ERR Online", "Ohtuleht Online", "Ohtuleht Print", "Ariregister"];
+
+// ─── ABI Fragments ───────────────────────────────────────────────────────────
+
+const GA_DATA_VALIDATION_ABI = [
+  {
+    type: "function",
+    name: "getRDFGraphBasicInfo",
+    stateMutability: "view",
+    inputs: [{ name: "graphId", type: "bytes32" }],
+    outputs: [
+      { name: "graphHash", type: "bytes32" },
+      { name: "graphURI", type: "string" },
+      { name: "graphType", type: "uint8" },
+      { name: "datasetVariant", type: "uint8" },
+      { name: "year", type: "uint256" },
+      { name: "version", type: "uint256" },
+    ],
+  },
+  {
+    type: "function",
+    name: "getRDFGraphMetadata",
+    stateMutability: "view",
+    inputs: [{ name: "graphId", type: "bytes32" }],
+    outputs: [
+      { name: "submitter", type: "address" },
+      { name: "submittedAt", type: "uint256" },
+      { name: "modelVersion", type: "string" },
+      { name: "dkgAssetUAL", type: "string" },
+    ],
+  },
+] as const;
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface PublishedAsset {
+  graphId: string;
+  dkgAssetUAL: string;
+  graphType: number;
+  datasetVariant: number;
+  year: number;
+  version: number;
+  submitter: string;
+  submittedAt: number;
+}
+
+interface MemberStats {
+  total: number;
+  byRole: Record<number, number>;
+}
+
+interface ProposalStats {
+  consortium: { total: number; passed: number; executed: number };
+  validation: { total: number; passed: number; executed: number };
+  dispute: { total: number; passed: number; executed: number };
+}
+
+// ─── Dashboard Page ──────────────────────────────────────────────────────────
+
 export default function DashboardPage() {
   const { address } = useAccount();
   const chainId = useChainId();
+  const publicClient = usePublicClient();
   const { data: mkmpContract } = useDeployedContractInfo({ contractName: "MKMPOL21" });
   const mkmpAddress = mkmpContract?.address;
 
+  // State for assets (needs async loading)
+  const [publishedAssets, setPublishedAssets] = useState<PublishedAsset[]>([]);
+  const [isLoadingAssets, setIsLoadingAssets] = useState(true);
+  const assetsLoadedRef = useRef(false);
+
+  // Role query
   const {
     data: roleRaw,
     isFetching,
@@ -46,7 +114,84 @@ export default function DashboardPage() {
     contractName: "MKMPOL21",
     functionName: "hasRole",
     args: [address],
-    watch: true,
+    watch: false, // Disable watch to prevent flickering
+  });
+
+  // Contract addresses
+  const gaAddress = (deployedContracts as any)?.[chainId]?.GADataValidation?.address as `0x${string}` | undefined;
+
+  // Event histories - with watch disabled to prevent flickering
+  const { data: publishedEvents } = useScaffoldEventHistory({
+    contractName: "GADataValidation",
+    eventName: "RDFGraphPublishedToDKG",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  const { data: roleAssignedEvents } = useScaffoldEventHistory({
+    contractName: "MKMPOL21",
+    eventName: "RoleAssigned",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  const { data: submittedEvents } = useScaffoldEventHistory({
+    contractName: "GADataValidation",
+    eventName: "RDFGraphSubmitted",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  const { data: validatedEvents } = useScaffoldEventHistory({
+    contractName: "GADataValidation",
+    eventName: "RDFGraphValidated",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  const { data: approvedEvents } = useScaffoldEventHistory({
+    contractName: "GADataValidation",
+    eventName: "RDFGraphApproved",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  // Also check detailed validation events
+  const { data: validatedDetailedEvents } = useScaffoldEventHistory({
+    contractName: "GADataValidation",
+    eventName: "RDFGraphValidatedDetailed",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  // Consortium proposal events
+  const { data: consortiumProposalEvents } = useScaffoldEventHistory({
+    contractName: "Consortium",
+    eventName: "ProposalCreated",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  const { data: consortiumExecutedEvents } = useScaffoldEventHistory({
+    contractName: "Consortium",
+    eventName: "ProposalExecuted",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  // Validation Committee proposal events
+  const { data: validationProposalEvents } = useScaffoldEventHistory({
+    contractName: "ValidationCommittee",
+    eventName: "ProposalCreated",
+    watch: false,
+    fromBlock: 0n,
+  });
+
+  const { data: validationExecutedEvents } = useScaffoldEventHistory({
+    contractName: "ValidationCommittee",
+    eventName: "ProposalExecuted",
+    watch: false,
+    fromBlock: 0n,
   });
 
   useEffect(() => {
@@ -55,28 +200,148 @@ export default function DashboardPage() {
     }
   }, [address, chainId, refetch]);
 
-  // Refetch when page becomes visible (user navigates back from onboarding)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && address) {
-        refetch();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [address, refetch]);
-
-  const { roleValue, roleName, roleIndex, isOwner, isMember } = useMemo(() => {
+  const { roleName, roleIndex, isOwner, isMember, isDataValidator } = useMemo(() => {
     const v = roleRaw !== undefined && roleRaw !== null ? Number(roleRaw) : 0;
     const idx = v & 31;
     return {
-      roleValue: v,
       roleIndex: idx,
       roleName: v === 0 ? "No Role" : (ROLE_LABELS[idx] ?? "Unknown"),
       isOwner: idx === 5 && v !== 0,
       isMember: v !== 0,
+      isDataValidator: idx === 4 && v !== 0,
     };
   }, [roleRaw]);
+
+  // Calculate member stats from role assigned events (useMemo to avoid re-renders)
+  const memberStats = useMemo<MemberStats>(() => {
+    if (!roleAssignedEvents) return { total: 0, byRole: {} };
+
+    const membersByRole: Record<number, Set<string>> = {};
+
+    for (const event of roleAssignedEvents) {
+      const user = event.args?.user as string;
+      const role = Number(event.args?.role || 0);
+      const roleIdx = role & 31;
+
+      if (!membersByRole[roleIdx]) {
+        membersByRole[roleIdx] = new Set();
+      }
+      membersByRole[roleIdx].add(user.toLowerCase());
+    }
+
+    const byRole: Record<number, number> = {};
+    const uniqueMembers = new Set<string>();
+
+    for (const [roleIdx, members] of Object.entries(membersByRole)) {
+      byRole[Number(roleIdx)] = members.size;
+      members.forEach(m => uniqueMembers.add(m));
+    }
+
+    return { total: uniqueMembers.size, byRole };
+  }, [roleAssignedEvents]);
+
+  // Calculate data stats (useMemo to avoid re-renders)
+  // Count both RDFGraphValidated and RDFGraphValidatedDetailed events
+  const dataStats = useMemo(
+    () => ({
+      submitted: submittedEvents?.length || 0,
+      validated: (validatedEvents?.length || 0) + (validatedDetailedEvents?.length || 0),
+      approved: approvedEvents?.length || 0,
+      published: publishedEvents?.length || 0,
+    }),
+    [submittedEvents, validatedEvents, validatedDetailedEvents, approvedEvents, publishedEvents],
+  );
+
+  // Calculate proposal stats (useMemo to avoid re-renders)
+  const proposalStats = useMemo<ProposalStats>(
+    () => ({
+      consortium: {
+        total: consortiumProposalEvents?.length || 0,
+        passed: consortiumExecutedEvents?.length || 0,
+        executed: consortiumExecutedEvents?.length || 0,
+      },
+      validation: {
+        total: validationProposalEvents?.length || 0,
+        passed: validationExecutedEvents?.length || 0,
+        executed: validationExecutedEvents?.length || 0,
+      },
+      dispute: { total: 0, passed: 0, executed: 0 },
+    }),
+    [consortiumProposalEvents, consortiumExecutedEvents, validationProposalEvents, validationExecutedEvents],
+  );
+
+  // Fetch published asset details - only once when events load
+  useEffect(() => {
+    if (!publicClient || !gaAddress || !publishedEvents || assetsLoadedRef.current) {
+      if (publishedEvents !== undefined) {
+        setIsLoadingAssets(false);
+      }
+      return;
+    }
+
+    if (publishedEvents.length === 0) {
+      setIsLoadingAssets(false);
+      assetsLoadedRef.current = true;
+      return;
+    }
+
+    let cancelled = false;
+    assetsLoadedRef.current = true; // Mark as loading to prevent re-entry
+
+    async function fetchAssetDetails() {
+      const results: PublishedAsset[] = [];
+
+      for (const event of publishedEvents!) {
+        if (cancelled) return;
+
+        const graphId = event.args?.graphId as string;
+        const ual = (event.args?.dkgAssetUAL as string) || "";
+
+        if (!graphId) continue;
+
+        try {
+          const [basicInfo, metadata] = await Promise.all([
+            publicClient!.readContract({
+              address: gaAddress!,
+              abi: GA_DATA_VALIDATION_ABI,
+              functionName: "getRDFGraphBasicInfo",
+              args: [graphId as `0x${string}`],
+            }),
+            publicClient!.readContract({
+              address: gaAddress!,
+              abi: GA_DATA_VALIDATION_ABI,
+              functionName: "getRDFGraphMetadata",
+              args: [graphId as `0x${string}`],
+            }),
+          ]);
+
+          results.push({
+            graphId,
+            dkgAssetUAL: ual || (metadata as any)[3] || "",
+            graphType: Number((basicInfo as any)[2]),
+            datasetVariant: Number((basicInfo as any)[3]),
+            year: Number((basicInfo as any)[4]),
+            version: Number((basicInfo as any)[5]),
+            submitter: (metadata as any)[0],
+            submittedAt: Number((metadata as any)[1]),
+          });
+        } catch (err) {
+          console.warn(`Failed to fetch details for graph ${graphId}:`, err);
+        }
+      }
+
+      if (!cancelled) {
+        setPublishedAssets(results);
+        setIsLoadingAssets(false);
+      }
+    }
+
+    fetchAssetDetails();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [publicClient, gaAddress, publishedEvents]);
 
   // Not connected state
   if (!address) {
@@ -88,13 +353,11 @@ export default function DashboardPage() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <GovernanceIcon className="w-8 h-8 text-primary" />
               </div>
-              <h1 className="text-3xl font-bold mb-4">DAO Dashboard</h1>
+              <h1 className="text-3xl font-bold mb-4">MKMPOL21 DAO</h1>
               <p className="text-base-content/70 mb-6">
-                Connect your wallet to access the DAO governance system and view your role.
+                Public Data Governance for Estonian Media and Cultural Datasets
               </p>
-              <div className="flex justify-center gap-2">
-                <div className="badge badge-outline">Network: {chainId ?? "Unknown"}</div>
-              </div>
+              <p className="text-sm text-base-content/50">Connect your wallet to access the DAO dashboard</p>
             </div>
           </div>
         </div>
@@ -106,381 +369,388 @@ export default function DashboardPage() {
   if (isFetching) {
     return (
       <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center">
-        <LoadingState message="Loading your role..." size="lg" />
+        <LoadingState message="Loading dashboard..." size="lg" />
       </div>
     );
   }
 
-  // Owner Dashboard
-  if (isOwner) {
-    return (
-      <div className="min-h-[calc(100vh-5rem)]">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-primary/10 via-secondary/5 to-accent/10 py-12 border-b border-base-300">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="badge badge-primary badge-lg gap-2">
-                    <AdminIcon className="w-4 h-4" />
-                    OWNER
-                  </div>
-                  <div className="badge badge-outline">Chain {chainId}</div>
-                </div>
-                <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-                <div className="flex items-center gap-2 text-base-content/70">
-                  <span>Your Address:</span>
-                  <Address address={address} />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Link href="/admin" className="btn btn-primary gap-2">
-                  <UserIcon className="w-4 h-4" />
-                  Manage Roles
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-            <div className="grid md:grid-cols-4 gap-4">
-              <Link href="/admin" className="card bg-base-100 shadow-lg card-hover border border-primary/20 group">
-                <div className="card-body">
-                  <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-content transition-colors w-fit">
-                    <UserIcon className="w-6 h-6" />
-                  </div>
-                  <h3 className="card-title text-lg mt-2">Manage Roles</h3>
-                  <p className="text-sm text-base-content/70">Assign and revoke roles</p>
-                </div>
-              </Link>
-
-              <Link
-                href="/roles-permissions"
-                className="card bg-base-100 shadow-lg card-hover border border-accent/20 group"
-              >
-                <div className="card-body">
-                  <div className="p-3 rounded-xl bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-content transition-colors w-fit">
-                    <GovernanceIcon className="w-6 h-6" />
-                  </div>
-                  <h3 className="card-title text-lg mt-2">Permissions</h3>
-                  <p className="text-sm text-base-content/70">View permission matrix</p>
-                </div>
-              </Link>
-
-              <Link href="/committees" className="card bg-base-100 shadow-lg card-hover border border-success/20 group">
-                <div className="card-body">
-                  <div className="p-3 rounded-xl bg-success/10 text-success group-hover:bg-success group-hover:text-success-content transition-colors w-fit">
-                    <CommitteeIcon className="w-6 h-6" />
-                  </div>
-                  <h3 className="card-title text-lg mt-2">Committees</h3>
-                  <p className="text-sm text-base-content/70">Governance committees</p>
-                </div>
-              </Link>
-
-              <Link href="/debug" className="card bg-base-100 shadow-lg card-hover border border-warning/20 group">
-                <div className="card-body">
-                  <div className="p-3 rounded-xl bg-warning/10 text-warning group-hover:bg-warning group-hover:text-warning-content transition-colors w-fit">
-                    <BlockchainIcon className="w-6 h-6" />
-                  </div>
-                  <h3 className="card-title text-lg mt-2">Debug</h3>
-                  <p className="text-sm text-base-content/70">Contract debugging</p>
-                </div>
-              </Link>
-            </div>
-          </div>
-
-          {/* System Status */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-              <div className="card-body">
-                <h3 className="card-title flex items-center gap-2">
-                  <BlockchainIcon className="w-5 h-5 text-primary" />
-                  System Status
-                </h3>
-                <div className="space-y-4 mt-4">
-                  <div className="flex justify-between items-center py-2 border-b border-base-200">
-                    <span className="text-base-content/70">Permission Manager</span>
-                    <div className="badge badge-success gap-1">
-                      <span className="status-indicator active" />
-                      Active
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-base-200">
-                    <span className="text-base-content/70">Contract Address</span>
-                    <Address address={mkmpAddress} />
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-base-content/70">Your Role</span>
-                    <span className="font-semibold text-primary">{roleName}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-              <div className="card-body">
-                <h3 className="card-title flex items-center gap-2">
-                  <DataIcon className="w-5 h-5 text-accent" />
-                  Governance Areas
-                </h3>
-                <div className="space-y-2 mt-4">
-                  <Link
-                    href="/governance/dao-management"
-                    className="btn btn-sm btn-block justify-start btn-ghost hover:bg-primary/10"
+  // Main Dashboard - Available to all connected users
+  return (
+    <div className="min-h-[calc(100vh-5rem)]">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary/10 via-secondary/5 to-accent/10 py-8 border-b border-base-300">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                {isMember ? (
+                  <div
+                    className={`badge ${isOwner ? "badge-primary" : isDataValidator ? "badge-accent" : "badge-secondary"} badge-lg gap-2`}
                   >
-                    DAO Management
-                  </Link>
-                  <Link
-                    href="/governance/data-validation"
-                    className="btn btn-sm btn-block justify-start btn-ghost hover:bg-primary/10"
-                  >
-                    Data Validation
-                  </Link>
-                  <Link
-                    href="/governance/dispute-resolution"
-                    className="btn btn-sm btn-block justify-start btn-ghost hover:bg-primary/10"
-                  >
-                    Dispute Resolution
-                  </Link>
-                  <Link
-                    href="/governance/membership"
-                    className="btn btn-sm btn-block justify-start btn-ghost hover:bg-primary/10"
-                  >
-                    Membership
-                  </Link>
-                  <Link
-                    href="/governance/data-access"
-                    className="btn btn-sm btn-block justify-start btn-ghost hover:bg-primary/10"
-                  >
-                    Data Access
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Member Dashboard
-  if (isMember) {
-    return (
-      <div className="min-h-[calc(100vh-5rem)]">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-secondary/10 via-accent/5 to-success/10 py-12 border-b border-base-300">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="badge badge-secondary badge-lg gap-2">
-                    <UserIcon className="w-4 h-4" />
+                    {isOwner ? <AdminIcon className="w-4 h-4" /> : <UserIcon className="w-4 h-4" />}
                     {roleName}
                   </div>
-                  <div className="badge badge-outline">Chain {chainId}</div>
-                </div>
-                <h1 className="text-4xl font-bold mb-2">Member Dashboard</h1>
-                <div className="flex items-center gap-2 text-base-content/70">
-                  <span>Your Address:</span>
-                  <Address address={address} />
-                </div>
+                ) : (
+                  <div className="badge badge-warning badge-lg gap-2">
+                    <LockIcon className="w-4 h-4" />
+                    Guest
+                  </div>
+                )}
+              </div>
+              <h1 className="text-3xl font-bold mb-1">DAO Dashboard</h1>
+              <div className="flex items-center gap-2 text-base-content/70 text-sm">
+                <Address address={address} />
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className={`grid gap-6 ${roleIndex === 0 || roleIndex === 5 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
-            {/* Role Info */}
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-              <div className="card-body">
-                <h3 className="card-title flex items-center gap-2">
-                  <UserIcon className="w-5 h-5 text-primary" />
-                  Your Role
-                </h3>
-                <div className="space-y-4 mt-4">
-                  <div className="flex justify-between py-2 border-b border-base-200">
-                    <span className="text-base-content/70">Role Name</span>
-                    <span className="font-semibold">{roleName}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-base-200">
-                    <span className="text-base-content/70">Role Value</span>
-                    <span className="font-mono text-sm">{roleValue}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-base-200">
-                    <span className="text-base-content/70">Role Index</span>
-                    <span className="font-mono text-sm">{roleIndex}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-base-content/70">Membership Status</span>
-                    <div className="badge badge-success gap-1">
-                      <span className="status-indicator active" />
-                      Active
-                    </div>
-                  </div>
-                </div>
-                <div className="divider"></div>
-                <Link href="/roles-permissions" className="btn btn-outline btn-sm">
-                  View All Permissions
+            <div className="flex gap-2 flex-wrap">
+              {isOwner && (
+                <Link href="/admin" className="btn btn-primary btn-sm gap-2">
+                  <AdminIcon className="w-4 h-4" />
+                  Manage Roles
                 </Link>
-              </div>
+              )}
+              {(isDataValidator || isOwner) && (
+                <Link href="/governance/data-validation" className="btn btn-accent btn-sm gap-2">
+                  <DataIcon className="w-4 h-4" />
+                  Validate Data
+                </Link>
+              )}
+              {!isMember && (
+                <Link href="/onboarding/individual" className="btn btn-primary btn-sm">
+                  Join DAO
+                </Link>
+              )}
             </div>
-
-            {/* Governance Actions */}
-            <div className="card bg-base-100 shadow-lg border border-base-300">
-              <div className="card-body">
-                <h3 className="card-title flex items-center gap-2">
-                  <GovernanceIcon className="w-5 h-5 text-accent" />
-                  Governance
-                </h3>
-                <p className="text-sm text-base-content/70 mb-4">
-                  Participate in DAO governance through committees and proposals
-                </p>
-                <div className="space-y-2">
-                  <Link href="/committees" className="btn btn-primary btn-block">
-                    View Committees
-                  </Link>
-                  <Link href="/governance/data-validation" className="btn btn-outline btn-block">
-                    Data Validation
-                  </Link>
-                  <Link href="/governance/membership" className="btn btn-outline btn-block">
-                    Membership
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Data Provision - Member Institution and Owner Only */}
-            {(roleIndex === 0 || roleIndex === 5) && (
-              <div className="card bg-base-100 shadow-lg border border-success/30 group hover:border-success/50 transition-all">
-                <div className="card-body">
-                  <h3 className="card-title flex items-center gap-2">
-                    <DataIcon className="w-5 h-5 text-success" />
-                    Data Provision
-                  </h3>
-                  <p className="text-sm text-base-content/70 mb-4">
-                    Upload and submit RDF data files for committee validation
-                  </p>
-                  <Link href="/data-provision" className="btn btn-success btn-block gap-2">
-                    <DataIcon className="w-4 h-4" />
-                    Data Provision
-                  </Link>
-                  <div className="mt-4 text-xs text-base-content/60">
-                    <div className="flex items-center gap-1 mb-1">
-                      <span className="w-1 h-1 rounded-full bg-success" />
-                      Upload RDF documents
-                    </div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <span className="w-1 h-1 rounded-full bg-success" />
-                      Validate syntax
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-success" />
-                      Submit for approval
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    );
-  }
 
-  // No Role - Guest (connected but without role)
-  return (
-    <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center">
-      <div className="max-w-2xl mx-auto px-6 text-center">
-        <div className="card bg-base-100 shadow-xl border border-base-300">
-          <div className="card-body">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-warning/10 flex items-center justify-center">
-              <LockIcon className="w-8 h-8 text-warning" />
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          {/* Members */}
+          <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
+            <div className="stat-figure text-primary">
+              <UserIcon className="w-8 h-8" />
             </div>
-            <h2 className="card-title text-2xl justify-center mb-2">Access Required</h2>
-            <p className="text-base-content/70 mb-6">
-              You are connected but do not have any role assigned yet. Complete the onboarding process or contact a DAO
-              administrator to request membership.
-            </p>
+            <div className="stat-title text-xs">Total Members</div>
+            <div className="stat-value text-2xl text-primary">{memberStats.total}</div>
+            <div className="stat-desc text-xs">Active in DAO</div>
+          </div>
 
-            <div className="bg-base-200 rounded-xl p-4 mb-6">
-              <div className="text-sm space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-base-content/70">Your Address</span>
-                  <Address address={address} />
+          {/* Data Published */}
+          <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
+            <div className="stat-figure text-success">
+              <CheckCircleIcon className="w-8 h-8" />
+            </div>
+            <div className="stat-title text-xs">Published to DKG</div>
+            <div className="stat-value text-2xl text-success">{dataStats.published}</div>
+            <div className="stat-desc text-xs">Knowledge assets</div>
+          </div>
+
+          {/* Proposals */}
+          <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
+            <div className="stat-figure text-accent">
+              <GovernanceIcon className="w-8 h-8" />
+            </div>
+            <div className="stat-title text-xs">Proposals Executed</div>
+            <div className="stat-value text-2xl text-accent">
+              {proposalStats.consortium.executed + proposalStats.validation.executed}
+            </div>
+            <div className="stat-desc text-xs">Across committees</div>
+          </div>
+
+          {/* Data Validated */}
+          <div className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
+            <div className="stat-figure text-info">
+              <DataIcon className="w-8 h-8" />
+            </div>
+            <div className="stat-title text-xs">Data Submitted</div>
+            <div className="stat-value text-2xl text-info">{dataStats.submitted}</div>
+            <div className="stat-desc text-xs">{dataStats.approved} approved</div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Left Column - Published Assets & Data Pipeline */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Published Knowledge Assets */}
+            <div className="card bg-base-100 shadow-lg border border-base-300">
+              <div className="card-body p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="card-title text-lg flex items-center gap-2">
+                    <CheckCircleIcon className="w-5 h-5 text-success" />
+                    Published Knowledge Assets
+                  </h3>
+                  <div className="badge badge-success">{dataStats.published} on DKG</div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-base-content/70">Network</span>
-                  <span className="font-mono">{chainId}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-base-content/70">Status</span>
-                  <div className="badge badge-warning gap-1">
-                    <span className="status-indicator pending" />
-                    No Role
+
+                {isLoadingAssets ? (
+                  <div className="flex justify-center py-8">
+                    <LoadingState message="Loading assets..." size="sm" />
+                  </div>
+                ) : dataStats.published === 0 ? (
+                  <div className="text-center py-8">
+                    <DataIcon className="w-12 h-12 mx-auto mb-3 text-base-content/20" />
+                    <p className="text-base-content/50 text-sm">No assets published yet</p>
+                    <Link href="/governance/data-validation" className="btn btn-sm btn-outline mt-3">
+                      See Data Being Validated
+                    </Link>
+                  </div>
+                ) : publishedAssets.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CheckCircleIcon className="w-12 h-12 mx-auto mb-3 text-success/50" />
+                    <p className="text-base-content/70 text-sm">{dataStats.published} asset(s) published to DKG</p>
+                    <Link href="/governance/data-validation/published" className="btn btn-sm btn-success mt-3">
+                      View Published Assets
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                    {publishedAssets.map(asset => (
+                      <div
+                        key={asset.graphId}
+                        className="p-3 rounded-lg bg-base-200/50 border border-base-300 hover:border-success/30 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-sm">
+                                {GRAPH_TYPE_LABELS[asset.graphType] || "Unknown"}
+                              </span>
+                              <span className="badge badge-xs badge-outline">v{asset.version}</span>
+                              <span className="badge badge-xs badge-success">Published</span>
+                            </div>
+                            <div className="text-xs text-base-content/50 mt-1">
+                              {DATASET_LABELS[asset.datasetVariant]} • {asset.year}
+                            </div>
+                            {asset.dkgAssetUAL && (
+                              <div className="mt-2">
+                                <a
+                                  href={getDkgExplorerUrl(asset.dkgAssetUAL)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs font-mono text-accent hover:underline truncate block max-w-[300px]"
+                                  title={asset.dkgAssetUAL}
+                                >
+                                  {asset.dkgAssetUAL.slice(0, 50)}...
+                                </a>
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right text-xs text-base-content/40">
+                            {asset.submittedAt > 0 && new Date(asset.submittedAt * 1000).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Data Validation Pipeline */}
+            <div className="card bg-base-100 shadow-lg border border-base-300">
+              <div className="card-body p-5">
+                <h3 className="card-title text-lg flex items-center gap-2 mb-4">
+                  <DataIcon className="w-5 h-5 text-info" />
+                  Data Validation Pipeline
+                </h3>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex-1 min-w-[100px]">
+                    <div className="text-center p-3 rounded-lg bg-base-200">
+                      <div className="text-2xl font-bold text-info">{dataStats.submitted}</div>
+                      <div className="text-xs text-base-content/60">Submitted</div>
+                    </div>
+                  </div>
+                  <div className="text-base-content/30">→</div>
+                  <div className="flex-1 min-w-[100px]">
+                    <div className="text-center p-3 rounded-lg bg-base-200">
+                      <div className="text-2xl font-bold text-warning">{dataStats.validated}</div>
+                      <div className="text-xs text-base-content/60">Validated</div>
+                    </div>
+                  </div>
+                  <div className="text-base-content/30">→</div>
+                  <div className="flex-1 min-w-[100px]">
+                    <div className="text-center p-3 rounded-lg bg-base-200">
+                      <div className="text-2xl font-bold text-accent">{dataStats.approved}</div>
+                      <div className="text-xs text-base-content/60">Approved</div>
+                    </div>
+                  </div>
+                  <div className="text-base-content/30">→</div>
+                  <div className="flex-1 min-w-[100px]">
+                    <div className="text-center p-3 rounded-lg bg-success/10 border border-success/30">
+                      <div className="text-2xl font-bold text-success">{dataStats.published}</div>
+                      <div className="text-xs text-base-content/60">Published</div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-base-content/70">Raw Role Value</span>
-                  <span className="font-mono text-xs">
-                    {roleRaw !== undefined && roleRaw !== null ? String(roleRaw) : "undefined (query not running)"}
-                  </span>
+                {(isDataValidator || isOwner || roleIndex === 0) && (
+                  <div className="mt-4">
+                    <Link href="/governance/data-validation" className="btn btn-sm btn-outline w-full">
+                      View All Submissions
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Members, Committees, Actions */}
+          <div className="space-y-6">
+            {/* Member Distribution */}
+            <div className="card bg-base-100 shadow-lg border border-base-300">
+              <div className="card-body p-5">
+                <h3 className="card-title text-lg flex items-center gap-2 mb-4">
+                  <UserIcon className="w-5 h-5 text-primary" />
+                  Members
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(memberStats.byRole)
+                    .filter(([, count]) => count > 0)
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([roleIdx, count]) => (
+                      <div key={roleIdx} className="flex items-center justify-between py-1.5 border-b border-base-200">
+                        <span className="text-sm text-base-content/70">
+                          {ROLE_LABELS[Number(roleIdx)] || `Role ${roleIdx}`}
+                        </span>
+                        <span className="font-semibold">{count}</span>
+                      </div>
+                    ))}
+                  {Object.keys(memberStats.byRole).length === 0 && (
+                    <div className="text-center py-4 text-base-content/50 text-sm">No members yet</div>
+                  )}
                 </div>
               </div>
             </div>
 
-            <div className="alert bg-primary/10 border border-primary/20">
-              <GovernanceIcon className="w-6 h-6 text-primary shrink-0" />
-              <div className="text-left text-sm">
-                <p className="font-semibold">How to join the DAO:</p>
-                <ol className="list-decimal list-inside mt-2 text-base-content/70 space-y-1">
-                  <li>Complete the onboarding process for your role type</li>
-                  <li>Verify your identity through MFSSIA</li>
-                  <li>Receive your role assignment automatically</li>
-                </ol>
+            {/* Committee Activity */}
+            <div className="card bg-base-100 shadow-lg border border-base-300">
+              <div className="card-body p-5">
+                <h3 className="card-title text-lg flex items-center gap-2 mb-4">
+                  <CommitteeIcon className="w-5 h-5 text-accent" />
+                  Governance Committees
+                </h3>
+                <div className="space-y-3">
+                  {/* Consortium */}
+                  <Link
+                    href="/committees/consortium"
+                    className="block p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">Consortium</span>
+                      <div className="badge badge-xs">{proposalStats.consortium.total} proposals</div>
+                    </div>
+                    <div className="text-xs text-base-content/50 mt-1">
+                      {proposalStats.consortium.executed} executed
+                    </div>
+                  </Link>
+
+                  {/* Validation Committee */}
+                  <Link
+                    href="/committees/validation"
+                    className="block p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">Validation Committee</span>
+                      <div className="badge badge-xs">{proposalStats.validation.total} proposals</div>
+                    </div>
+                    <div className="text-xs text-base-content/50 mt-1">
+                      {proposalStats.validation.executed} executed
+                    </div>
+                  </Link>
+
+                  {/* Dispute Resolution */}
+                  <Link
+                    href="/committees/dispute"
+                    className="block p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">Dispute Resolution</span>
+                      <div className="badge badge-xs">{proposalStats.dispute.total} proposals</div>
+                    </div>
+                    <div className="text-xs text-base-content/50 mt-1">{proposalStats.dispute.executed} resolved</div>
+                  </Link>
+                </div>
               </div>
             </div>
 
-            <div className="card-actions justify-center mt-6 flex-wrap gap-2">
-              <button onClick={() => refetch()} disabled={isFetching} className="btn btn-primary gap-2">
-                {isFetching ? (
-                  <>
-                    <span className="loading loading-spinner loading-sm"></span>
-                    Checking...
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-5 h-5"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-                      />
-                    </svg>
-                    Refresh Role
-                  </>
-                )}
-              </button>
-              <Link href="/onboarding/individual" className="btn btn-outline">
-                Start Individual Onboarding
-              </Link>
-              <Link href="/onboarding/institution" className="btn btn-outline">
-                Institution Onboarding
-              </Link>
-              <Link href="/roles-permissions" className="btn btn-ghost">
-                View Available Roles
-              </Link>
+            {/* Quick Actions */}
+            <div className="card bg-base-100 shadow-lg border border-base-300">
+              <div className="card-body p-5">
+                <h3 className="card-title text-lg flex items-center gap-2 mb-4">
+                  <BlockchainIcon className="w-5 h-5 text-warning" />
+                  Quick Actions
+                </h3>
+                <div className="space-y-2">
+                  {!isMember && (
+                    <>
+                      <Link href="/onboarding/individual" className="btn btn-primary btn-sm w-full">
+                        Join as Individual
+                      </Link>
+                      <Link href="/onboarding/institution" className="btn btn-outline btn-sm w-full">
+                        Join as Institution
+                      </Link>
+                    </>
+                  )}
+                  {/* Submit Data - only for Member Institution (roleIndex 0 with actual role) or Owner */}
+                  {((isMember && roleIndex === 0) || isOwner) && (
+                    <Link href="/data-provision" className="btn btn-success btn-sm w-full gap-2">
+                      <DataIcon className="w-4 h-4" />
+                      Submit Data
+                    </Link>
+                  )}
+                  {/* Validate Data - only for Data Validators and Owner */}
+                  {(isDataValidator || isOwner) && (
+                    <Link href="/governance/data-validation" className="btn btn-accent btn-sm w-full gap-2">
+                      <CheckCircleIcon className="w-4 h-4" />
+                      Validate Data
+                    </Link>
+                  )}
+                  {/* View Published Assets - visible to all members */}
+                  {isMember && (
+                    <Link href="/governance/data-validation/published" className="btn btn-success btn-sm w-full gap-2">
+                      <BlockchainIcon className="w-4 h-4" />
+                      View Published Assets
+                    </Link>
+                  )}
+                  {/* Artifact Integrity - only for Data Validators and Owner */}
+                  {(isDataValidator || isOwner) && (
+                    <Link href="/artifact-integrity" className="btn btn-info btn-sm w-full gap-2">
+                      <CheckCircleIcon className="w-4 h-4" />
+                      Artifact Integrity
+                    </Link>
+                  )}
+                  <Link href="/committees" className="btn btn-outline btn-sm w-full">
+                    View All Committees
+                  </Link>
+                  {isOwner && (
+                    <Link href="/debug" className="btn btn-ghost btn-sm w-full">
+                      Debug Contracts
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Contract Info */}
+            <div className="card bg-base-100 shadow-lg border border-base-300">
+              <div className="card-body p-5">
+                <h3 className="card-title text-sm flex items-center gap-2 mb-3">
+                  <BlockchainIcon className="w-4 h-4 text-base-content/50" />
+                  Contracts
+                </h3>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-base-content/50">MKMPOL21</span>
+                    {mkmpAddress && <Address address={mkmpAddress} size="xs" />}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-base-content/50">Data Validation</span>
+                    {gaAddress && <Address address={gaAddress} size="xs" />}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

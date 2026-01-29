@@ -4342,6 +4342,7 @@ const deployedContracts = {
       inheritedFunctions: {
         canPropose: "contracts/interfaces/IPermissionManager.sol",
         canVote: "contracts/interfaces/IPermissionManager.sol",
+        hasRole: "contracts/interfaces/IPermissionManager.sol",
         has_permission: "contracts/interfaces/IPermissionManager.sol",
       },
       deployedOnBlock: 3,
