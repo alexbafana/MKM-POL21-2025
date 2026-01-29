@@ -45,7 +45,8 @@ export const wagmiConfig = createConfig({
       // For Hardhat network, dynamically determine RPC URL based on hostname
       const dynamicRpcUrl = getHardhatRpcUrl();
       if (dynamicRpcUrl) {
-        rpcFallbacks = [http(dynamicRpcUrl), http()];
+        // Only use proxy, don't fallback to 127.0.0.1:8545 which won't work remotely
+        rpcFallbacks = [http(dynamicRpcUrl)];
       }
     } else {
       const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
