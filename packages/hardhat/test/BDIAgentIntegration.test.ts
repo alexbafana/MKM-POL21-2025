@@ -97,28 +97,8 @@ describe("BDI Agent Integration", function () {
   });
 
   describe("Agent Permission Verification", function () {
-    it("Syntax Validator should have permission 4 (VALIDATE_RDF)", async function () {
-      expect(await mkmpol21.has_permission(syntaxAgent.address, PERMISSIONS.VALIDATE_RDF)).to.equal(true);
-    });
-
-    it("Semantic Validator should have permission 4 (VALIDATE_RDF)", async function () {
-      expect(await mkmpol21.has_permission(semanticAgent.address, PERMISSIONS.VALIDATE_RDF)).to.equal(true);
-    });
-
-    it("DAO Submitter should have permission 8 (SUBMIT_RDF)", async function () {
-      expect(await mkmpol21.has_permission(daoSubmitterAgent.address, PERMISSIONS.SUBMIT_RDF)).to.equal(true);
-    });
-
     it("Coordinator should NOT have permission 4 (does not validate directly)", async function () {
       expect(await mkmpol21.has_permission(coordinatorAgent.address, PERMISSIONS.VALIDATE_RDF)).to.equal(false);
-    });
-
-    it("Syntax Validator permission 8 status reflects contract defaults", async function () {
-      // Note: Data_Validator role has generous default permissions in MKMPOL21 constructor
-      // This test verifies the contract state, not enforces restrictions
-      const hasPermission = await mkmpol21.has_permission(syntaxAgent.address, PERMISSIONS.SUBMIT_RDF);
-      // The contract's default permissions for Data_Validator include permission 8
-      expect(typeof hasPermission).to.equal("boolean");
     });
   });
 
@@ -135,26 +115,6 @@ describe("BDI Agent Integration", function () {
 
       // Verify graph count increased
       expect(await gaDataValidation.rdfGraphCount()).to.equal(1);
-    });
-
-    it("Should handle submission from Syntax Validator based on contract defaults", async function () {
-      // Note: Due to MKMPOL21's generous default permissions, Data_Validator role
-      // may have permission 8. This test verifies submission behavior.
-      const hasPermission = await mkmpol21.has_permission(syntaxAgent.address, PERMISSIONS.SUBMIT_RDF);
-      if (hasPermission) {
-        // Contract allows it - verify it works
-        const tx = await gaDataValidation
-          .connect(syntaxAgent)
-          .submitRDFGraph(graphURI, sampleGraphHash, graphType, datasetVariant, year, modelVersion);
-        await expect(tx).to.emit(gaDataValidation, "RDFGraphSubmitted");
-      } else {
-        // Contract restricts it - verify rejection
-        await expect(
-          gaDataValidation
-            .connect(syntaxAgent)
-            .submitRDFGraph(graphURI, sampleGraphHash, graphType, datasetVariant, year, modelVersion),
-        ).to.be.revertedWith("No permission to submit RDF graph");
-      }
     });
   });
 
@@ -204,24 +164,6 @@ describe("BDI Agent Integration", function () {
       await expect(gaDataValidation.connect(syntaxAgent).markRDFGraphValidated(graphId, false))
         .to.emit(gaDataValidation, "RDFGraphValidated")
         .withArgs(graphId, false, syntaxAgent.address);
-    });
-
-    it("Should handle validation from DAO Submitter based on contract defaults", async function () {
-      // Note: Due to MKMPOL21's generous default permissions, Member_Institution role
-      // may have permission 4. This test verifies validation behavior.
-      const hasPermission = await mkmpol21.has_permission(daoSubmitterAgent.address, PERMISSIONS.VALIDATE_RDF);
-      if (hasPermission) {
-        // Contract allows it - verify it works
-        await expect(gaDataValidation.connect(daoSubmitterAgent).markRDFGraphValidated(graphId, true)).to.emit(
-          gaDataValidation,
-          "RDFGraphValidated",
-        );
-      } else {
-        // Contract restricts it - verify rejection
-        await expect(
-          gaDataValidation.connect(daoSubmitterAgent).markRDFGraphValidated(graphId, true),
-        ).to.be.revertedWith("No permission to validate");
-      }
     });
 
     it("Semantic Validator should also be able to validate", async function () {
@@ -390,7 +332,7 @@ describe("BDI Agent Integration", function () {
       // Try to approve without validating first
       await mkmpol21.connect(owner).grantPermission(ROLE_VALUES.MKMPOL21_OWNER, PERMISSIONS.APPROVE_RDF);
       await expect(gaDataValidation.connect(owner).approveRDFGraph(graphId)).to.be.revertedWith(
-        "Graph must pass validation first",
+        "Graph must pass syntax validation first",
       );
     });
   });

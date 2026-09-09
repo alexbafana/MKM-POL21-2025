@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { GADataValidation, MKMPOL21 } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
@@ -156,23 +156,51 @@ describe("GADataValidation - RDF Graph Registry", function () {
     });
 
     it("Should prevent duplicate graph submissions", async function () {
-      // Submit first time
-      await gaDataValidation
-        .connect(institution)
-        .submitRDFGraph(graphURI, graphHash, graphType, datasetVariant, year, modelVersion);
+      // The graph id embeds block.timestamp and msg.sender, so a collision is only reachable
+      // when two submissions with identical arguments from the same sender land in one block.
+      // Automine is disabled so both transactions share a single block, and therefore a single
+      // block.timestamp. An explicit gasLimit is required because eth_estimateGas runs against
+      // the latest mined state, which does not yet contain the first submission.
+      let tx1;
+      let tx2;
+      try {
+        await network.provider.send("evm_setAutomine", [false]);
+        tx1 = await gaDataValidation
+          .connect(institution)
+          .submitRDFGraph(graphURI, graphHash, graphType, datasetVariant, year, modelVersion, {
+            gasLimit: 1_000_000,
+          });
+        tx2 = await gaDataValidation
+          .connect(institution)
+          .submitRDFGraph(graphURI, graphHash, graphType, datasetVariant, year, modelVersion, {
+            gasLimit: 1_000_000,
+          });
+        await network.provider.send("evm_mine", []);
+      } finally {
+        await network.provider.send("evm_setAutomine", [true]);
+      }
 
-      // Wait a moment to ensure different timestamp
-      await new Promise(resolve => setTimeout(resolve, 100));
+      const receipt1 = (await ethers.provider.getTransactionReceipt(tx1.hash))!;
+      const receipt2 = (await ethers.provider.getTransactionReceipt(tx2.hash))!;
 
-      // Try to submit exact same graph again should fail (different timestamp makes different graphId)
-      // Actually, the graphId includes timestamp, so this won't be a duplicate
-      // Let's test that different graphs are allowed
-      const graphHash2 = ethers.keccak256(ethers.toUtf8Bytes("different content"));
-      const tx = await gaDataValidation
-        .connect(institution)
-        .submitRDFGraph(graphURI, graphHash2, graphType, datasetVariant, year, modelVersion);
+      // Same block means the same block.timestamp, so both calls derive the same graphId
+      expect(receipt2.blockNumber).to.equal(receipt1.blockNumber);
+      expect(receipt1.status).to.equal(1);
+      expect(receipt2.status).to.equal(0);
 
-      expect(tx.hash).to.not.equal(undefined);
+      // Replaying the second call against that block reports why it failed
+      await expect(
+        ethers.provider.call({
+          to: tx2.to!,
+          from: institution.address,
+          data: tx2.data,
+          blockTag: receipt2.blockNumber,
+        }),
+      ).to.be.revertedWith("Graph already exists");
+
+      // Only the first submission was registered
+      expect(await gaDataValidation.rdfGraphCount()).to.equal(1);
+      expect((await gaDataValidation.getDatasetGraphs(datasetVariant, year)).length).to.equal(1);
     });
   });
 
@@ -199,10 +227,17 @@ describe("GADataValidation - RDF Graph Registry", function () {
     });
 
     it("Should allow validator to mark graph as invalid", async function () {
+      // Establish the true state first, so the false state below is an observed transition
+      // rather than the value the graph already had on submission.
+      await gaDataValidation.connect(validator).markRDFGraphValidated(graphId, true);
+      expect((await gaDataValidation.getGraphStatus(graphId)).validated).to.equal(true);
+      expect((await gaDataValidation.getValidationDetails(graphId)).syntaxValid).to.equal(true);
+
       await gaDataValidation.connect(validator).markRDFGraphValidated(graphId, false);
 
-      const status = await gaDataValidation.getGraphStatus(graphId);
-      expect(status.validated).to.equal(false);
+      // markRDFGraphValidated writes both fields, so both must flip back
+      expect((await gaDataValidation.getGraphStatus(graphId)).validated).to.equal(false);
+      expect((await gaDataValidation.getValidationDetails(graphId)).syntaxValid).to.equal(false);
     });
 
     it("Should reject validation without permission 4", async function () {
@@ -263,7 +298,7 @@ describe("GADataValidation - RDF Graph Registry", function () {
       const unvalidatedGraphId = event?.args?.[0];
 
       await expect(gaDataValidation.connect(committee).approveRDFGraph(unvalidatedGraphId)).to.be.revertedWith(
-        "Graph must pass validation first",
+        "Graph must pass syntax validation first",
       );
     });
 
@@ -314,10 +349,10 @@ describe("GADataValidation - RDF Graph Registry", function () {
       expect(dkgUAL).to.equal(dkgAssetUAL);
     });
 
-    it("Should reject publication without permission 5", async function () {
+    it("Should reject publication by a role other than Data_Validator or Owner", async function () {
       await expect(
         gaDataValidation.connect(unauthorized).markRDFGraphPublished(graphId, dkgAssetUAL),
-      ).to.be.revertedWith("No permission to mark published");
+      ).to.be.revertedWith("Only Data Validator or Owner can mark published");
     });
 
     it("Should reject publication of non-approved graph", async function () {

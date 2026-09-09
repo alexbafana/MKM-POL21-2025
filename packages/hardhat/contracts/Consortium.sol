@@ -80,12 +80,16 @@ contract Consortium is
     }
 
     /// @notice Optimistic execution after challenge period if not vetoed
-    function executeProposal(
+    /// @dev Overrides the inherited Governor entry point, so the objection window and the
+    ///      veto are enforced on every reachable execution path rather than only on
+    ///      executeProposal. `relay` is covered transitively: it is onlyGovernance and can
+    ///      therefore only be reached as the target of a proposal executed through here.
+    function execute(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public returns (uint256 proposalId) {
+    ) public payable override(Governor) returns (uint256 proposalId) {
         proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         Proposal storage p = proposals[proposalId];
@@ -95,6 +99,17 @@ contract Consortium is
 
         super.execute(targets, values, calldatas, descriptionHash);
         p.executed = true;
+    }
+
+    /// @notice Optimistic execution after challenge period if not vetoed
+    /// @dev Named entry point kept for callers that use it; delegates to the guarded execute.
+    function executeProposal(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public returns (uint256 proposalId) {
+        return execute(targets, values, calldatas, descriptionHash);
     }
 
     // ----- Required overrides (OZ v5) -----

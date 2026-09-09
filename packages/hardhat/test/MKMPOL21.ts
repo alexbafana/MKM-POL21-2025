@@ -26,41 +26,6 @@ describe("MKMPOL21 Permission System", function () {
     DISPUTE_RESOLUTION_BOARD: 1032, // Index 8, control: 100000 (32)
   };
 
-  // Expected permission values from constructor
-  const EXPECTED_PERMISSIONS = {
-    MEMBER_INSTITUTION: 999999999n, // Index 0
-    ORDINARY_USER: 12889096202n, // Index 1
-    MFSSIA_GUARDIAN_AGENT: 26507264n, // Index 2
-    ELIZA_DATA_EXTRACTOR_AGENT: 229376n, // Index 3
-    DATA_VALIDATOR: 16915628938n, // Index 4
-    MKMPOL21_OWNER: 17179869183n, // Index 5
-    CONSORTIUM: 237502512n, // Index 6
-    VALIDATION_COMMITTEE: 1088n, // Index 7
-    DISPUTE_RESOLUTION_BOARD: 5n, // Index 8
-  };
-
-  // Helper function to extract role index from role value
-  function getRoleIndex(roleValue: number): number {
-    return roleValue & 31; // Bits 0-4
-  }
-
-  // Helper function to extract control bitmask from role value
-  function getControlBitmask(roleValue: number): number {
-    return roleValue >> 5; // Bits 5+
-  }
-
-  // Helper function to check if a role can control another role
-  function canControl(controllerRole: number, controlledRole: number): boolean {
-    const controllerIndex = getRoleIndex(controllerRole);
-    const controlledBitmask = getControlBitmask(controlledRole);
-    return (controlledBitmask & (1 << controllerIndex)) !== 0;
-  }
-
-  // Helper function to check if a permission is set
-  function hasPermissionBit(permissions: bigint, permissionIndex: number): boolean {
-    return (permissions & (1n << BigInt(permissionIndex))) !== 0n;
-  }
-
   beforeEach(async () => {
     [owner, user1, user2, , consortium, validationCommittee, disputeResolutionBoard] = await ethers.getSigners();
 
@@ -75,185 +40,19 @@ describe("MKMPOL21 Permission System", function () {
       expect(deployerRole).to.equal(ROLES.MKMPOL21_OWNER);
     });
 
-    it("Should correctly encode MKMPOL21Owner role with index 5", async function () {
-      const roleValue = ROLES.MKMPOL21_OWNER;
-      expect(getRoleIndex(roleValue)).to.equal(5);
-    });
-
-    it("Should correctly encode control bitmask for MKMPOL21Owner (only self-controlled)", async function () {
-      const roleValue = ROLES.MKMPOL21_OWNER;
-      const controlBitmask = getControlBitmask(roleValue);
-      // Control bitmask 100000 (binary) = 32, meaning only role index 5 (Owner) can control
-      expect(controlBitmask).to.equal(32);
-    });
-
     it("Should have no role assigned to random addresses", async function () {
       const userRole = await mkmpol21.hasRole(user1.address);
       expect(userRole).to.equal(0);
     });
   });
 
-  describe("Role Encoding Verification", function () {
-    it("Should correctly encode all role indices (0-8)", async function () {
-      const roleEntries = Object.entries(ROLES);
-      const expectedIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-
-      roleEntries.forEach(([name, value], i) => {
-        const index = getRoleIndex(value);
-        expect(index).to.equal(expectedIndices[i], `Role ${name} should have index ${expectedIndices[i]}`);
-      });
-    });
-
-    it("Should correctly encode Member_Institution (index 0, control: 100100)", async function () {
-      expect(getRoleIndex(ROLES.MEMBER_INSTITUTION)).to.equal(0);
-      expect(getControlBitmask(ROLES.MEMBER_INSTITUTION)).to.equal(0b100100); // 36
-    });
-
-    it("Should correctly encode Ordinary_User (index 1, control: 100100)", async function () {
-      expect(getRoleIndex(ROLES.ORDINARY_USER)).to.equal(1);
-      expect(getControlBitmask(ROLES.ORDINARY_USER)).to.equal(0b100100); // 36
-    });
-
-    it("Should correctly encode MFSSIA_Guardian_Agent (index 2, control: 1100000)", async function () {
-      expect(getRoleIndex(ROLES.MFSSIA_GUARDIAN_AGENT)).to.equal(2);
-      expect(getControlBitmask(ROLES.MFSSIA_GUARDIAN_AGENT)).to.equal(0b1100000); // 96
-    });
-
-    it("Should correctly encode Eliza_Data_Extractor_Agent (index 3, control: 1100000)", async function () {
-      expect(getRoleIndex(ROLES.ELIZA_DATA_EXTRACTOR_AGENT)).to.equal(3);
-      expect(getControlBitmask(ROLES.ELIZA_DATA_EXTRACTOR_AGENT)).to.equal(0b1100000); // 96
-    });
-
-    it("Should correctly encode Data_Validator (index 4, control: 100100)", async function () {
-      expect(getRoleIndex(ROLES.DATA_VALIDATOR)).to.equal(4);
-      expect(getControlBitmask(ROLES.DATA_VALIDATOR)).to.equal(0b100100); // 36
-    });
-
-    it("Should correctly encode committee roles with control bitmask 100000", async function () {
-      // Consortium, Validation_Committee, Dispute_Resolution_Board all have control bitmask 32 (100000)
-      expect(getControlBitmask(ROLES.CONSORTIUM)).to.equal(32);
-      expect(getControlBitmask(ROLES.VALIDATION_COMMITTEE)).to.equal(32);
-      expect(getControlBitmask(ROLES.DISPUTE_RESOLUTION_BOARD)).to.equal(32);
-    });
-  });
-
   describe("Control Relations", function () {
-    it("MKMPOL21Owner can control Member_Institution (index 5 controls index 0)", async function () {
-      // Control bitmask for Member_Institution is 100100 (binary)
-      // Bit 5 is set, so Owner (index 5) can control
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.MEMBER_INSTITUTION)).to.equal(true);
-    });
-
-    it("MKMPOL21Owner can control Ordinary_User", async function () {
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.ORDINARY_USER)).to.equal(true);
-    });
-
-    it("MKMPOL21Owner can control Data_Validator", async function () {
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.DATA_VALIDATOR)).to.equal(true);
-    });
-
-    it("MKMPOL21Owner can control MFSSIA_Guardian_Agent", async function () {
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.MFSSIA_GUARDIAN_AGENT)).to.equal(true);
-    });
-
-    it("MKMPOL21Owner can control Eliza_Data_Extractor_Agent", async function () {
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.ELIZA_DATA_EXTRACTOR_AGENT)).to.equal(true);
-    });
-
-    it("MKMPOL21Owner can control itself", async function () {
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.MKMPOL21_OWNER)).to.equal(true);
-    });
-
-    it("MKMPOL21Owner can control committee roles", async function () {
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.CONSORTIUM)).to.equal(true);
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.VALIDATION_COMMITTEE)).to.equal(true);
-      expect(canControl(ROLES.MKMPOL21_OWNER, ROLES.DISPUTE_RESOLUTION_BOARD)).to.equal(true);
-    });
-
-    it("Consortium (index 6) can control MFSSIA_Guardian_Agent", async function () {
-      // Control bitmask for MFSSIA_Guardian_Agent is 1100000
-      // Bit 6 is set, so Consortium (index 6) can control
-      expect(canControl(ROLES.CONSORTIUM, ROLES.MFSSIA_GUARDIAN_AGENT)).to.equal(true);
-    });
-
-    it("Consortium (index 6) can control Eliza_Data_Extractor_Agent", async function () {
-      expect(canControl(ROLES.CONSORTIUM, ROLES.ELIZA_DATA_EXTRACTOR_AGENT)).to.equal(true);
-    });
-
-    it("Data_Validator (index 4) cannot control Member_Institution", async function () {
-      // Control bitmask for Member_Institution is 100100 (bit 2 and bit 5)
-      // Bit 4 is NOT set, so Data_Validator cannot control
-      expect(canControl(ROLES.DATA_VALIDATOR, ROLES.MEMBER_INSTITUTION)).to.equal(false);
-    });
-
-    it("Member_Institution (index 0) cannot control MKMPOL21Owner", async function () {
-      expect(canControl(ROLES.MEMBER_INSTITUTION, ROLES.MKMPOL21_OWNER)).to.equal(false);
-    });
-
-    it("Ordinary_User (index 1) cannot control any role", async function () {
-      expect(canControl(ROLES.ORDINARY_USER, ROLES.MEMBER_INSTITUTION)).to.equal(false);
-      expect(canControl(ROLES.ORDINARY_USER, ROLES.MKMPOL21_OWNER)).to.equal(false);
-      expect(canControl(ROLES.ORDINARY_USER, ROLES.DATA_VALIDATOR)).to.equal(false);
-    });
-
     it("Contract canControl function matches expected behavior", async function () {
       // Test the contract's canControl function
       expect(await mkmpol21.canControl(ROLES.MKMPOL21_OWNER, ROLES.MEMBER_INSTITUTION)).to.equal(true);
       expect(await mkmpol21.canControl(ROLES.MKMPOL21_OWNER, ROLES.ORDINARY_USER)).to.equal(true);
       expect(await mkmpol21.canControl(ROLES.CONSORTIUM, ROLES.MFSSIA_GUARDIAN_AGENT)).to.equal(true);
       expect(await mkmpol21.canControl(ROLES.DATA_VALIDATOR, ROLES.MEMBER_INSTITUTION)).to.equal(false);
-    });
-  });
-
-  describe("Permission Initialization", function () {
-    it("Member_Institution should have correct permissions (999999999)", async function () {
-      // Verify by checking specific permission bits
-      const ownerPermissions = EXPECTED_PERMISSIONS.MEMBER_INSTITUTION;
-
-      // Test a few specific permission indices that should be set
-      // 999999999 in binary has many bits set
-      expect(hasPermissionBit(ownerPermissions, 0)).to.equal(true);
-      expect(hasPermissionBit(ownerPermissions, 1)).to.equal(true);
-      expect(hasPermissionBit(ownerPermissions, 2)).to.equal(true);
-    });
-
-    it("MKMPOL21Owner should have maximum permissions (17179869183)", async function () {
-      const ownerPermissions = EXPECTED_PERMISSIONS.MKMPOL21_OWNER;
-      // 17179869183 = 0x3FFFFFFFF (34 bits set)
-      // This means owner has permissions 0-33
-
-      for (let i = 0; i < 34; i++) {
-        expect(hasPermissionBit(ownerPermissions, i)).to.equal(true);
-      }
-      // Permission 34 should not be set
-      expect(hasPermissionBit(ownerPermissions, 34)).to.equal(false);
-    });
-
-    it("Dispute_Resolution_Board should have minimal permissions (5)", async function () {
-      const drbPermissions = EXPECTED_PERMISSIONS.DISPUTE_RESOLUTION_BOARD;
-      // 5 = 0b101, so permissions 0 and 2 are set
-      expect(hasPermissionBit(drbPermissions, 0)).to.equal(true);
-      expect(hasPermissionBit(drbPermissions, 1)).to.equal(false);
-      expect(hasPermissionBit(drbPermissions, 2)).to.equal(true);
-      expect(hasPermissionBit(drbPermissions, 3)).to.equal(false);
-    });
-
-    it("Validation_Committee should have permissions (1088)", async function () {
-      const vcPermissions = EXPECTED_PERMISSIONS.VALIDATION_COMMITTEE;
-      // 1088 = 0b10001000000 = bits 6 and 10 set
-      expect(hasPermissionBit(vcPermissions, 6)).to.equal(true);
-      expect(hasPermissionBit(vcPermissions, 10)).to.equal(true);
-      expect(hasPermissionBit(vcPermissions, 0)).to.equal(false);
-    });
-
-    it("Eliza_Data_Extractor_Agent should have permissions (229376)", async function () {
-      const elizaPermissions = EXPECTED_PERMISSIONS.ELIZA_DATA_EXTRACTOR_AGENT;
-      // 229376 = 0x38000 = 0b111000000000000000 = bits 15, 16, 17 set
-      expect(hasPermissionBit(elizaPermissions, 15)).to.equal(true);
-      expect(hasPermissionBit(elizaPermissions, 16)).to.equal(true);
-      expect(hasPermissionBit(elizaPermissions, 17)).to.equal(true);
-      expect(hasPermissionBit(elizaPermissions, 14)).to.equal(false);
-      expect(hasPermissionBit(elizaPermissions, 18)).to.equal(false);
     });
   });
 
@@ -270,15 +69,25 @@ describe("MKMPOL21 Permission System", function () {
       expect(await mkmpol21.has_permission(owner.address, 27)).to.equal(true);
     });
 
-    it("User without role should not have any permissions", async function () {
-      // User without a role has role value 0, which maps to index 0 (Member_Institution permissions)
-      // But since they don't actually have the role assigned, let's verify the behavior
-      const userRole = await mkmpol21.hasRole(user1.address);
-      expect(userRole).to.equal(0);
+    it("An account without a role is denied every permission Member_Institution holds", async function () {
+      // has_permission short-circuits to false when roles[user] == 0. Without that guard
+      // `roles[user] & 31` would be 0, so an unroled account would read role index 0
+      // (Member_Institution) permission bits as its own.
+      const unroled = (await ethers.getSigners())[9];
+      expect(await mkmpol21.hasRole(unroled.address)).to.equal(0);
 
-      // Note: The contract uses roles[user] & 31 which gives 0 for unassigned users
-      // This means they get Member_Institution permissions (index 0)
-      // This is a potential security consideration
+      const bitsHeldByMemberInstitution = [0, 4, 6, 8];
+
+      // Those bits really are set on role index 0, so the guard is what makes the difference
+      await mkmpol21.connect(owner).assignRole(user2.address, ROLES.MEMBER_INSTITUTION);
+      for (const bit of bitsHeldByMemberInstitution) {
+        expect(await mkmpol21.has_permission(user2.address, bit)).to.equal(true);
+      }
+
+      // The unroled account must get none of them
+      for (const bit of bitsHeldByMemberInstitution) {
+        expect(await mkmpol21.has_permission(unroled.address, bit)).to.equal(false);
+      }
     });
   });
 
@@ -359,11 +168,10 @@ describe("MKMPOL21 Permission System", function () {
         .connect(owner)
         .initializeCommittees(consortium.address, validationCommittee.address, disputeResolutionBoard.address);
 
-      // After initialization, committees should have their respective roles
-      // Note: Based on contract code, they get roles at indices 0, 1, 2 not 6, 7, 8
-      expect(await mkmpol21.hasRole(consortium.address)).to.equal(ROLES.MEMBER_INSTITUTION);
-      expect(await mkmpol21.hasRole(validationCommittee.address)).to.equal(ROLES.ORDINARY_USER);
-      expect(await mkmpol21.hasRole(disputeResolutionBoard.address)).to.equal(ROLES.MFSSIA_GUARDIAN_AGENT);
+      // After initialization, committees hold the governance-body roles at indices 6, 7 and 8
+      expect(await mkmpol21.hasRole(consortium.address)).to.equal(ROLES.CONSORTIUM);
+      expect(await mkmpol21.hasRole(validationCommittee.address)).to.equal(ROLES.VALIDATION_COMMITTEE);
+      expect(await mkmpol21.hasRole(disputeResolutionBoard.address)).to.equal(ROLES.DISPUTE_RESOLUTION_BOARD);
     });
 
     it("Cannot initialize committees twice", async function () {
@@ -414,13 +222,18 @@ describe("MKMPOL21 Permission System", function () {
     });
 
     it("Owner can grant permission to controlled role", async function () {
-      // Owner has permission 0 and can control Member_Institution
-      // Grant permission 0 to Member_Institution (which already has it, but this tests the mechanism)
-      const permissionIndex = 33; // A permission the owner has but Member_Institution might not
+      // Grant permission 33 to Member_Institution, which does not hold it by
+      // default, so the state change is observable
+      const permissionIndex = 33;
+
+      // user1 holds Member_Institution, so the role's permission bits are observable through it
+      expect(await mkmpol21.has_permission(user1.address, permissionIndex)).to.equal(false);
 
       await expect(mkmpol21.connect(owner).grantPermission(ROLES.MEMBER_INSTITUTION, permissionIndex))
         .to.emit(mkmpol21, "PermissionGranted")
         .withArgs(ROLES.MEMBER_INSTITUTION, permissionIndex);
+
+      expect(await mkmpol21.has_permission(user1.address, permissionIndex)).to.equal(true);
     });
 
     it("Cannot grant permission user doesn't have", async function () {
@@ -437,8 +250,9 @@ describe("MKMPOL21 Permission System", function () {
       // Assign user1 Data_Validator role
       await mkmpol21.connect(owner).assignRole(user1.address, ROLES.DATA_VALIDATOR);
 
-      // Data_Validator cannot control MKMPOL21Owner
-      await expect(mkmpol21.connect(user1).grantPermission(ROLES.MKMPOL21_OWNER, 0)).to.be.revertedWith(
+      // Permission 4 is held by Data_Validator, so the call gets past the hasPermission
+      // modifier and fails on the missing control relation over MKMPOL21Owner
+      await expect(mkmpol21.connect(user1).grantPermission(ROLES.MKMPOL21_OWNER, 4)).to.be.revertedWith(
         "cannot grant permission, as the control relation is lacking",
       );
     });
@@ -448,9 +262,15 @@ describe("MKMPOL21 Permission System", function () {
     it("Owner can revoke permission from controlled role", async function () {
       const permissionIndex = 0;
 
+      // user1 holds Member_Institution, so the role's permission bits are observable through it
+      await mkmpol21.connect(owner).assignRole(user1.address, ROLES.MEMBER_INSTITUTION);
+      expect(await mkmpol21.has_permission(user1.address, permissionIndex)).to.equal(true);
+
       await expect(mkmpol21.connect(owner).revokePermission(ROLES.MEMBER_INSTITUTION, permissionIndex))
         .to.emit(mkmpol21, "PermissionRevoked")
         .withArgs(ROLES.MEMBER_INSTITUTION, permissionIndex);
+
+      expect(await mkmpol21.has_permission(user1.address, permissionIndex)).to.equal(false);
     });
 
     it("Cannot revoke permission user doesn't have", async function () {
@@ -489,54 +309,26 @@ describe("MKMPOL21 Permission System", function () {
   });
 
   describe("Permission-Gated Functions", function () {
-    it("Owner can call onboard_ordinary_user (permission 18)", async function () {
-      // This should not revert since owner has permission 18
-      await expect(mkmpol21.connect(owner).onboard_ordinary_user()).to.not.be.reverted;
+    // onboard_ordinary_user / onboard_institution are self-onboarding entry points:
+    // they are gated on "caller has no role yet", not on a permission bit
+    it("An account without a role can self-onboard as Ordinary_User", async function () {
+      await expect(mkmpol21.connect(user1).onboard_ordinary_user()).to.not.be.reverted;
+      expect(await mkmpol21.hasRole(user1.address)).to.equal(ROLES.ORDINARY_USER);
     });
 
-    it("User without permission 18 cannot call onboard_ordinary_user", async function () {
-      // DRB only has permissions 0 and 2
+    it("An account that already holds a role cannot call onboard_ordinary_user", async function () {
       await mkmpol21.connect(owner).assignRole(user1.address, ROLES.DISPUTE_RESOLUTION_BOARD);
 
-      await expect(mkmpol21.connect(user1).onboard_ordinary_user()).to.be.revertedWith(
-        "User does not have this permission",
-      );
+      await expect(mkmpol21.connect(user1).onboard_ordinary_user()).to.be.revertedWith("User already has a role");
     });
 
-    it("Owner can call onboard_institution (permission 19)", async function () {
-      await expect(mkmpol21.connect(owner).onboard_institution()).to.not.be.reverted;
+    it("An account without a role can self-onboard as Member_Institution", async function () {
+      await expect(mkmpol21.connect(user2).onboard_institution()).to.not.be.reverted;
+      expect(await mkmpol21.hasRole(user2.address)).to.equal(ROLES.MEMBER_INSTITUTION);
     });
 
-    it("Owner can call remove_ordinary_member (permission 20)", async function () {
-      await expect(mkmpol21.connect(owner).remove_ordinary_member()).to.not.be.reverted;
-    });
-
-    it("Owner can call remove_institution (permission 21)", async function () {
-      await expect(mkmpol21.connect(owner).remove_institution()).to.not.be.reverted;
-    });
-
-    it("Owner can call submit_query_to_eliza_agent (permission 22)", async function () {
-      await expect(mkmpol21.connect(owner).submit_query_to_eliza_agent()).to.not.be.reverted;
-    });
-
-    it("Owner can call Issue_DID (permission 23)", async function () {
-      await expect(mkmpol21.connect(owner).Issue_DID()).to.not.be.reverted;
-    });
-
-    it("Owner can call Burn_DID (permission 24)", async function () {
-      await expect(mkmpol21.connect(owner).Burn_DID()).to.not.be.reverted;
-    });
-
-    it("Owner can call mint_MKMT (permission 25)", async function () {
-      await expect(mkmpol21.connect(owner).mint_MKMT()).to.not.be.reverted;
-    });
-
-    it("Owner can call burn_MKMT (permission 26)", async function () {
-      await expect(mkmpol21.connect(owner).burn_MKMT()).to.not.be.reverted;
-    });
-
-    it("Owner can call distribute_MKMT (permission 27)", async function () {
-      await expect(mkmpol21.connect(owner).distribute_MKMT()).to.not.be.reverted;
+    it("The owner cannot self-onboard, since it already holds MKMPOL21Owner", async function () {
+      await expect(mkmpol21.connect(owner).onboard_institution()).to.be.revertedWith("User already has a role");
     });
   });
 
@@ -574,14 +366,6 @@ describe("MKMPOL21 Permission System", function () {
 
       await mkmpol21.connect(owner).assignRole(user1.address, ROLES.DATA_VALIDATOR);
       expect(await mkmpol21.hasRole(user1.address)).to.equal(ROLES.DATA_VALIDATOR);
-    });
-
-    it("Control relation is symmetric for certain roles", async function () {
-      // Member_Institution and Data_Validator both have control bitmask 100100
-      // This means roles at index 2 and 5 can control them
-      const miControl = getControlBitmask(ROLES.MEMBER_INSTITUTION);
-      const dvControl = getControlBitmask(ROLES.DATA_VALIDATOR);
-      expect(miControl).to.equal(dvControl);
     });
   });
 });

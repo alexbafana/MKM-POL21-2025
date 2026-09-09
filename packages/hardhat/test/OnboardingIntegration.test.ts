@@ -205,18 +205,6 @@ describe("MKMPOL21 Onboarding Integration", function () {
       expect(role).to.equal(ROLES.MEMBER_INSTITUTION);
       expect(role).to.equal(1152);
     });
-
-    it("Role index extraction works correctly for dashboard display", async function () {
-      await mkmpol21.connect(newUser1).onboard_ordinary_user();
-      await mkmpol21.connect(newInstitution1).onboard_institution();
-
-      const userRole = Number(await mkmpol21.hasRole(newUser1.address));
-      const institutionRole = Number(await mkmpol21.hasRole(newInstitution1.address));
-
-      // Dashboard uses: roleIndex = roleValue & 31
-      expect(userRole & 31).to.equal(1); // Ordinary_User index
-      expect(institutionRole & 31).to.equal(0); // Member_Institution index
-    });
   });
 
   describe("Full Onboarding Flow Integration", function () {

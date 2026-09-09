@@ -1,0 +1,388 @@
+# MKM-POL21-2025 test run (after deletion of non-evidential tests)
+# date:        2026-09-08T21:31:20Z (UTC)
+# cwd:         /Users/aleksandrkormiltsyn/dev/mkm/MKM-POL21-2025/packages/hardhat
+# git commit:  84faa5aeaeaec6b8f5201b3f3f39f5c9e9ff9097  (branch main)
+# git status:  11 uncommitted path(s) -- tree NOT clean
+#    M packages/hardhat/contracts/Consortium.sol
+#    M packages/hardhat/test/BDIAgentIntegration.test.ts
+#    M packages/hardhat/test/GADataValidation.test.ts
+#    M packages/hardhat/test/MKMPOL21.ts
+#    M packages/hardhat/test/OnboardingIntegration.test.ts
+#    D packages/hardhat/test/YourContract.ts
+#   ?? packages/hardhat/evaluation/
+#   ?? packages/hardhat/test/ConsortiumOptimisticGovernance.test.ts
+#   ?? packages/hardhat/test/RDFDocumentAttestation.test.ts
+#   ?? packages/hardhat/test/RDFGraphLifecycleValidation.test.ts
+#   ?? packages/hardhat/test/ValidationCommitteeVoting.test.ts
+# change:      test/ only -- deleted 43 it() blocks classified TAUTOLOGICAL (plus one SHALLOW
+#              'cannot fail' case) in evaluation/test-audit.md. No contract touched.
+#              baseline before deletion: 221 passing / 0 failing
+# node:        v20.11.0   hardhat: 2.22.19
+# command:     hardhat test --network hardhat
+#
+
+
+  BDI Agent Integration
+    Agent Role Verification
+      ✔ Coordinator should have MFSSIA_Guardian_Agent role (index 2)
+      ✔ Syntax Validator should have Data_Validator role (index 4)
+      ✔ Semantic Validator should have Data_Validator role (index 4)
+      ✔ DAO Submitter should have Member_Institution role (index 0)
+    Agent Permission Verification
+      ✔ Coordinator should NOT have permission 4 (does not validate directly)
+    DAO Submitter Agent - Graph Submission
+      ✔ Should submit RDF graph successfully
+    Syntax Validator Agent - RDF Validation
+      ✔ Should validate graph successfully (isValid=true)
+      ✔ Should mark graph as invalid (isValid=false)
+      ✔ Semantic Validator should also be able to validate
+    Full Validation Pipeline
+
+=== BDI Agent Validation Pipeline ===
+
+Step 1: DAO Submitter submits employment events graph...
+  [DAO Submitter] Submitted graph: 0xc649f00174e3289a...
+
+Step 2: Syntax Validator validates RDF syntax...
+  [Syntax Validator] Validated syntax for graph
+
+Step 3: Graph status verified:
+  exists: true
+  validated: true
+  approved: false (awaiting committee)
+  published: false
+
+Step 4: Simulating Validation Committee approval...
+  [Validation Committee] Approved graph for publication
+
+Step 5: Publishing to OriginTrail DKG...
+  [Owner] Published to DKG: did:dkg:otp/0x1234567890abcdef/12345
+
+=== Pipeline Complete ===
+
+Summary:
+  Graph ID: 0xc649f00174e3289aee555f6c51d429791f14489beb9fc754e8cad73a30cb973b
+  Graph URI: urn:graph:employment-events
+  Model Version: EstBERT-1.0
+  DKG Asset: did:dkg:otp/0x1234567890abcdef/12345
+  Status: PUBLISHED
+      ✔ Should complete end-to-end agent validation workflow
+    Agent Coordination via Events
+      ✔ RDFGraphSubmitted event includes all required data for Coordinator
+      ✔ RDFGraphValidated event includes validator address for tracking
+    Error Handling
+      ✔ Should reject validation of non-existent graph
+      ✔ Should reject approval of non-validated graph
+
+  Consortium - Optimistic Governance (R1.5-R1.7, R2.9, R2.11, R3.11)
+    [R1.3/R1.5] Proposal rights are permission-gated
+      ✔ Member_Institution holding permission 28 can open a proposal
+      ✔ An address without any role cannot open a proposal
+      ✔ A role that lacks permission 28 cannot open a proposal
+      ✔ Delegating permission 28 to a role grants proposal rights to every holder of that role
+    [R1.6] Veto rights
+      ✔ A holder of permission 29 can veto inside the challenge window
+      ✔ A role without permission 29 cannot veto
+      ✔ An address without any role cannot veto
+      ✔ The same proposal cannot be vetoed twice
+      ✔ Revoking permission 29 removes the veto right from the whole role (R1.7)
+      ✔ Revoking the role removes the proposal right from that account (R1.7)
+      ✔ Vetoing an unknown proposal is rejected by the window check, not by an existence check
+    [R2.9] Temporal constraints: the challenge window
+      ✔ Records the creation time that opens the challenge window
+      ✔ Rejects a veto once the challenge window has expired
+      ✔ Rejects optimistic execution before the challenge window is over
+      ✔ Rejects optimistic execution of a vetoed proposal
+    [R2.11] A collective decision drives the lifecycle transition
+      ✔ Executes Created -> Validated on behalf of the Consortium once the window closes unchallenged
+      ✔ Refuses to execute the same proposal twice
+      ✔ Cannot execute a decision the Consortium role is not authorized to carry out
+    [R3.11] Adversarial paths around the optimistic safeguards
+      ✔ GUARD: the inherited Governor.execute() cannot bypass the veto or the challenge window
+      ✔ GUARD: an unchallenged proposal still executes through the inherited entry point
+      ✔ GUARD: relay() is not an independent execution path
+      ✔ GAP: quorum is 0%, so a single voter carries a proposal for the whole consortium
+
+  GADataValidation - RDF Graph Registry
+    Deployment
+      ✔ Should deploy GADataValidation successfully
+      ✔ Should initialize counters to zero
+    submitRDFGraph
+      ✔ Should allow institution to submit RDF graph
+      ✔ Should reject submission without permission 8
+      ✔ Should reject submission with invalid hash
+      ✔ Should reject submission with empty URI
+      ✔ Should reject submission with invalid year
+      ✔ Should auto-increment version for same dataset/year
+      ✔ Should prevent duplicate graph submissions (105ms)
+    markRDFGraphValidated
+      ✔ Should allow data validator to mark graph as validated
+      ✔ Should allow validator to mark graph as invalid
+      ✔ Should reject validation without permission 4
+      ✔ Should reject validation of non-existent graph
+    approveRDFGraph
+      ✔ Should allow committee to approve validated graph
+      ✔ Should reject approval without permission 6
+      ✔ Should reject approval of non-validated graph
+      ✔ Should reject approval of non-existent graph
+      ✔ Should reject double approval
+    markRDFGraphPublished
+      ✔ Should allow owner to mark graph as published
+      ✔ Should reject publication by a role other than Data_Validator or Owner
+      ✔ Should reject publication of non-approved graph
+      ✔ Should reject publication with empty UAL
+      ✔ Should reject double publication
+    View Functions
+      ✔ Should return basic graph info
+      ✔ Should return graph metadata
+      ✔ Should return graph status
+      ✔ Should check if graph is ready for publication
+      ✔ Should return all graphs for dataset/year
+    End-to-End Workflow
+✅ Complete governance workflow executed successfully!
+      ✔ Should complete full governance workflow
+
+  MKMPOL21 Permission System
+    Deployment and Initialization
+      ✔ Should assign MKMPOL21Owner role to deployer
+      ✔ Should have no role assigned to random addresses
+    Control Relations
+      ✔ Contract canControl function matches expected behavior
+    has_permission Function
+      ✔ Owner should have permission 0
+      ✔ Owner should have permission 18 (onboard_ordinary_user)
+      ✔ Owner should have permission 27 (distribute_MKMT)
+      ✔ User without role should not have any permissions
+    Role Assignment
+      ✔ Owner can assign Member_Institution role
+      ✔ Owner can assign Ordinary_User role
+      ✔ Owner can assign Data_Validator role
+      ✔ Owner can assign MFSSIA_Guardian_Agent role
+      ✔ Non-owner cannot assign roles
+      ✔ Cannot assign role to zero address
+      ✔ Cannot assign invalid role index (>= 9)
+    Role Revocation
+      ✔ Owner can revoke Member_Institution role
+      ✔ Cannot revoke role that user doesn't have
+      ✔ Non-owner cannot revoke roles
+    Committee Initialization
+      ✔ Owner can initialize committees
+      ✔ Cannot initialize committees twice
+      ✔ Non-owner cannot initialize committees
+      ✔ Cannot initialize with zero addresses
+    Permission Granting
+      ✔ Owner can grant permission to controlled role
+      ✔ Cannot grant permission user doesn't have
+      ✔ Cannot grant permission to role user cannot control
+    Permission Revoking
+      ✔ Owner can revoke permission from controlled role
+      ✔ Cannot revoke permission user doesn't have
+    canVote and canPropose Functions
+      ✔ User with correct permission can vote
+      ✔ User without permission cannot vote
+      ✔ User with correct permission can propose
+      ✔ User without permission cannot propose
+    Permission-Gated Functions
+      ✔ An account without a role can self-onboard as Ordinary_User
+      ✔ An account that already holds a role cannot call onboard_ordinary_user
+      ✔ An account without a role can self-onboard as Member_Institution
+      ✔ The owner cannot self-onboard, since it already holds MKMPOL21Owner
+    Edge Cases and Security
+      ✔ Role value 0 maps to index 0 (Member_Institution permissions)
+      ✔ Maximum valid role index is 8
+      ✔ Reassigning role overwrites previous role
+
+  MKMPOL21 Onboarding Integration
+    Self-Onboarding: onboard_ordinary_user()
+      ✔ New user without role can self-onboard as Ordinary_User
+      ✔ User who already has a role cannot call onboard_ordinary_user()
+      ✔ Owner cannot call onboard_ordinary_user() (already has role)
+      ✔ Multiple different users can each self-onboard
+    Self-Onboarding: onboard_institution()
+      ✔ New user without role can self-onboard as Member_Institution
+      ✔ User who already has a role cannot call onboard_institution()
+      ✔ Multiple different institutions can each self-onboard
+    Self-Onboarding with Attestation: onboard_ordinary_user_with_attestation()
+      ✔ New user can self-onboard with attestation
+      ✔ Cannot onboard with empty attestation
+      ✔ User who already has a role cannot call onboard_ordinary_user_with_attestation()
+      ✔ Attestation should be valid after onboarding
+    Self-Onboarding with Attestation: onboard_institution_with_attestation()
+      ✔ New institution can self-onboard with attestation
+      ✔ Cannot onboard with empty attestation
+    Dashboard Role Check Simulation
+      ✔ hasRole returns correct role value after self-onboarding as user
+      ✔ hasRole returns correct role value after self-onboarding as institution
+    Full Onboarding Flow Integration
+      ✔ Complete user onboarding flow simulation
+      ✔ Complete institution onboarding flow simulation
+    Cross-Role Prevention
+      ✔ User who onboarded as Ordinary_User cannot also onboard as Institution
+      ✔ Institution who onboarded cannot also onboard as Ordinary_User
+
+  MKMPOL21 - Attested RDF Document Submission (R3.2, R3.3, R3.5)
+    [R3.5] Challenge threshold
+      ✔ Accepts a document that passed all nine MFSSIA challenges
+      ✔ Accepts a document at the 8 of 9 threshold
+      ✔ Records a document below the threshold as not validated instead of rejecting it
+      ✔ Records a document that passed no challenge at all
+      ✔ Rejects a challenge count above the nine defined challenges
+    [R1.3/R3.5] Who may submit an attested document
+      ✔ Allows the MKMPOL21 owner to submit
+      ✔ Rejects a Data_Validator
+      ✔ Rejects an Ordinary_User
+      ✔ Rejects an address without any role
+      ✔ Rejects an empty document hash or an empty attestation
+    [R3.2] Traceability of the submission record
+      ✔ Stores submitter, timestamp, content hash and attestation together
+      ✔ Gives two submissions of the same content distinct identifiers
+      ✔ Returns an empty record for an unknown document id
+    [R3.3] Attestation lifetime
+      ✔ Binds an attestation to the onboarded institution for one year
+      ✔ Treats the attestation as invalid once the validity period elapses
+      ✔ Reports no attestation for an account that never onboarded through MFSSIA
+      ✔ Rejects onboarding with an empty attestation
+      ✔ GAP: submitRDFDocument never checks the submitter's attestation
+      ✔ GAP: an expired attestation does not stop further submissions
+
+  GADataValidation - Validation Semantics and Re-processing (R2.5-R2.7, R2.12-R2.14)
+    [R2.7] Syntax and semantic validation are recorded separately
+      ✔ Marks a graph valid only when both N3 syntax and SHACL semantics pass
+      ✔ Keeps a syntactically valid but semantically invalid graph out of the validated state
+      ✔ Records a syntax failure without claiming semantic validity
+      ✔ Lets a re-validation clear a previously recorded failure
+      ✔ Requires permission 4 to record a detailed validation result
+      ✔ Rejects a detailed validation result for a graph that was never submitted
+      ✔ Overwrites the coarse markRDFGraphValidated result with the detailed one
+      ✔ GAP: approval and publication only check syntaxValid, so a SHACL failure reaches the DKG
+    [R2.5/R2.6] Re-processing a dataset after an NLP model change
+      ✔ Assigns an incremented version to the re-processed graph and keeps its model version
+      ✔ Starts the re-processed version in the Created state instead of inheriting the previous approval
+      ✔ Forces the re-processed version through validation and approval before publication
+      ✔ Keeps both versions addressable for lineage reconstruction
+      ✔ GAP: publishing the new version leaves the superseded one published as well
+    [R2.12] On-chain / off-chain correspondence
+      ✔ Stores the content hash submitted with the graph
+      ✔ GAP: the DKG asset UAL is stored verbatim and never checked against the graph hash
+      ✔ GAP: the same UAL can be attached to two different graphs
+    [R2.13/R2.14/R3.6/R3.7] Lifecycle transitions the artifact does not implement
+      ✔ Has no Published -> Deprecated transition (R2.13)
+      ✔ Has no rollback or un-publish transition (R2.14, R3.6)
+      ✔ Has no emergency override, suspension or pause entry point (R3.7)
+      ✔ Cannot undo a publication once it is recorded
+
+  ValidationCommittee - Collective Voting (R2.8, R2.10, R2.11)
+    [R2.8] Proposal and voting rights
+      ✔ A Data_Validator holding permission 30 can put a decision to the committee
+      ✔ A Member_Institution cannot put a decision to the committee
+      ✔ An address without any role cannot put a decision to the committee
+      ✔ Only holders of permission 31 can cast a vote
+      ✔ Tallies for, against and abstain votes separately
+      ✔ Rejects a proposal that does not reach a majority
+      ✔ Refuses execution while voting is still open
+    [R2.10] Quorum rules
+      ✔ Derives the quorum from the voting power outstanding at the snapshot block
+      ✔ Defeats a proposal that has a majority but misses the quorum
+      ✔ Passes a proposal once the quorum is reached
+      ✔ Counts abstentions towards the quorum but not towards the majority
+      ✔ Defeats a proposal that reaches the quorum through abstentions alone
+    [R2.11] The committee decision drives Validated -> Approved
+      ✔ Approves the graph on behalf of the committee and attributes the event to it
+      ✔ Completes the full scenario: submit -> validate -> committee vote -> approve -> publish
+      ✔ Cannot execute the same committee decision twice
+      ✔ A Data_Validator alone cannot perform the approval the committee votes on
+      ✔ GAP: approveRDFGraph only checks permission 6, so a single institution can approve without any vote
+      ✔ GAP: the submitting institution can also validate and approve its own graph
+
+
+  178 passing (6s)
+
+····································································································································
+|  [32m[1mSolidity and Network Configuration[22m[39m                                                                                              │
+···············································|·················|···············|·················|································
+|  [36mSolidity: 0.8.20[39m                            ·  [36mOptim: true[39m    ·  [36mRuns: 200[39m    ·  [36mviaIR: true[39m    ·     [36mBlock: 30,000,000 gas[39m     │
+···············································|·················|···············|·················|································
+|  [32m[1mMethods[22m[39m                                                                                                                         │
+···············································|·················|···············|·················|················|···············
+|  [32m[1mContracts / Methods[22m[39m                         ·  [1mMin[22m            ·  [1mMax[22m          ·  [1mAvg[22m            ·  [1m# calls[22m       ·  [1musd (avg)[22m   │
+···············································|·················|···············|·················|················|···············
+|  [1mConsortium[22m                                  ·                                                                                   │
+···············································|·················|···············|·················|················|···············
+|      castVote                                ·         [36m69,910[39m  ·       [31m87,010[39m  ·         79,030  ·            15  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      execute                                 ·              [90m-[39m  ·            [90m-[39m  ·        150,463  ·             2  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      executeProposal                         ·        [36m150,532[39m  ·      [31m150,544[39m  ·        150,536  ·             3  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      propose                                 ·        [36m138,117[39m  ·      [31m140,767[39m  ·        140,583  ·            33  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      vetoProposal                            ·              [90m-[39m  ·            [90m-[39m  ·         59,576  ·             5  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mGADataValidation[22m                            ·                                                                                   │
+···············································|·················|···············|·················|················|···············
+|      approveRDFGraph                         ·         [36m60,660[39m  ·       [31m60,684[39m  ·         60,681  ·            25  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      markRDFGraphPublished                   ·         [36m63,274[39m  ·      [31m108,474[39m  ·         70,907  ·            18  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      markRDFGraphValidated                   ·         [36m38,980[39m  ·       [31m58,892[39m  ·         57,620  ·            47  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      markRDFGraphValidatedWithDetails        ·         [36m51,525[39m  ·      [31m152,261[39m  ·         82,659  ·            17  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      submitRDFGraph                          ·        [36m240,699[39m  ·      [31m294,931[39m  ·        272,928  ·           205  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mMKMPOL21[22m                                    ·                                                                                   │
+···············································|·················|···············|·················|················|···············
+|      assignRole                              ·         [36m33,852[39m  ·       [31m50,909[39m  ·         50,806  ·           510  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      grantPermission                         ·         [36m28,898[39m  ·       [31m33,698[39m  ·         29,677  ·           135  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      initializeCommittees                    ·        [36m118,497[39m  ·      [31m118,509[39m  ·        118,507  ·            42  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      onboard_institution                     ·              [90m-[39m  ·            [90m-[39m  ·         49,731  ·             9  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      onboard_institution_with_attestation    ·        [36m140,755[39m  ·      [31m186,550[39m  ·        158,491  ·             9  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      onboard_ordinary_user                   ·              [90m-[39m  ·            [90m-[39m  ·         49,827  ·             9  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      onboard_ordinary_user_with_attestation  ·        [36m118,117[39m  ·      [31m186,088[39m  ·        137,537  ·             7  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      revokePermission                        ·         [36m33,441[39m  ·       [31m33,453[39m  ·         33,447  ·             4  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      revokeRole                              ·         [36m28,666[39m  ·       [31m28,678[39m  ·         28,675  ·             8  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      submitRDFDocument                       ·        [36m212,165[39m  ·      [31m234,923[39m  ·        230,871  ·            22  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mValidationCommittee[22m                         ·                                                                                   │
+···············································|·················|···············|·················|················|···············
+|      castVote                                ·         [36m80,485[39m  ·       [31m97,644[39m  ·         91,921  ·            21  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      execute                                 ·              [90m-[39m  ·            [90m-[39m  ·        121,831  ·             4  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|      propose                                 ·        [36m113,397[39m  ·      [31m113,409[39m  ·        113,407  ·            26  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mVotingPowerToken[22m                            ·                                                                                   │
+···············································|·················|···············|·················|················|···············
+|      mint                                    ·        [36m158,557[39m  ·      [31m190,467[39m  ·        169,198  ·           120  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [32m[1mDeployments[22m[39m                                                   ·                                 ·  [1m% of limit[22m    ·              │
+···············································|·················|···············|·················|················|···············
+|  [1mConsortium[22m                                  ·      [36m3,651,752[39m  ·    [31m3,651,776[39m  ·      3,651,774  ·        12.2 %  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mDisputeResolutionBoard[22m                      ·      [36m3,444,196[39m  ·    [31m3,444,220[39m  ·      3,444,218  ·        11.5 %  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mGADataValidation[22m                            ·      [36m2,441,975[39m  ·    [31m2,441,987[39m  ·      2,441,986  ·         8.1 %  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mMKMPOL21[22m                                    ·              [90m-[39m  ·            [90m-[39m  ·      1,979,007  ·         6.6 %  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mValidationCommittee[22m                         ·      [36m3,431,041[39m  ·    [31m3,431,065[39m  ·      3,431,063  ·        11.4 %  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [1mVotingPowerToken[22m                            ·              [90m-[39m  ·            [90m-[39m  ·      2,381,982  ·         7.9 %  ·           [32m[90m-[39m[32m[39m  │
+···············································|·················|···············|·················|················|···············
+|  [32m[1mKey[22m[39m                                                                                                                             │
+····································································································································
+|  [35m[1m◯[22m[39m  Execution gas for this method does not include intrinsic gas overhead                                                        │
+····································································································································
+|  [35m[1m△[22m[39m  Cost was non-zero but below the precision setting for the currency display (see options)                                     │
+····································································································································
+|  [35mToolchain:[39m  hardhat                                                                                                             │
+····································································································································
