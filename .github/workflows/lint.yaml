@@ -48,10 +48,28 @@ jobs:
       # Hardhat 2.x runs ts-node in transpileOnly mode unless --typecheck is passed; this makes the
       # direct entry point behave the same way. Type checking still happens in the dedicated
       # check-types steps.
+      # "yarn chain & yarn deploy" raced: the deploy started before the node was listening and
+      # died with HH108 / ECONNREFUSED 127.0.0.1:8545. Poll the JSON-RPC endpoint instead of a
+      # bare TCP check, so we wait for the node to actually answer rather than merely bind.
       - name: Run hardhat node, deploy contracts (& generate contracts typescript output)
         env:
           TS_NODE_TRANSPILE_ONLY: "1"
-        run: yarn chain & yarn deploy
+        run: |
+          yarn chain &
+          for i in $(seq 1 90); do
+            if curl -s -X POST -H 'Content-Type: application/json' \
+                 --data '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}' \
+                 http://127.0.0.1:8545 | grep -q '"result"'; then
+              echo "hardhat node answering JSON-RPC after ${i}s"
+              break
+            fi
+            if [ "$i" -eq 90 ]; then
+              echo "hardhat node did not answer on 127.0.0.1:8545 within 90s" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          yarn deploy
 
       - name: Run hardhat lint
         run: yarn hardhat:lint --max-warnings=0
