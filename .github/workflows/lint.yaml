@@ -25,7 +25,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-          cache: yarn
+
+      # package.json pins "packageManager": "yarn@3.2.3", which only takes effect through
+      # Corepack. Without this the runner's global Yarn Classic (1.22.x) refuses to install.
+      # Must run AFTER setup-node: Corepack writes its shims into the Node install that is on
+      # PATH at that moment, so enabling it earlier leaves the shims behind the Node that
+      # setup-node then replaces. corepack is installed explicitly rather than relying on the
+      # copy bundled with Node, because node-version is the floating "lts/*" and recent Node
+      # releases no longer ship Corepack.
+      - name: Enable Corepack
+        run: |
+          npm install -g corepack@latest
+          corepack enable
 
       - name: Install dependencies
         run: yarn install --immutable
