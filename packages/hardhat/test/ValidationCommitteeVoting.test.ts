@@ -48,6 +48,7 @@ describe("ValidationCommittee - Collective Voting (R2.8, R2.10, R2.11)", functio
   const VOTE_ABSTAIN = 2;
 
   // ProposalState
+  const ACTIVE = 1;
   const DEFEATED = 3;
   const SUCCEEDED = 4;
   const EXECUTED = 7;
@@ -178,6 +179,44 @@ describe("ValidationCommittee - Collective Voting (R2.8, R2.10, R2.11)", functio
       await expect(committee.connect(outsider).castVote(proposalId, VOTE_FOR)).to.be.revertedWith("User cannot vote");
     });
 
+    it("Delegating permission 30 lets a Member_Institution put a decision to the committee (R1.5)", async function () {
+      // Pins the literal 30 in Validation_Committee.sol: the right appears exactly when bit 30 is
+      // granted to the role, so a different permission index would not produce this transition.
+      expect(await mkmpol21.has_permission(institution.address, PERM_PROPOSE)).to.equal(false);
+      await expect(committee.connect(institution).propose(targets, values, calldatas, description)).to.be.revertedWith(
+        "User does not have this permission",
+      );
+
+      await expect(mkmpol21.connect(owner).grantPermission(ROLE_MEMBER_INSTITUTION, PERM_PROPOSE))
+        .to.emit(mkmpol21, "PermissionGranted")
+        .withArgs(ROLE_MEMBER_INSTITUTION, PERM_PROPOSE);
+
+      expect(await mkmpol21.has_permission(institution.address, PERM_PROPOSE)).to.equal(true);
+      await expect(committee.connect(institution).propose(targets, values, calldatas, description)).to.emit(
+        committee,
+        "ProposalCreated",
+      );
+    });
+
+    it("Revoking permission 31 removes the vote from every holder of the Data_Validator role (R1.7)", async function () {
+      // Pins the literal 31 in Validation_Committee.sol, and shows the revocation is role-scoped
+      // rather than account-scoped: validator2 never touched the proposal but loses the vote too.
+      const proposalId = await propose(validator1);
+      await committee.connect(validator1).castVote(proposalId, VOTE_FOR);
+
+      await expect(mkmpol21.connect(owner).revokePermission(ROLE_DATA_VALIDATOR, PERM_VOTE))
+        .to.emit(mkmpol21, "PermissionRevoked")
+        .withArgs(ROLE_DATA_VALIDATOR, PERM_VOTE);
+
+      expect(await mkmpol21.has_permission(validator2.address, PERM_VOTE)).to.equal(false);
+      await expect(committee.connect(validator2).castVote(proposalId, VOTE_FOR)).to.be.revertedWith(
+        "User does not have this permission",
+      );
+
+      // The tally recorded before the revocation stands
+      expect((await committee.proposalVotes(proposalId)).forVotes).to.equal(ethers.parseEther("1"));
+    });
+
     it("Tallies for, against and abstain votes separately", async function () {
       const proposalId = await propose(validator1);
 
@@ -214,6 +253,9 @@ describe("ValidationCommittee - Collective Voting (R2.8, R2.10, R2.11)", functio
       await committee.connect(validator1).castVote(proposalId, VOTE_FOR);
       await committee.connect(validator2).castVote(proposalId, VOTE_FOR);
 
+      // OZ emits the same reason for Pending, Active, Canceled, Defeated, Expired and Executed,
+      // so the state has to be asserted for the revert to identify the cause.
+      expect(await committee.state(proposalId)).to.equal(ACTIVE);
       await expect(committee.execute(targets, values, calldatas, descriptionHash)).to.be.revertedWith(
         "Governor: proposal not successful",
       );
@@ -318,6 +360,9 @@ describe("ValidationCommittee - Collective Voting (R2.8, R2.10, R2.11)", functio
       await closeVoting();
       await committee.execute(targets, values, calldatas, descriptionHash);
 
+      // Same shared reason string: without this the test cannot tell "blocked because already
+      // executed" from "was never Succeeded in the first place".
+      expect(await committee.state(proposalId)).to.equal(EXECUTED);
       await expect(committee.execute(targets, values, calldatas, descriptionHash)).to.be.revertedWith(
         "Governor: proposal not successful",
       );

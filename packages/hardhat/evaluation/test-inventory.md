@@ -1,10 +1,10 @@
 # Test inventory
 
-- Generated: 2026-09-09
+- Generated: 2026-09-30
 - **The counts below describe the tree committed in *this* commit.** The inventory is
   regenerated and committed together with the tests it describes, so it is not tied to an
-  earlier hash. Parent commit at time of writing: `84faa5a` (branch `main`).
-- **Total: 179 tests** across 8 files, all passing (0 failing, 0 pending).
+  earlier hash. Parent commit at time of writing: `5f7d2e4` (branch `main`).
+- **Total: 181 tests** across 8 files, all passing (0 failing, 0 pending).
 - Structure parsed from the TypeScript sources in `packages/hardhat/test/`. Every per-file
   `it()` count was reconciled against the tests mocha actually executed, **and the full list
   of test names was compared in order**. All eight files reconcile exactly.
@@ -22,8 +22,8 @@
 | `test/OnboardingIntegration.test.ts` | 20 |
 | `test/RDFDocumentAttestation.test.ts` | 19 |
 | `test/RDFGraphLifecycleValidation.test.ts` | 20 |
-| `test/ValidationCommitteeVoting.test.ts` | 18 |
-| **Total** | **179** |
+| `test/ValidationCommitteeVoting.test.ts` | 20 |
+| **Total** | **181** |
 
 ---
 
@@ -277,7 +277,7 @@
 
 ## `test/ValidationCommitteeVoting.test.ts`
 
-18 tests, all passing (18 executed).
+20 tests, all passing (20 executed).
 
 - **ValidationCommittee - Collective Voting (R2.8, R2.10, R2.11)**
   - **[R2.8] Proposal and voting rights**
@@ -285,6 +285,8 @@
     - A Member_Institution cannot put a decision to the committee
     - An address without any role cannot put a decision to the committee
     - Only holders of permission 31 can cast a vote
+    - Delegating permission 30 lets a Member_Institution put a decision to the committee (R1.5)
+    - Revoking permission 31 removes the vote from every holder of the Data_Validator role (R1.7)
     - Tallies for, against and abstain votes separately
     - Rejects a proposal that does not reach a majority
     - Refuses execution while voting is still open
