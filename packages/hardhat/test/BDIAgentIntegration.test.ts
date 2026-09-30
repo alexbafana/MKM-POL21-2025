@@ -174,7 +174,9 @@ describe("BDI Agent Integration", function () {
   });
 
   describe("Full Validation Pipeline", function () {
-    it("Should complete end-to-end agent validation workflow", async function () {
+    it("Should run the agent pipeline to publication, with the owner standing in for the committee", async function () {
+      // Steps 4 and 5 are performed by `owner`, which holds all 34 permission bits and role
+      // index 5. They stand in for a committee decision; they do not demonstrate one.
       console.log("\n=== BDI Agent Validation Pipeline ===\n");
 
       // Step 1: DAO Submitter Agent submits RDF graph
@@ -260,11 +262,13 @@ describe("BDI Agent Integration", function () {
         .connect(daoSubmitterAgent)
         .submitRDFGraph(graphURI, sampleGraphHash, graphType, datasetVariant, year, modelVersion);
 
-      // Verify event structure
-      await expect(tx).to.emit(gaDataValidation, "RDFGraphSubmitted");
+      const receipt = await tx.wait();
+      const graphId = receipt?.logs.find((log: any) => log.fragment?.name === "RDFGraphSubmitted")?.args?.[0];
 
-      // The event should have: graphId, graphURI, variant, year, graphType
-      // Coordinator can listen for this and dispatch validators
+      // Every field the Coordinator dispatches on is checked, not just that the event fired
+      await expect(tx)
+        .to.emit(gaDataValidation, "RDFGraphSubmitted")
+        .withArgs(graphId, graphURI, datasetVariant, year, graphType);
     });
 
     it("RDFGraphValidated event includes validator address for tracking", async function () {

@@ -482,7 +482,10 @@ describe("GADataValidation - RDF Graph Registry", function () {
   });
 
   describe("End-to-End Workflow", function () {
-    it("Should complete full governance workflow", async function () {
+    it("Should walk the full lifecycle from submission to publication", async function () {
+      // Not a governance workflow: every step is taken by an EOA holding the permission bit
+      // directly. Collective decision making is covered in ConsortiumOptimisticGovernance and
+      // ValidationCommitteeVoting, where a governance contract executes the transition.
       // 1. Institution submits RDF graph
       const tx = await gaDataValidation
         .connect(institution)

@@ -333,20 +333,9 @@ describe("MKMPOL21 Permission System", function () {
   });
 
   describe("Edge Cases and Security", function () {
-    it("Role value 0 maps to index 0 (Member_Institution permissions)", async function () {
-      // When a user has no role (0), roleIndex = 0 & 31 = 0
-      // This gives them Member_Institution permissions - potential security issue
-      const userRole = await mkmpol21.hasRole(user1.address);
-      expect(userRole).to.equal(0);
-
-      // Check if user without role can access permission 0 (which Member_Institution has)
-      // Due to contract design, this returns true for permission 0
-      // This is documented behavior but worth noting
-    });
-
-    it("Maximum valid role index is 8", async function () {
-      // Verify all indices 0-8 are valid by using predefined roles
-      // Owner should be able to assign any valid role index
+    it("Assigning and revoking round-trips for role indices 0, 1, 2 and 4", async function () {
+      // Indices 8 and 9 are deliberately NOT covered here: the upper bound of the role index is
+      // exercised by "Cannot assign invalid role index (>= 9)" in the Role Assignment block.
       const testRoles = [
         ROLES.MEMBER_INSTITUTION,
         ROLES.ORDINARY_USER,
@@ -356,7 +345,10 @@ describe("MKMPOL21 Permission System", function () {
 
       for (const role of testRoles) {
         await mkmpol21.connect(owner).assignRole(user1.address, role);
+        expect(await mkmpol21.hasRole(user1.address)).to.equal(role);
+
         await mkmpol21.connect(owner).revokeRole(user1.address, role);
+        expect(await mkmpol21.hasRole(user1.address)).to.equal(0);
       }
     });
 

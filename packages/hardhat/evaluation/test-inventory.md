@@ -3,8 +3,8 @@
 - Generated: 2026-09-30
 - **The counts below describe the tree committed in *this* commit.** The inventory is
   regenerated and committed together with the tests it describes, so it is not tied to an
-  earlier hash. Parent commit at time of writing: `5f7d2e4` (branch `main`).
-- **Total: 181 tests** across 8 files, all passing (0 failing, 0 pending).
+  earlier hash. Parent commit at time of writing: `c2d8ce4` (branch `main`).
+- **Total: 180 tests** across 8 files, all passing (0 failing, 0 pending).
 - Structure parsed from the TypeScript sources in `packages/hardhat/test/`. Every per-file
   `it()` count was reconciled against the tests mocha actually executed, **and the full list
   of test names was compared in order**. All eight files reconcile exactly.
@@ -18,12 +18,12 @@
 | `test/BDIAgentIntegration.test.ts` | 14 |
 | `test/ConsortiumOptimisticGovernance.test.ts` | 22 |
 | `test/GADataValidation.test.ts` | 29 |
-| `test/MKMPOL21.ts` | 37 |
+| `test/MKMPOL21.ts` | 36 |
 | `test/OnboardingIntegration.test.ts` | 20 |
 | `test/RDFDocumentAttestation.test.ts` | 19 |
 | `test/RDFGraphLifecycleValidation.test.ts` | 20 |
 | `test/ValidationCommitteeVoting.test.ts` | 20 |
-| **Total** | **181** |
+| **Total** | **180** |
 
 ---
 
@@ -46,7 +46,7 @@
     - Should mark graph as invalid (isValid=false)
     - Semantic Validator should also be able to validate
   - **Full Validation Pipeline**
-    - Should complete end-to-end agent validation workflow
+    - Should run the agent pipeline to publication, with the owner standing in for the committee
   - **Agent Coordination via Events**
     - RDFGraphSubmitted event includes all required data for Coordinator
     - RDFGraphValidated event includes validator address for tracking
@@ -127,11 +127,11 @@
     - Should check if graph is ready for publication
     - Should return all graphs for dataset/year
   - **End-to-End Workflow**
-    - Should complete full governance workflow
+    - Should walk the full lifecycle from submission to publication
 
 ## `test/MKMPOL21.ts`
 
-37 tests, all passing (37 executed).
+36 tests, all passing (36 executed).
 
 - **MKMPOL21 Permission System**
   - **Deployment and Initialization**
@@ -179,8 +179,7 @@
     - An account without a role can self-onboard as Member_Institution
     - The owner cannot self-onboard, since it already holds MKMPOL21Owner
   - **Edge Cases and Security**
-    - Role value 0 maps to index 0 (Member_Institution permissions)
-    - Maximum valid role index is 8
+    - Assigning and revoking round-trips for role indices 0, 1, 2 and 4
     - Reassigning role overwrites previous role
 
 ## `test/OnboardingIntegration.test.ts`
@@ -265,7 +264,7 @@
     - Forces the re-processed version through validation and approval before publication
     - Keeps both versions addressable for lineage reconstruction
     - GAP: publishing the new version leaves the superseded one published as well
-  - **[R2.12] On-chain / off-chain correspondence**
+  - **[R2.12] What is recorded about on-chain / off-chain correspondence**
     - Stores the content hash submitted with the graph
     - GAP: the DKG asset UAL is stored verbatim and never checked against the graph hash
     - GAP: the same UAL can be attached to two different graphs

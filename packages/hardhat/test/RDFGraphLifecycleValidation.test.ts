@@ -234,7 +234,7 @@ describe("GADataValidation - Validation Semantics and Re-processing (R2.5-R2.7, 
     });
   });
 
-  describe("[R2.12] On-chain / off-chain correspondence", function () {
+  describe("[R2.12] What is recorded about on-chain / off-chain correspondence", function () {
     beforeEach(async function () {
       await gaDataValidation.connect(validator).markRDFGraphValidatedWithDetails(graphId, true, true, "");
       await gaDataValidation.connect(committee).approveRDFGraph(graphId);
