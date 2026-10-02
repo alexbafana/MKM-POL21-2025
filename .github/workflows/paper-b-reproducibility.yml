@@ -2,7 +2,7 @@ name: Paper B reproducibility
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/paper-b-reproducibility]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -35,4 +35,3 @@ jobs:
           name: paper-b-evaluation-evidence
           path: reproducibility/paper-b/results/generated/
           if-no-files-found: error
-
