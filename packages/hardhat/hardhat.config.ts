@@ -51,6 +51,12 @@ const config: HardhatUserConfig = {
     // View the networks that are pre-configured.
     // If the network you are looking for is not here you can add new network settings
     hardhat: {
+      // solidity-coverage instruments contracts and sends deployments with a
+      // deliberately high gas limit. Hardhat's default 30M block limit rejects
+      // those transactions before any test executes, so the reviewer workflow
+      // enables the larger limit only for the coverage command.
+      blockGasLimit: process.env.PAPER_B_COVERAGE === "true" ? 0x1fffffffffffff : 30_000_000,
+      allowUnlimitedContractSize: process.env.PAPER_B_COVERAGE === "true",
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
         enabled: process.env.MAINNET_FORKING_ENABLED === "true",

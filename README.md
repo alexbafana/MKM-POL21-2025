@@ -1,3 +1,41 @@
+# MKM-POL21-2025 research artifact
+
+This repository contains the implementation used in the paper
+**Decentralized Governance of Institutional Knowledge Graph Lifecycles**.
+
+## Reviewer entry point
+
+Reviewers who want to reproduce the contract-level evaluation in Section 6
+should start here:
+
+**[Paper B reproducibility package](reproducibility/paper-b/README.md)**
+
+The package provides:
+
+- the exact evaluation boundary and pinned toolchain;
+- a one-command clean reproduction script;
+- all 36 OLR/CR/ER/SG coverage decisions in machine-readable form;
+- direct links from the five evaluation situations to their tests;
+- Solidity coverage over the contracts actually evaluated in the paper;
+- GitHub Actions automation and release/archival metadata.
+
+Run from the repository root:
+
+```bash
+bash reproducibility/paper-b/scripts/reproduce.sh
+```
+
+The expected result is 180 passing tests plus a validated 36-row requirements
+crosswalk. The package explains the inferential boundary: contract tests do
+not establish legal compliance, institutional legitimacy, or live off-chain
+publication.
+
+## Development application
+
+The wider project was built on Scaffold-ETH 2 and also contains frontend,
+agent, DKG, and experimental development material not included in the Paper B
+evaluation boundary.
+
 # 🏗 Scaffold-ETH 2
 
 <h4 align="center">

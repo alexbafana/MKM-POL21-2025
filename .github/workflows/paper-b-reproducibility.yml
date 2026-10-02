@@ -1,0 +1,38 @@
+name: Paper B reproducibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+
+      - name: Install pinned Corepack
+        run: |
+          npm install --global corepack@0.31.0
+          corepack enable
+
+      - name: Reproduce Section 6 evidence
+        run: bash reproducibility/paper-b/scripts/reproduce.sh
+
+      - name: Upload reviewer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-b-evaluation-evidence
+          path: reproducibility/paper-b/results/generated/
+          if-no-files-found: error
+

@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this research artifact, please cite the archived release."
+title: "Reproducibility artifact for Decentralized Governance of Institutional Knowledge Graph Lifecycles"
+type: software
+version: 1.0.0
+date-released: 2026-10-02
+authors:
+  - family-names: Norta
+    given-names: Alex
+    email: alex.norta.phd@ieee.org
+  - family-names: Avanzo
+    given-names: Sowelu Elios
+  - family-names: Kormiltsyn
+    given-names: Aleksandr
+repository-code: "https://github.com/alexbafana/MKM-POL21-2025"
+license: MIT
+

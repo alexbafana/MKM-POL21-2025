@@ -1,0 +1,36 @@
+{
+  "artifact": "Paper B contract-level evaluation",
+  "paper": "Decentralized Governance of Institutional Knowledge Graph Lifecycles",
+  "evaluationBoundary": {
+    "contracts": [
+      "packages/hardhat/contracts/MKMPOL21.sol",
+      "packages/hardhat/contracts/_data_validation.sol",
+      "packages/hardhat/contracts/Consortium.sol",
+      "packages/hardhat/contracts/Validation_Committee.sol",
+      "packages/hardhat/contracts/VotingPowerToken.sol"
+    ],
+    "tests": "packages/hardhat/test/*.ts",
+    "excluded": "Off-chain RDF stores, validation services, publication adapters, legal review, and institutional deployment"
+  },
+  "toolchain": {
+    "node": "22.14.0",
+    "corepack": "0.31.0",
+    "yarn": "3.2.3",
+    "hardhat": "2.22.19",
+    "solidity": "0.8.20",
+    "solidityCoverage": "0.8.16"
+  },
+  "expected": {
+    "testFiles": 8,
+    "tests": 180,
+    "requirements": 36,
+    "statusCounts": { "E": 2, "P": 16, "N": 18 },
+    "coverage": {
+      "statements": "80.12% (137/171)",
+      "branches": "64.89% (122/188)",
+      "functions": "73.61% (53/72)",
+      "lines": "79.49% (186/234)"
+    }
+  }
+}
+

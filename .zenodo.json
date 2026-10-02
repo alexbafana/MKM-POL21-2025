@@ -1,0 +1,18 @@
+{
+  "title": "Reproducibility artifact for Decentralized Governance of Institutional Knowledge Graph Lifecycles",
+  "upload_type": "software",
+  "description": "Contracts, tests, traceability crosswalk, scenarios, and one-command workflow for the contract-level evaluation reported in Section 6.",
+  "creators": [
+    { "name": "Norta, Alex" },
+    { "name": "Avanzo, Sowelu Elios" },
+    { "name": "Kormiltsyn, Aleksandr" }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "knowledge graph governance",
+    "DAO",
+    "smart contracts",
+    "reproducibility"
+  ]
+}
+

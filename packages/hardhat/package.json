@@ -10,6 +10,7 @@
     "check-types": "tsc --noEmit --incremental",
     "clean": "hardhat clean",
     "compile": "hardhat compile",
+    "coverage:paper-b": "PAPER_B_COVERAGE=true hardhat coverage",
     "deploy": "ts-node scripts/runHardhatDeployWithPK.ts",
     "flatten": "hardhat flatten",
     "fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",

@@ -21,3 +21,11 @@ node_modules
 
 # cli
 dist
+
+# generated Paper B evaluation evidence
+packages/hardhat/coverage/
+packages/hardhat/coverage.json
+packages/hardhat/testMatrix.json
+packages/hardhat/mochaOutput.json
+packages/hardhat/humanReadableAbis.json
+reproducibility/paper-b/results/generated/

@@ -1,0 +1,38 @@
+id,layer,status,evidence,limitation
+OLR1,Organization,E,packages/hardhat/contracts/_data_validation.sol and RDFGraphLifecycleValidation.test.ts,Implemented scope is RDF graph versions only
+OLR2,Organization,P,_data_validation.sol lifecycle flags and RDFGraphLifecycleValidation.test.ts,Approved conflates decision and asset state; restoration deprecation archival and supersession are absent
+OLR3,Organization,N,MKMPOL21.sol role-wide permission checks,No asset-class and transition-type authority scope
+OLR4,Organization,P,MKMPOL21.sol roles and MKMPOL21.ts,Roles exist but evaluated allocation does not preserve independent lifecycle responsibilities
+OLR5,Organization,E,Consortium.sol Validation_Committee.sol and their test suites,Independent institutional membership is not established
+OLR6,Organization,P,Action guards across MKMPOL21.sol and _data_validation.sol,Complete specialized permission vocabulary is not represented
+OLR7,Organization,N,MKMPOL21.sol has_permission,No joint role-or-committee asset and transition permission relation
+OLR8,Organization,N,ValidationCommitteeVoting.test.ts GAP separation-of-duties test,Incompatible assignments and bounded delegation are absent
+OLR9,Organization,P,_data_validation.sol validation detail fields and RDFGraphLifecycleValidation.test.ts,Required evidence is not transition scoped and semantic failure does not block publication
+OLR10,Organization,N,MKMPOL21.sol direct role and permission administration,Administrative changes do not require a governed proposal
+OLR11,Organization,N,Consortium.sol and Validation_Committee.sol,Transitions have no explicit coordination-policy reference
+OLR12,Organization,N,ValidationCommitteeVoting.test.ts GAP separation-of-duties test,Independent-principal distribution is not represented or enforced
+CR1,Coordination,P,Governance proposals encode target calls,No complete transition plan with expected states and evidence manifest
+CR2,Coordination,P,Proposal vote and veto permission tests,Asset transition distribution mandate and attestation scopes are incomplete
+CR3,Coordination,P,ConsortiumOptimisticGovernance.test.ts and ValidationCommitteeVoting.test.ts,Policy is hard-coded per contract and consortium quorum is zero
+CR4,Coordination,P,RDFGraphLifecycleValidation.test.ts validation semantics,Only syntactic success gates approval and publication
+CR5,Coordination,P,Veto tests and defeated proposal tests,No distinct suspended process state or escalation path
+CR6,Coordination,N,MKMPOL21.sol direct administration,Governance-configuration changes lack proposal types
+ER1,Execution,N,ValidationCommitteeVoting.test.ts direct-approval GAP test,No scoped authorization record and collective acceptance is not necessary
+ER2,Execution,N,_data_validation.sol lifecycle flags,Authorization pending failure and confirmation are not distinct states
+ER3,Execution,P,State order temporal and idempotence tests,Evidence integrity authorization expiry full-plan binding and replay protection are incomplete
+ER4,Execution,N,_data_validation.sol graphHash storage and UAL GAP tests,No declared RDF canonicalization and no verified publication correspondence
+ER5,Execution,N,RDFGraphLifecycleValidation.test.ts UAL GAP tests,No attributable off-chain receipt or authoritative result manifest
+ER6,Execution,P,Registry events version records and idempotence tests,Decision binding receipt and result are not bidirectionally linked or atomically confirmed
+SG1,Safeguard,P,RDFDocumentAttestation.test.ts,Attestation is stored but submission does not check validity and institutional identity remains external
+SG2,Safeguard,P,Registry and governance events,Registry records do not reference the authorizing proposal and there is no receipt chain
+SG3,Safeguard,P,Vote veto and proposal events,No rationale delegation history interpretable dissent or audit export
+SG4,Safeguard,P,RDFGraphLifecycleValidation.test.ts reprocessing and restoration GAP tests,New versions preserve history but restoration and governed supersession are absent
+SG5,Safeguard,N,ABI and source inspection,No bounded exceptional policy
+SG6,Safeguard,N,ABI and source inspection,No notification or independent post-hoc review record
+SG7,Safeguard,N,ABI and source inspection,No jurisdiction-specific compliance-policy reference
+SG8,Safeguard,N,ABI and source inspection,No retention hold disclosure selective-access or protected-evidence controls
+SG9,Safeguard,N,ABI and source inspection,No appeal or external-decision linkage
+SG10,Safeguard,N,ValidationCommitteeVoting.test.ts GAP separation-of-duties test,Separation of duties incompatible assignments and bounded delegation are not enforced
+SG11,Safeguard,N,ABI and source inspection,No concentration participation challenge or emergency-use monitoring
+SG12,Safeguard,P,ValidationCommitteeVoting.test.ts defeated proposal tests,Terminal failure exists but escalation censorship timeout missing-receipt and selective-non-execution controls are absent
+

@@ -1,0 +1,11 @@
+.git
+.next
+.yarn/cache
+node_modules
+packages/*/node_modules
+packages/hardhat/artifacts
+packages/hardhat/cache
+packages/hardhat/coverage
+packages/hardhat/coverage.json
+packages/hardhat/typechain-types
+reproducibility/paper-b/results/generated
