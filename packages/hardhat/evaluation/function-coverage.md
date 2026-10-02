@@ -1,5 +1,10 @@
 # Contract inventory and test-reference cross-check
 
+> **Historical static inventory, not current executed coverage.** This file predates the
+> Paper B reproducibility package and only checks textual name references. Reviewers should use
+> [`reproducibility/paper-b/README.md`](../../../reproducibility/paper-b/README.md) and its
+> `coverage:paper-b` procedure for the current executed coverage result.
+
 - Generated: 2026-09-07T22:30:55+03:00
 - Repository commit: `84faa5aeaeaec6b8f5201b3f3f39f5c9e9ff9097` (branch `main`), working tree **not clean** — see caveat at the end.
 - Scope: `packages/hardhat/contracts/` only. `DAO/` is excluded as instructed.

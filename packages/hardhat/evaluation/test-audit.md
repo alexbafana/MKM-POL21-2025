@@ -1,5 +1,11 @@
 # Test-suite evidential audit
 
+> **Historical analysis, not the Paper B reproducibility result.** This document records a
+> static audit of an earlier working tree and its counts must not be used as current execution
+> evidence. For the immutable revision, executable command, machine-readable requirement
+> crosswalk, and generated logs used by Paper B, start at
+> [`reproducibility/paper-b/README.md`](../../../reproducibility/paper-b/README.md).
+
 - **Scope:** all 8 files in `packages/hardhat/test/` (221 `it()` blocks).
 - **Method:** static reading of test bodies against `contracts/*.sol` and OpenZeppelin
   `@openzeppelin/contracts@4.9.6`. **No test run, no edit.** Where a judgement depends on
