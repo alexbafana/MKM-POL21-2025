@@ -1,0 +1,2 @@
+package_id,schema_version,package_version,issued_at,evidence_cutoff,status,custodian,target_daoml_locator,target_etdm_commit,target_daomod_commit,checksums_file,supersedes_package_version
+TEDM-CURRYNOMICS-HANDOFF,1.0.0,0.9.0,2026-09-26T00:00:00+03:00,2026-09-26,review,Alex Norta (corresponding author),Avanzo2024DAOML,28af608412de10a17a1c8422a722994e9d122ddf,9ce3fc44dbb20d6441539f5992929746778bcbcc,checksums.sha256,

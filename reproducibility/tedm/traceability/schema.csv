@@ -1,0 +1,71 @@
+table,field,type,min,max,enum_or_pattern,applies_to,required_if,description
+manifest,package_id,string,1,1,^[A-Za-z_][A-Za-z0-9._-]*$,all,,Stable package identifier
+manifest,schema_version,semver,1,1,,all,,Trace-package schema version
+manifest,package_version,semver,1,1,,all,,Package-content version
+manifest,issued_at,datetime,1,1,ISO-8601,all,,Issue timestamp with offset
+manifest,evidence_cutoff,date,1,1,ISO-8601,all,,Latest admissible evidence date
+manifest,status,enum,1,1,draft|review|approved|superseded,all,,Package approval state
+manifest,target_etdm_commit,hex40,1,1,^[0-9a-f]{40}$,all,,Standalone ET-DM comparison commit
+manifest,target_daomod_commit,hex40,1,1,^[0-9a-f]{40}$,all,,DAOMod target commit
+records,record_id,string,1,1,^((CG|IN|AR|TP|CP|M|ER)[1-9][0-9]*|TR-(CG|IN|AR|TP|CP|M|ER)[1-9][0-9]*)$,all,,Stable logical record or external-wrapper identifier
+records,record_version,positive_integer,1,1,,all,,Immutable revision component of primary key
+records,kind,enum,1,1,goal_boundary|incentive|authority|token_policy|concentration_pathway|monitoring|engineering_requirement|trace_wrapper,all,,Record kind governing conditional fields
+records,record_status,enum,1,1,draft|proposed|approved|rejected|superseded|retired,all,,Record lifecycle state
+records,evidence_status,enum,1,1,documented|prospective|partially_observable|unobservable,all,,Evidential status never inferred as absence
+records,statement,text,1,1,,all,,Self-contained normative statement
+records,rationale,text,0,1,,goal_boundary|incentive|authority|token_policy|engineering_requirement,kind listed,Decision or boundary rationale
+records,authority_right,enum,0,1,propose|deliberate|vote|delegate|veto|execute|amend|upgrade|emergency|treasury,authority,one row per material allocation,Material authority category
+records,authority_object,text,0,1,,authority,authority_right populated,Object controlled by the right
+records,lifecycle_stage,text,0,1,,authority|token_policy|concentration_pathway,kind listed,Lifecycle stage
+records,implementation_owner,text,0,1,,authority,authority_right populated,Actor implementing authorized action
+records,concentration_dimensions,enum,0,1,O|V|L|X,concentration_pathway|monitoring,kind listed,One dimension per normalized row or linked field
+records,causal_pathway,text,0,1,,concentration_pathway,kind is concentration_pathway,Ordered prospective mechanism chain
+records,treatment,text,0,1,,concentration_pathway,kind is concentration_pathway,Approved or proposed response
+records,tradeoffs,text,0,1,,concentration_pathway,kind is concentration_pathway,Safeguard tradeoff
+records,residual_risk,text,0,1,,concentration_pathway|monitoring|engineering_requirement,kind listed,Remaining exposure and uncertainty
+records,measure,text,0,1,,monitoring,kind is monitoring,Metric or qualitative test
+records,unit_or_qualitative_basis,text,0,1,,monitoring,kind is monitoring,Quantitative unit or qualitative decision basis
+records,identity_assumption,text,0,1,,monitoring,kind is monitoring,Entity-resolution assumption
+records,population,text,0,1,,monitoring,kind is monitoring,Observation population
+records,observation_window,text,0,1,,monitoring,kind is monitoring,Measurement window
+records,data_source,text,0,1,,monitoring,kind is monitoring,Required observable source
+records,reference_condition,text,0,1,,monitoring,kind is monitoring,Baseline comparator or qualitative reference
+records,interpretation_rule,text,0,1,,monitoring,kind is monitoring,Classification logic
+records,review_trigger,text,0,1,,monitoring,kind is monitoring,Escalation threshold or condition
+records,review_interval,text,0,1,,monitoring,kind is monitoring,Review cadence or event
+records,escalation_action,text,0,1,,monitoring,kind is monitoring,Action after trigger
+records,verification_criterion,text,0,1,,engineering_requirement,kind is engineering_requirement,Observable acceptance test
+records,not_applicable_reason,text,0,1,,all,conditional field not applicable,Justifies inapplicability
+records,unknown_reason,text,0,1,,all,required observation unavailable,Preserves uncertainty
+records,changed_at,datetime,1,1,ISO-8601,all,,Revision timestamp
+records,changed_by,string,1,1,,all,,Revision author or role
+records,change_reason,text,0,1,,all,record_version greater than 1,Reason for normative change
+records,previous_revision,positive_integer,0,1,,all,record_version greater than 1,Immediate immutable predecessor
+links,link_id,string,1,1,^[A-Za-z_][A-Za-z0-9._-]*$,all,,Unique edge identifier
+links,from_record_id,string,1,1,record_id,all,,Source record
+links,from_record_version,positive_integer,1,1,,all,,Pinned source revision
+links,relation,enum,1,1,evidenced_by|addresses_dr|constrains|motivates|allocates_authority|depends_on|creates_pathway|mitigated_by|monitored_by|implemented_by|carried_forward_by|verifies|supersedes,all,,Directed relation
+links,to_kind,enum,1,1,record|evidence|requirement,all,,Target namespace
+links,to_id,string,1,1,,all,,Resolvable atomic target identifier
+links,to_revision,positive_integer,0,1,,all,to_kind is record,Pinned target revision
+links,support_status,enum,1,1,source_supported|author_inference|assumed|unknown,all,,Support for this edge
+links,link_rationale,text,0,1,,all,support_status is not source_supported,Required qualification
+destinations,mapping_id,string,1,1,^[A-Za-z_][A-Za-z0-9._-]*$,all,,Unique disposition identifier
+destinations,source_record_id,string,1,1,record_id,all,,Mapped source record
+destinations,source_revision,positive_integer,1,1,,all,,Pinned source revision
+destinations,target_model,enum,1,1,DAOMod-DAO-ML|DAOMod-ERD,all,,Concrete destination diagram syntax at the pinned DAOMod commit
+destinations,target_schema_commit,string,1,1,,all,,Fixed publication locator or commit
+destinations,target_element_id_or_path,string,0,1,,all,native_coverage is complete or partial,Candidate native identifier or declaration path
+destinations,native_coverage,enum,1,1,complete|partial|absent,all,,Coverage against mandatory profile fields and fixed schema
+destinations,preservation_location,enum,1,1,native_model|external_package,all,,Where the information remains normative
+destinations,extension_status,enum,1,1,not_proposed|candidate|proposed|adopted,all,,Metamodel-extension maturity separate from coverage and location
+destinations,information_external_or_lost,text,0,1,,all,native_coverage is partial or absent,Information retained externally or identified as loss
+destinations,verification_criterion,text,1,1,,all,,Observable mapping acceptance rule
+destinations,validation_evidence_ref,string,0,1,,all,model construction completed,Schema-validation evidence locator
+changes,change_id,string,1,1,^[A-Za-z_][A-Za-z0-9._-]*$,all,,Unique change identifier
+changes,record_id,string,1,1,record_id,all,,Changed logical record
+changes,from_revision,positive_integer,0,1,,all,to_revision greater than 1,Prior immutable revision
+changes,to_revision,positive_integer,1,1,,all,,New immutable revision
+changes,approval_status,enum,1,1,pending|approved|rejected,all,,Change-decision state
+changes,approved_by,string,0,1,,all,approval_status approved or rejected,Decision maker
+changes,approved_at,datetime,0,1,ISO-8601,all,approval_status approved or rejected,Decision time

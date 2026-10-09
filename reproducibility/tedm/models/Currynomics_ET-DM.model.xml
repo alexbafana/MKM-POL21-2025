@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PROVISIONAL FIRST DRAFT. Candidate parameters and execution choices require Sowelu Avanzo's review. -->
+<diagram id="CurrynomicsERD" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="DAOMod_XSD_Extended Requirement Diagram.xsd">
+  <diagram_name>Currynomics Extended T-DM / Extended Requirement Diagram first draft</diagram_name>
+  <organizationGoal id="OG-CURRYNOMICS">
+    <refinement_level>0</refinement_level>
+    <DAO_name>Currynomics DAO</DAO_name>
+    <mission_statement>Govern DAO participation, treasury, protocol, and token policy while preserving retained Redcurry issuance and licensed-distribution boundaries and limiting concentration risk.</mission_statement>
+  </organizationGoal>
+  <treasury id="T-DAO" decomposed_from="OG-CURRYNOMICS">
+    <refinement_level>1</refinement_level>
+    <treasury_name>DAO Treasury</treasury_name>
+    <DAO_fiscal_policy_goal>Fund approved ecosystem activity while preventing unchecked concentration of treasury control.</DAO_fiscal_policy_goal>
+  </treasury>
+  <decisionMakingMethod id="DM-ER1" decomposed_from="OG-CURRYNOMICS" execution="snapshot">
+    <refinement_level>1</refinement_level>
+    <DM_goal>Govern Redcurry issuance and reserve composition while preserving separation of duties.</DM_goal>
+    <DM_scope>AR1 Redcurry issuance and reserve assets.</DM_scope>
+    <DM_method>Retained professional authorization with constrained execution and oversight; exact workflow to be confirmed.</DM_method>
+    <voting_requirement>Not an ordinary community vote; professional investment-board decision criteria pending confirmation.</voting_requirement>
+    <proposal_requirement>Holding or investment actor submits a documented issuance or reserve action.</proposal_requirement>
+  </decisionMakingMethod>
+  <decisionMakingMethod id="DM-ER2" decomposed_from="OG-CURRYNOMICS" execution="offchain">
+    <refinement_level>1</refinement_level>
+    <DM_goal>Govern licensed-partner eligibility and distribution while monitoring partner concentration.</DM_goal>
+    <DM_scope>AR2 partner eligibility and licensed Redcurry distribution.</DM_scope>
+    <DM_method>Compliance review and authorized legal approval; exact authority to be confirmed.</DM_method>
+    <voting_requirement>No ordinary community vote.</voting_requirement>
+    <proposal_requirement>Compliance or operations submits partner evidence and exposure assessment.</proposal_requirement>
+  </decisionMakingMethod>
+  <decisionMakingMethod id="DM-ER3" decomposed_from="OG-CURRYNOMICS" execution="snapshot">
+    <refinement_level>1</refinement_level>
+    <DM_goal>Separate proposal, filtering, voting, execution, veto, emergency, and audit authority.</DM_goal>
+    <DM_scope>AR3 DAO treasury and parameters; AR4 governance process and community goals; AR5 protocol upgrades and DAO-token policy.</DM_scope>
+    <DM_method>Hybrid forum, temperature check, formal token vote, and gated execution; parameters pending approval.</DM_method>
+    <voting_requirement>Eligible DAO-token holder; identity, delegation, quorum, and weighting rules pending.</voting_requirement>
+    <proposal_requirement>Community proposal followed by moderation and designated formal submission; exact thresholds pending.</proposal_requirement>
+  </decisionMakingMethod>
+  <decisionMakingMethod id="DM-ER4" decomposed_from="OG-CURRYNOMICS" execution="onchain">
+    <refinement_level>1</refinement_level>
+    <DM_goal>Enable participation without allowing allocation, rewards, vesting, or locking to compound control unchecked.</DM_goal>
+    <DM_scope>Time-sensitive DAO-token voting for AR3, subject to lifecycle and concentration review.</DM_scope>
+    <DM_method>Candidate conviction or time-weighted voting; not yet approved.</DM_method>
+    <voting_requirement>Approved DAO-token eligibility, lock-duration, voting-weight, decay, and delegation rules.</voting_requirement>
+    <proposal_requirement>Proposal has passed ER3 filtering and formalization gates.</proposal_requirement>
+  </decisionMakingMethod>
+  <tokenManager id="TM-REDCURRY" decomposed_from="OG-CURRYNOMICS">
+    <refinement_level>1</refinement_level>
+    <token_manager_name>Redcurry token manager</token_manager_name>
+    <tokenomic_policy_goal>Maintain demand-driven collateral-constrained issuance and licensed distribution.</tokenomic_policy_goal>
+  </tokenManager>
+  <tokenManager id="TM-DAO" decomposed_from="OG-CURRYNOMICS">
+    <refinement_level>1</refinement_level>
+    <token_manager_name>DAO-token manager</token_manager_name>
+    <tokenomic_policy_goal>Support participation while constraining concentration created by allocation, rewards, vesting, locking, and voting weight.</tokenomic_policy_goal>
+  </tokenManager>
+  <token id="TK-REDCURRY" decomposed_from="TM-REDCURRY">
+    <refinement_level>2</refinement_level>
+    <value>Redcurry</value>
+    <token_utility>asset-linked value; stability; payment; prospective collateral utility</token_utility>
+    <transferable>true</transferable>
+    <fungibility>FT</fungibility>
+  </token>
+  <token id="TK-DAO" decomposed_from="TM-DAO">
+    <refinement_level>2</refinement_level>
+    <value>Currynomics DAO token</value>
+    <token_utility>governance access; participation; reputational value; candidate reward</token_utility>
+    <transferable>true</transferable>
+    <fungibility>FT</fungibility>
+  </token>
+  <resource id="R-REDCURRY-ACCESS" associated_to="TK-REDCURRY" material="false">
+    <resource_name>licensed access to Redcurry utility</resource_name>
+  </resource>
+  <resource id="R-DAO-GOVERNANCE" associated_to="TK-DAO" material="false">
+    <resource_name>conditional governance participation right</resource_name>
+  </resource>
+  <proposal id="P-ER3" associated_to="DM-ER3">
+    <value>Treasury, governance-process, protocol, or token-policy proposal</value>
+    <parameter>scope</parameter><parameter>proposer</parameter><parameter>review evidence</parameter>
+    <allowed_state>draft</allowed_state><allowed_state>temperature-check</allowed_state><allowed_state>formalized</allowed_state><allowed_state>voting</allowed_state><allowed_state>authorized</allowed_state><allowed_state>executed</allowed_state><allowed_state>rejected</allowed_state><allowed_state>appealed</allowed_state>
+  </proposal>
+  <proposal id="P-ER1" associated_to="DM-ER1">
+    <value>Redcurry issuance or reserve-composition action</value>
+    <parameter>collateral evidence</parameter><parameter>reserve effect</parameter><parameter>authorization</parameter>
+    <allowed_state>draft</allowed_state><allowed_state>reviewed</allowed_state><allowed_state>authorized</allowed_state><allowed_state>executed</allowed_state><allowed_state>rejected</allowed_state>
+  </proposal>
+  <proposal id="P-ER2" associated_to="DM-ER2">
+    <value>Licensed-partner eligibility or distribution action</value>
+    <parameter>license evidence</parameter><parameter>exposure assessment</parameter><parameter>legal approval</parameter>
+    <allowed_state>draft</allowed_state><allowed_state>reviewed</allowed_state><allowed_state>approved</allowed_state><allowed_state>active</allowed_state><allowed_state>escalated</allowed_state><allowed_state>rejected</allowed_state>
+  </proposal>
+  <proposal id="P-ER4" associated_to="DM-ER4">
+    <value>Time-sensitive token-governance proposal</value>
+    <parameter>lock duration</parameter><parameter>voting weight</parameter><parameter>decay rule</parameter><parameter>concentration review</parameter>
+    <allowed_state>eligible</allowed_state><allowed_state>voting</allowed_state><allowed_state>authorized</allowed_state><allowed_state>blocked-by-review</allowed_state><allowed_state>executed</allowed_state>
+  </proposal>
+  <mechanism id="M-TP1-ISSUANCE" decomposed_from="TK-REDCURRY" execution="onchain" mechanism_type="Token Issuance">
+    <refinement_level>3</refinement_level><value>Demand-driven collateral-constrained Redcurry issuance</value><trigger>approved demand and collateral conditions satisfied</trigger>
+    <precondition>reserve and issuance authorization valid</precondition><postcondition>issuance and collateral evidence recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-IN1-UTILITY" decomposed_from="TK-REDCURRY" execution="offchain" mechanism_type="Other">
+    <refinement_level>3</refinement_level><value>Asset-linked value, payment, stability, and prospective collateral utility</value><trigger>eligible user accesses an approved Redcurry use</trigger>
+    <precondition>utility and access conditions disclosed</precondition><postcondition>use and applicable eligibility evidence recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-TP2-DISTRIBUTION" decomposed_from="TK-REDCURRY" execution="offchain" mechanism_type="Other">
+    <refinement_level>3</refinement_level><value>Licensed-partner Redcurry distribution</value><trigger>eligible licensed partner approved</trigger>
+    <precondition>partner exposure and legal eligibility reviewed</precondition><postcondition>distribution and exposure record updated</postcondition>
+  </mechanism>
+  <mechanism id="M-TP3-VESTING" decomposed_from="TK-DAO" execution="onchain" mechanism_type="Other">
+    <refinement_level>3</refinement_level><value>Capped supply, allocations, vesting, and unlock schedule</value><trigger>approved vesting or unlock event</trigger>
+    <precondition>allocation and common-control disclosure reviewed</precondition><postcondition>circulating supply and concentration review updated</postcondition>
+  </mechanism>
+  <mechanism id="M-IN3-STAKING" decomposed_from="TK-DAO" execution="onchain" mechanism_type="Incentive">
+    <refinement_level>3</refinement_level><value>Candidate DAO-token reward for participation or Redcurry staking</value><trigger>approved eligible participation or staking event</trigger>
+    <precondition>reward and concentration simulation accepted</precondition><postcondition>reward allocation and resulting voting-power exposure recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-TP4-LOCKING" decomposed_from="TK-DAO" execution="onchain" mechanism_type="Voting Right Allocation">
+    <refinement_level>3</refinement_level><value>Candidate governance locking, weighting, and decay rule</value><trigger>eligible holder locks DAO token</trigger>
+    <precondition>lock-duration, exit, decay, and concentration gates approved</precondition><postcondition>voting weight and unlock condition recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-ER3-PROPOSAL" decomposed_from="DM-ER3" execution="snapshot" mechanism_type="Proposal Right Allocation">
+    <refinement_level>2</refinement_level><value>Community proposal and designated formal submission</value><trigger>proposal satisfies scope and submission criteria</trigger>
+    <precondition>community proposal recorded</precondition><postcondition>formal proposal identity and provenance recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-ER3-FILTER" decomposed_from="DM-ER3" execution="offchain" mechanism_type="Decision Making Support">
+    <refinement_level>2</refinement_level><value>Moderation, feasibility review, and temperature check</value><trigger>draft proposal enters pre-vote review</trigger>
+    <precondition>moderator and reviewer conflicts disclosed</precondition><postcondition>decision and reasons published</postcondition>
+  </mechanism>
+  <mechanism id="M-ER3-POLL" decomposed_from="DM-ER3" execution="onchain" mechanism_type="Vote Polling">
+    <refinement_level>2</refinement_level><value>Formal eligible-holder vote</value><trigger>formal proposal opens for voting</trigger>
+    <precondition>eligibility, snapshot, quorum, and weighting parameters fixed</precondition><postcondition>ballots and participation evidence recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-ER3-TALLY" decomposed_from="DM-ER3" execution="onchain" mechanism_type="Vote Tallying">
+    <refinement_level>2</refinement_level><value>Compute authorization result and decisive coalition</value><trigger>voting period closes</trigger>
+    <precondition>ballot set finalized</precondition><postcondition>result, coalition, and concentration review recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-ER3-EXECUTION" decomposed_from="DM-ER3" execution="onchain" mechanism_type="Proposal Execution">
+    <refinement_level>2</refinement_level><value>Separate multisignature execution of authorized proposal</value><trigger>proposal authorized and execution gate passed</trigger>
+    <precondition>authorization, signer independence, veto, and emergency checks pass</precondition><postcondition>authorized-versus-executed variance recorded</postcondition>
+  </mechanism>
+  <mechanism id="M-ER3-DISPUTE" decomposed_from="DM-ER3" execution="offchain" mechanism_type="Dispute Resolution">
+    <refinement_level>2</refinement_level><value>Appeal, audit, veto, and time-bounded emergency review</value><trigger>appeal, anomaly, or emergency condition recorded</trigger>
+    <precondition>authorized reviewer and published scope</precondition><postcondition>reasoned outcome, expiry, and follow-up action published</postcondition>
+  </mechanism>
+  <mechanism id="M-ER4-WEIGHT" decomposed_from="DM-ER4" execution="onchain" mechanism_type="Voting Right Allocation">
+    <refinement_level>2</refinement_level><value>Apply approved time-sensitive voting-weight function</value><trigger>eligible locked balance enters a vote</trigger>
+    <precondition>weighting and decay scenario passed concentration review</precondition><postcondition>effective voting power and decisive-coalition evidence recorded</postcondition>
+  </mechanism>
+  <goal id="G-CG1" decomposed_from="OG-CURRYNOMICS" execution="offchain"><refinement_level>1</refinement_level><value>Preserve asset-linked value through constrained Redcurry issuance</value></goal>
+  <goal id="G-CG2" decomposed_from="OG-CURRYNOMICS" execution="offchain"><refinement_level>1</refinement_level><value>Provide compliant access through licensed distribution partners</value></goal>
+  <goal id="G-CG3" decomposed_from="OG-CURRYNOMICS" execution="snapshot"><refinement_level>1</refinement_level><value>Enable accountable and inclusive community influence within retained boundaries</value></goal>
+  <goal id="G-CG4" decomposed_from="OG-CURRYNOMICS" execution="snapshot"><refinement_level>1</refinement_level><value>Sustain participation without compounding control unchecked</value></goal>
+  <qualitygoal id="QG-ACCOUNTABILITY" associated_to="DM-ER3 M-ER3-EXECUTION"><value>Accountable</value></qualitygoal>
+  <qualitygoal id="QG-INCLUSIVITY" associated_to="DM-ER3 DM-ER4"><value>Inclusive</value></qualitygoal>
+  <qualitygoal id="QG-SECURITY" associated_to="DM-ER3 M-ER3-EXECUTION M-ER3-DISPUTE"><value>Secure</value></qualitygoal>
+  <qualitygoal id="QG-REVIEWABILITY" associated_to="DM-ER4 M-TP3-VESTING M-IN3-STAKING M-TP4-LOCKING M-ER4-WEIGHT"><value>Concentration effects reviewable under external TEDM criteria M1, M5, and M6</value></qualitygoal>
+  <qualitygoal id="QG-COMPLIANCE" associated_to="TM-REDCURRY M-TP2-DISTRIBUTION"><value>Legally compliant</value></qualitygoal>
+  <qualitygoal id="QG-M1" associated_to="TK-DAO DM-ER4 M-TP3-VESTING M-TP4-LOCKING"><value>Ownership and effective-voting-power concentration remains reviewable under external record M1</value></qualitygoal>
+  <qualitygoal id="QG-M2" associated_to="DM-ER3 M-ER3-FILTER M-ER3-PROPOSAL"><value>Agenda-control concentration remains reviewable under external record M2</value></qualitygoal>
+  <qualitygoal id="QG-M3" associated_to="DM-ER1 M-ER3-EXECUTION M-ER3-DISPUTE"><value>Privileged-control coalition independence remains reviewable under external record M3</value></qualitygoal>
+  <qualitygoal id="QG-M4" associated_to="DM-ER2 M-TP2-DISTRIBUTION"><value>Licensed-partner exposure remains reviewable under external record M4</value></qualitygoal>
+  <qualitygoal id="QG-M5" associated_to="M-TP3-VESTING M-IN3-STAKING"><value>Unlock and reward concentration shocks remain reviewable under external record M5</value></qualitygoal>
+  <qualitygoal id="QG-M6" associated_to="DM-ER3 DM-ER4 M-ER3-EXECUTION M-ER4-WEIGHT"><value>Decisive-coalition diversity and authorization-execution conformity remain reviewable under external record M6</value></qualitygoal>
+  <agent id="AG-HOLDING" associated_to="TM-REDCURRY M-TP1-ISSUANCE" agent_name="Holding operations" autonomous="false"/>
+  <agent id="AG-INVESTMENT" associated_to="DM-ER1" agent_name="Professional investment board" autonomous="false"/>
+  <agent id="AG-FOUNDATION" associated_to="DM-ER1 M-ER3-DISPUTE" agent_name="Foundation oversight" autonomous="false"/>
+  <agent id="AG-COMPLIANCE" associated_to="M-TP2-DISTRIBUTION" agent_name="Compliance owner" autonomous="false"/>
+  <agent id="AG-PARTNER" associated_to="DM-ER2 M-TP2-DISTRIBUTION" agent_name="Licensed distribution partner" autonomous="false"/>
+  <agent id="AG-COMMUNITY" associated_to="DM-ER3 DM-ER4 M-ER3-PROPOSAL" agent_name="Community member" autonomous="false"/>
+  <agent id="AG-MODERATOR" associated_to="M-ER3-FILTER" agent_name="Forum moderator" autonomous="false"/>
+  <agent id="AG-EXECUTION" associated_to="M-ER3-EXECUTION" agent_name="Execution multisig" autonomous="false"/>
+  <agent id="AG-AUDIT" associated_to="M-ER3-DISPUTE" agent_name="Independent auditor" autonomous="false"/>
+  <agent id="AG-TOKEN-POLICY" associated_to="TM-DAO M-TP3-VESTING M-IN3-STAKING M-TP4-LOCKING" agent_name="Token-policy owner" autonomous="false"/>
+</diagram>

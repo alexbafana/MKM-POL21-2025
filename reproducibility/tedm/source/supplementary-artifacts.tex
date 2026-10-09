@@ -1,0 +1,704 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=18mm]{geometry}
+\usepackage{booktabs,tabularx,longtable,array,pdflscape,xurl,float}
+\usepackage[hidelinks]{hyperref}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\renewcommand{\thetable}{S\arabic{table}}
+\title{Electronic Supplementary Material for\\
+Concentration-Aware Token Economy Design for DAO Engineering:\\
+Linking Goals, Risks, and Engineering Requirements}
+\author{Alex Norta \and Luca Pennella \and Sowelu Avanzo \and
+Samela Kivilo \and Marie Hattingh}
+\date{Supplement to a manuscript submitted to \emph{Electronic Markets}}
+\begin{document}
+\maketitle
+
+\begin{center}
+\small
+Alex Norta: Tallinn University, Estonia; University of Pretoria, South Africa;
+Norta DeSyCo OÜ, Estonia.\\
+Luca Pennella: University of Trieste, Italy.\quad
+Sowelu Avanzo: University of Torino, Italy.\\
+Samela Kivilo: Tallinn University of Technology, Estonia.\quad
+Marie Hattingh: University of Pretoria, South Africa.\\[2pt]
+Corresponding author: Alex Norta (\href{mailto:alex.norta.phd@ieee.org}{alex.norta.phd@ieee.org}).
+\end{center}
+
+This supplement supports the manuscript's derivation, method, and engineering
+handoff. Tables~S1--S6 contain the populated Currynomics records and reusable
+method artifacts used in Sections~4--5: S1 specifies goals and decentralization
+boundaries; S2 allocates governance rights; S3 expands the manuscript's
+condensed concentration-risk register; S4 defines monitoring; S5 carries the
+engineering handoff; and S6 records incentive and token-policy decisions.
+Tables~S7--S11 provide the documentary-verification and derivation audit used
+in Section~3. Tables~S12--S14 provide the instance-level engineering
+disposition, the normative external-record specification, and the notation-and-
+schema crosswalk used in Section~5. CE1--CE5 denote the published case-design evidence identified in
+that section. CG, IN, AR, TP, CP, M, and ER denote goal/boundary, incentive,
+authority-right, token-policy, cross-pillar risk, monitoring, and
+engineering-handoff records. The case records specify a prospective TO-BE
+design and must not be interpreted as evidence of deployed behavior.
+
+\section*{Goal and decentralization-boundary records}
+\begin{table}[h]
+\caption{Currynomics goal and decentralization-boundary specification}
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}p{.07\linewidth}p{.13\linewidth}YY@{}}
+\toprule
+ID & Evidence & Goal and linked design choice & Authority boundary and trace result \\
+\midrule
+CG1 & CE1, CE3 & Preserve asset-linked value through collateral-constrained,
+demand-driven Redcurry issuance. & Issuance logic, reserve composition, and
+asset acquisition remain with code, Holding, and investment actors; trace to
+AR1, CP4, and ET-DM token/constraint targets. \\
+CG2 & CE1, CE3 & Provide compliant access through licensed distribution
+partners. & Partner eligibility is retained outside ordinary DAO voting; trace
+to AR2, CP5, and DAO-ML partner-role and ET-DM distribution targets. \\
+CG3 & CE2, CE4 & Enable accountable and inclusive community influence over DAO
+treasury, process, upgrade, and DAO-token-policy matters. & Community voting is
+bounded by off-chain filtering and by retained legal and execution authority;
+trace to AR3--AR5, CP2--CP3, and governance-model targets. \\
+CG4 & CE5 & Sustain participation without allowing allocation, rewards,
+vesting, or locking to compound control unchecked. & Time-weighted voting
+remains a candidate case choice subject to the review gate; trace to AR3,
+CP1--CP2, M1, and ET-DM voting and locking requirements. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section*{Governance-rights records}
+\begin{table}[h]
+\caption{Currynomics governance-rights matrix}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}p{.05\linewidth}p{.13\linewidth}YYY@{}}
+\toprule
+ID & Governance area & Propose, filter, and deliberate & Decide or vote & Execute,
+veto, and account \\
+\midrule
+AR1 & Redcurry issuance and reserve assets & Holding and investment actors
+formulate asset and reserve actions (CE3). & Code constrains issuance;
+professional investment board decides reserve composition (CE3). & Holding
+executes; Foundation oversight is evidenced, while audit and emergency
+conditions are an assignment gate. \\
+AR2 & Partner eligibility and distribution & Compliance and operations role
+proposes and reviews licensed partners (proposed TO-BE control). & Authorized
+legal actor approves; no ordinary community vote (CG2). & Partners distribute;
+compliance owner monitors concentration and can escalate under M4. \\
+AR3 & DAO treasury and parameters & Community forum deliberates; moderators
+filter and a designated submitter formalizes proposals (CE2, CE4). & Eligible
+DAO-token holders vote using the approved time-sensitive mechanism (CE5). & A
+separate execution multisignature is proposed; signer threshold, veto, audit,
+and emergency pause must be approved before implementation. \\
+AR4 & Governance process and community goals & Community proposes and conducts
+the off-chain temperature check (CE2, CE4). & Eligible token holders decide
+formal rules and goals; legal boundaries remain outside the vote. & Governance
+administrator enacts procedural changes; reasons, appeals, and activity are
+public under M2. \\
+AR5 & Protocol upgrades and DAO-token policy & Community proposes and
+deliberates; technical and legal reviewers state feasibility and constraints
+(proposed TO-BE control). & Eligible token holders authorize changes within the
+CG1--CG2 boundaries. & Technical maintainers execute only an authorized change;
+emergency council scope, expiry, and accountability are assignment gates. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\begin{landscape}
+\section*{Cross-pillar concentration-risk records}
+The status field distinguishes documented inputs from prospective mechanisms
+and controls. An approval gate is a required design decision, not evidence of
+effectiveness; revisions preserve the superseded record, date, owner, and
+reason for change. Numerical triggers are conservative review triggers to be
+calibrated against an approved baseline, not validated decentralization
+thresholds. The register is read jointly with Tables~S4--S6 for baselines,
+escalation actions, rejected choices, and downstream links.
+
+\begin{table}[H]
+\caption{Expanded auditable case-derived concentration-risk register}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{@{}p{.065\linewidth}p{.125\linewidth}p{.165\linewidth}p{.135\linewidth}p{.16\linewidth}p{.15\linewidth}Y@{}}
+\toprule
+ID, source, and status & Coupled choices and assumptions & Dimension, lifecycle, pathway, and affected authority & Evidence and interpretation status & Treatment, owner, and approval gate & Indicator, trigger, and review interval & Residual risk and revision rule \\
+\midrule
+CP1/CE5, TP3; open & Early allocations,
+capped supply, vesting, and voting rights. Assumes the disclosed schedule is
+reliable and disclosed common control can be aggregated. & O$\rightarrow$V at
+launch and unlocks; insiders may form a decisive coalition affecting treasury,
+process, upgrade, and token-policy votes. & Allocation and vesting are
+documented; wallet-to-entity links and later secondary purchases are only
+partly observable. The pathway is prospective, not an observed effect. &
+Disclose entity-adjusted allocation and vesting, stage community distribution,
+and review every material unlock. Token-policy owner with governance approval
+before launch and before any modifiable unlock; immutable or contractual events
+instead require documented escalation and response. & M1/M5: actor $>50\%$, majority
+coalition $\leq5$, cohort unlock $>10\%$ of circulating supply in 30 days, or
+top-ten share $>50\%$; launch, monthly, and event reviews. & Related wallets,
+nominees, and secondary accumulation remain uncertain. Update after every
+material allocation, transfer restriction, vesting, or identity-assumption
+change. \\
+CP2/CE5, IN3, TP4; open & DAO-token rewards for Redcurry
+staking and conviction-voting locks. Assumes reward eligibility and voting
+weight can be observed and simulated under common scenarios. &
+O$\rightarrow$V during participation; capital and tolerance for illiquidity
+may compound rewards and durable influence over AR3--AR5 decisions. & The
+candidate reward and lock rules are identified but not approved or behaviorally
+validated. Wealth and commitment cannot be cleanly separated. & Simulate reward
+and weighting alternatives; cap or decay amplification when a trigger is
+breached. Incentive and governance owners; Activity-3 approval gate before
+implementation. & M1/M6: coalition size $\leq5$, Gini rise $\geq0.10$ from the
+approved baseline, or the same disclosed coalition decisive in at least seven
+of ten votes; each
+vote and monthly. & Strategic splitting, delegation, and unequal liquidity
+tolerance remain. Re-run the record after any reward, lock-duration, decay, or
+voting-weight change. \\
+CP3/CE4, CE5; open & Forum temperature check, designated
+proposal submission, and formal token vote. Assumes public accounts reveal
+affiliation only when disclosed. & L$\rightarrow$X before voting; a small group
+can shape the agenda for AR3--AR5 even when the formal vote is open. & The hybrid
+process and formal vote are evidenced; reviewer affiliations, informal influence, and rejected
+drafts may be partly unobservable. & Publish criteria, reasons, appeals, and
+reviewer activity; pluralize or rotate filtering. Community-governance owner;
+approve before the revised TO-BE process becomes operative. & M2: one actor or
+affiliated group controls $>50\%$ of progression or rejection in a rolling ten
+proposals; quarterly. & Private coordination and self-censorship remain. Update
+after every material process, eligibility, appeal, or reviewer-role change. \\
+CP4/CE3, TP1, AR1; open & Code-constrained issuance,
+professional reserve decisions, Foundation oversight, and technical execution.
+Assumes legal entities and common signers can be identified. & L/X during
+ordinary issuance and reserve operation; retained actors can execute, block,
+or redirect issuance and reserve actions. Separately proposed emergency
+controls remain prospective. & Retained
+authority is evidenced; signer, audit, separation-of-duty, and emergency
+assignments are incomplete until approved. & Define mandates, role separation,
+signer thresholds, expiry, audit, and incident disclosure. Security and
+compliance owners; approval before new or renewed privileged access, with
+legacy access subject to immediate review. & M3/M6:
+fewer than three independent entities, oversight/execution overlap, unlogged
+emergency action, or execution diverging from authorization; every action and
+configuration change. & Legally necessary authority and colluding signers may
+remain concentrated. Revise after incidents, audits, or any role, threshold,
+mandate, or emergency-rule change. \\
+CP5/CE1, CE3, TP2; open & Licensed distribution,
+partner access, and market liquidity. Assumes partners are grouped by ultimate
+legal control and reported flows are complete. & O/L during distribution; a few
+gateways can shape access, downstream holdings, and practical market entry
+under AR2. & The licensed structure is evidenced; future ownership and access
+concentration are prospective and depend on complete partner data. & Diversify
+eligible partners subject to law, disclose exposure, and apply review limits.
+Distribution and compliance owners; approve partner portfolio and exceptions. &
+M4: one partner $>50\%$ or top two $>75\%$ of the quarterly token volume
+distributed through licensed partners; monthly
+monitoring and quarterly review. & Licensing and jurisdictional constraints may
+make diversification infeasible. Reassess annually and after any partner,
+jurisdiction, eligibility, or exposure-limit change. \\
+CP6/CE5, IN3, TP3--TP4; open & Vesting, unlocks,
+transfers, accumulation, and later ecosystem rewards. Assumes schedules and
+on-chain flows are available and known controlled wallets can be clustered. &
+O$\rightarrow$V across vesting and reward cycles; a dispersed launch can
+reconcentrate and alter AR3--AR5 outcomes. & Schedules and candidate rules are
+documented; post-launch accumulation, entity identity, and off-market
+coordination are not yet observable. & Maintain an entity-adjusted time series
+and review before and after unlocks and reward rounds. Token-policy and
+governance-analytics owners; a triggered event requires approval when it is
+modifiable and documented escalation otherwise. &
+M1/M5: Gini rise $\geq0.10$ from the approved baseline, top-ten share $>50\%$,
+cohort unlock $>10\%$ of circulating supply measured immediately before the
+30-day window, or coalition size $\leq5$; monthly and 30 days before/after events. &
+Entity resolution and off-market coordination remain incomplete. Version the
+record after each material unlock, reward round, accumulation event, or change
+in clustering evidence. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{landscape}
+
+\begin{landscape}
+\section*{Prospective monitoring records}
+\begin{table}[h]
+\caption{Prospective Currynomics concentration-monitoring plan}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}p{.05\linewidth}p{.16\linewidth}YYYY@{}}
+\toprule
+ID & Measure, dimension, and unit & Baseline and identity assumption & Provisional review trigger & Interval and owner & Escalation action \\
+\midrule
+M1 & Entity-adjusted Gini, top-$k$ share, and majority-coalition size for
+eligible and cast voting power (O,V). & CE5 allocation/vesting schedule, then
+first verified snapshot; disclosed common control aggregated. & Known actor
+$>50\%$, coalition size $\leq5$, or Gini rise $\geq0.10$ from approved baseline.
+& Launch, monthly, each vote/unlock; governance analytics. & Re-run CP1--CP2,
+simulate alternatives, and block affected mechanism change pending review. \\
+M2 & Proposal initiation, rejection, and progression share per proposer and
+reviewer (L,X). & First ten eligible proposals; public accounts linked only
+when affiliation is disclosed. & One actor or affiliated group controls
+$>50\%$ of progression or rejection in a rolling ten-proposal window. &
+Quarterly; community-governance owner. & Audit decisions, invoke appeal, and
+rotate or add reviewers. \\
+M3 & Smallest independent signer/role coalition able to execute, veto, upgrade,
+or pause (L). & Approved AR1--AR5 role map; legal entities and common signers
+aggregated. & Fewer than three independent entities, oversight/execution role
+overlap, or unlogged emergency action. & Every role/configuration change;
+security and compliance owners. & Separate roles, raise threshold, or suspend privilege. \\
+M4 & Redcurry token volume distributed through each licensed partner as a
+share of total quarterly licensed-partner distribution (O,L). & First
+complete quarter; partners counted by ultimate legal control. & One partner
+$>50\%$ or top two $>75\%$ of quarterly distribution. & Monthly and quarterly;
+distribution and compliance owners. & Investigate, apply exposure limits, and
+onboard alternatives where legally feasible. \\
+M5 & DAO-token unlock volume, top-ten entity share, and flows around vesting or
+rewards (O,V). & CE5 schedule and approved circulating-supply forecast; known
+controlled wallets clustered. & Cohort unlock $>10\%$ of circulating supply
+measured immediately before the 30-day window, or top ten cross $50\%$. & Thirty days before/after each event;
+token-policy owner. & Stage, delay, or rebalance event and update CP1/CP6 risk. \\
+M6 & Turnout, decisive coalition, authorized-versus-executed action, and
+emergency use (V,X). & First ten votes and approved execution specification;
+abstentions separate, with disclosed common control and active delegation
+aggregated when coalition membership is evaluated. & Same disclosed coalition
+decisive in at least seven of ten votes, or execution differs from
+authorization. & After every
+vote; DAO audit/operations owner. & Investigate, publish variance, and pause
+affected execution rights. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{landscape}
+
+\section*{Engineering-handoff records}
+\begin{table}[h]
+\caption{Currynomics Activity-5 handoff records}
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}p{.07\linewidth}p{.18\linewidth}YY@{}}
+\toprule
+ID & TEDM sources & Requirement carried forward & Downstream target class \\
+\midrule
+ER1 & CG1, IN1, AR1, TP1, CP4, M3 & Preserve collateral-constrained issuance, reserve
+authority, separation of duties, and privileged-control monitoring. & DAO-ML
+Holding, investment, Foundation, audit, and signer roles/permissions; ET-DM
+issuance, collateral, emergency, and quality constraints. \\
+ER2 & CG2, IN1, AR2, TP2, CP5, M4 & Preserve licensed distribution while measuring and
+escalating partner concentration. & DAO-ML partner and compliance roles; ET-DM
+eligibility, distribution, exposure, and monitoring requirements. \\
+ER3 & CG3, IN2, AR3--AR5, TP4, CP3--CP4, M2--M3, M6 & Separate proposal filtering,
+formalization, voting, execution, veto, emergency, and audit authority. &
+DAO-ML community, moderator, submitter, voter, maintainer, executor, emergency,
+and audit permissions; ET-DM proposal-to-execution requirements. \\
+ER4 & CG4, IN3, AR3, TP3--TP4, CP1--CP2, CP6, M1, M5--M6 & Preserve allocation, vesting,
+reward, locking, voting-weight, and lifecycle review constraints. & DAO-ML
+token-holder and token-policy roles; ET-DM token, vesting, staking, reward,
+voting, and monitoring requirements. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section*{Identified incentive and token-policy records}
+\begin{table}[h]
+\caption{Currynomics incentive and token-policy decision records}
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}p{.07\linewidth}p{.17\linewidth}YY@{}}
+\toprule
+ID & Evidence and goal & Identified decision & Risk and downstream links \\
+\midrule
+IN1 & CE1, CE3; CG1--CG2 & Redcurry supplies asset-linked value, stability,
+payment, and prospective collateral utility to users and investors. & Eligibility
+and access depend on retained issuance and licensed-distribution authority;
+trace to TP1--TP2, CP4--CP5, and ER1--ER2. \\
+IN2 & CE2, CE4; CG3 & DAO participation relies primarily on governance access
+and reputational value, with appreciation only a secondary candidate incentive.
+& Agenda filtering and low or unequal participation can concentrate exercised
+control; trace to AR3--AR5, CP3, M2, and ER3. \\
+IN3 & CE5; CG4 & Candidate DAO-token rewards for participation or Redcurry
+staking must be assessed together with governance locking and voting weight. &
+Capital advantage may compound rewards and durable influence; trace to TP3--TP4,
+CP1--CP2, CP6, M1, M5--M6, and ER4. \\
+TP1 & CE1, CE3; CG1 & Redcurry issuance remains demand-driven and
+collateral-constrained, with reserve and exceptional-action conditions made
+explicit. & Trace to AR1, CP4, M3, and ER1. \\
+TP2 & CE1, CE3; CG2 & Redcurry distribution remains limited to eligible
+licensed partners, with exposure and review rules. & Trace to AR2, CP5, M4, and
+ER2. \\
+TP3 & CE5; CG4 & The DAO token retains a capped supply, documented initial and
+ecosystem allocations, vesting, and event-specific unlock reviews. & Trace to
+CP1, CP6, M1, M5, and ER4. \\
+TP4 & CE5; CG3--CG4 & Governance locking, reward interaction, and voting-weight
+rules remain candidate choices subject to simulation and concentration-review
+gates. & Trace to AR3--AR5, CP2, CP6, M1, M6, and ER3--ER4. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section*{Reusable record schema}
+The linked record package collectively preserves identifiers, evidence sources,
+goals and authority boundaries, selected and rejected choices, assumptions,
+affected actors, lifecycle stages, concentration dimensions, causal pathways,
+treatments, indicators, baselines, triggers, review intervals, owners,
+escalation actions, residual risks, and downstream model targets. The mandatory
+subset varies by record type; a blank or unapproved mandatory field is an
+Activity-3 gate rather than silently omitted prose.
+
+\clearpage
+\begin{landscape}
+\section*{Targeted documentary-verification protocol}
+
+The documentary verification was conducted on 26 September 2026 (Europe/Helsinki).
+It tested and challenged the seven derivation chains; it was not a systematic
+review and does not establish exhaustive coverage. OpenAlex supplied the
+scholarly metadata search. The first ten ranked records were inspected for each
+query, or all records where fewer than ten were returned. Crossref, DOI landing
+pages, and publisher or proceedings records were then used to verify the
+metadata and publication status of retained scholarly sources. Official project
+sites supplied only project-specific facts. Published specifications and
+commit-fixed official repositories supplied engineering-representation evidence.
+
+\begin{table}[h]
+\caption{Executed OpenAlex query log}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}p{.04\linewidth}p{.48\linewidth}p{.08\linewidth}p{.08\linewidth}Y@{}}
+\toprule
+ID & Exact submitted query & Results returned & Metadata records inspected & Audit use and stopping decision \\
+\midrule
+Q1 & \texttt{decentralized autonomous organization concentration centralization governance authority} & 10,128 & 10 & Broad discovery check; results were noisy and added no requirement-changing evidence. \\
+Q2 & \texttt{DAO decentralized autonomous organization voting power turnout delegation concentration} & 40 & 10 & Checked DR3 and delegation qualifiers; no new requirement category. \\
+Q3 & \texttt{DAO token economy tokenomics token distribution allocation airdrop vesting concentration governance} & 11 & 10 & Checked DR3--DR4 distribution and lifecycle terms; no new requirement category. \\
+Q4 & \texttt{DAO blockchain governance authority veto upgrade treasury emergency power} & 24 & 10 & Checked DR2 rights beyond voting; recovered the retained Eisermann et al. record and redundant governance sources. \\
+Q5 & \texttt{DAO blockchain governance cross-protocol interdependence composability concentration governance} & 36 & 10 & Checked DR4 external dependencies; results added no evidence changing the requirement. \\
+Q6 & \texttt{DAO token economy tokenomics safeguard mitigation residual risk concentration capture} & 8 & 8 & All returned metadata inspected; direct DAO-specific coverage was sparse, supporting explicit treatment of DR5 as author synthesis. \\
+Q7 & \texttt{DAO blockchain governance metric indicator measurement decentralization concentration capture} & 134 & 10 & Checked DR6 measurement alternatives and limitations; no universal metric was adopted. \\
+Q8 & \texttt{DAO token economy requirements traceability metamodel schema model-driven engineering} & 1 & 1 & Weak scholarly retrieval; DR7 was therefore checked against the cited peer-reviewed modeling papers and fixed official schemas. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{landscape}
+
+The 69 inspected records were metadata-screening records, not 69 included
+full-text studies. Exact-title and DOI verification was additionally performed
+for the retained sources. Crossref returned an ``ok'' record for nine central
+peer-reviewed sources: Fritsch et al. (2024), Eisermann et al. (2025), Kitzler
+et al. (2025), van Pelt et al. (2021), Jungnickel et al. (2026), Delgado
+Fernandez et al. (2024), Tamai and Kasahara (2024), Mohan et al. (2024), and
+Han et al. (2026). Search-result ranking was not treated as a quality measure.
+
+\begin{table}[h]
+\caption{Eligibility, source hierarchy, and record-handling rules}
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}p{.18\linewidth}YY@{}}
+\toprule
+Decision area & Rule & Audit consequence \\
+\midrule
+Inclusion & Full text directly supports, qualifies, or contradicts a CE1--CE5 deficiency--DR1--DR7 link; addresses an RQ1 construct; has identifiable provenance and a date; and has a stable DOI, URL, or commit available by the cut-off. & Record is classified by source type, scope, locator, evidential direction, and author inference. \\
+Exclusion & Exclude duplicate records, snippets without accessible evidence, anonymous promotional material, price-only studies without a governance/control relation, and inaccessible full texts. & Exclusion reason remains visible; exclusion is not interpreted as contrary evidence. \\
+Hierarchy & Prefer peer-reviewed final publication; then an archival version where no reviewed full text is available; then standards and published specifications; then version-controlled schemas; then official project documents for case facts only. & Lower-tier documents cannot establish generalized effectiveness or decentralization. \\
+Version handling & Match DOI or title/author/year; a reviewed version supersedes its preprint unless separately used material is logged. Fix repositories to full commits. Record title, section, access date, archival URL where available, and checksum for mutable pages or PDFs. & Prevents double counting and silent source drift. \\
+Contrary evidence & Retain findings and limitations that qualify the derivation, including justified retained authority, identity uncertainty, delegation concentration, safeguard trade-offs, and partial metamodel coverage. & A requirement may remain author-derived even when its premise is supported. \\
+Stopping rule & Stop when every derivation link has supporting or limiting evidence, every case fact has an official source, and every schema claim is fixed to a repository state. Inspect a fixed ten OpenAlex metadata records per query, or all if fewer. & A claim-testing boundary, not saturation or exhaustive literature coverage. \\
+Classification & Supported only when all mandatory fields and links for the examined record are present; partially observable when any required field is missing, ambiguous, or unavailable; representational gap only for DR7 items without a native construct but retained externally. & ``Unobservable'' is never converted into ``absent.'' \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\section*{Operational audit rules}
+
+RQ1 concerns requirements for an early-stage, concentration-aware token-economy
+design method and its design-to-specification outputs. DR1--DR7 are not universal
+governance requirements for every DAO, and satisfying them is not evidence that
+a DAO is decentralized or resistant to capture.
+
+An authority is \emph{material} when exercising or withholding it can enable,
+block, redirect, or implement a goal-relevant decision concerning governance
+procedure, protocol parameters or code, token supply or allocation, treasury
+resources, membership, or emergency action. A concentration pathway is material
+when a documented choice or dependency can change a DR3 concentration dimension
+or the allocation or exercise of material authority. Borderline cases are
+retained with a one-line rationale. A prospective causal-pathway record states
+the source choice, intermediate mechanism, affected actor and governance area,
+dimension, lifecycle stage, consequence, and whether each link is source-supported
+or assumption-dependent. It is not a causal-effect estimate.
+
+A residual-risk record is \emph{audit-complete} when it records the pathway,
+safeguard, owner, assumptions, trade-offs or newly introduced authority,
+remaining exposure, acceptance/revision/escalation decision, and review trigger.
+Audit completeness does not make the remaining risk acceptable. An interpretation
+rule is \emph{reconstructable} when it states the test, dimension, population,
+unit, observation window, identity assumption, data source, reference condition,
+threshold or decision logic, interval, trigger, and resulting action. DR7 has
+sufficient destination coverage when every accepted choice, material authority,
+pathway, safeguard, residual risk, and interpretation rule has a stable source
+identifier and either a linked downstream element or an explicit external-trace
+or representation-gap record. Native metamodel coverage is not required, but
+silent information loss is forbidden.
+
+\begin{table}[h]
+\caption{Operational satisfaction checklist for DR1--DR7}
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}p{.07\linewidth}Yp{.31\linewidth}@{}}
+\toprule
+Req. & Mandatory audit rule & Failure or qualification condition \\
+\midrule
+DR1 & Every in-scope mechanism and retained authority has a unique link to a goal, desired behavior, quality objective, or justified constraint. & Missing, circular, or unsupported rationale is explicit and yields partial observability. \\
+DR2 & For each governance area and lifecycle stage, every enumerated material right has an actor, object, formal/off-chain status, and implementation owner, or a justified not-applicable marker. & Unassigned, ambiguous, or undocumented rights remain visible. \\
+DR3 & Ownership, effective voting power, latent capacity, and exercised control have separate fields, evidence, and units. & One dimension may not be inferred solely from another; missing evidence is unobservable. \\
+DR4 & Every material pathway records cross-pillar choices, lifecycle stage, material external dependency, prospective mechanism chain, evidence, assumptions, and unknown links. & An unlinked choice or undocumented intermediate mechanism yields partial observability. \\
+DR5 & Every material pathway has an audit-complete treatment and residual-risk record. & Mitigation is not equated with elimination; acceptability remains stakeholder- and context-dependent. \\
+DR6 & Every objective or risk has a reconstructable quantitative indicator or qualitative test, including explicit missing-data handling. & A metric without population, identity assumption, reference, trigger, or action is not reconstructable. \\
+DR7 & Bidirectional checking finds no unexplained source or destination orphan; non-native information remains normative in an external trace or explicit gap record. & Coverage establishes traceability and conformance, not usability, semantic equivalence, implementation correctness, or effectiveness. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\begin{landscape}
+\section*{Source-to-requirement derivation register}
+The rights list in DR2, the four-part control taxonomy in DR3, and the mandatory
+interpretation fields in DR6 are author syntheses. Contrary and limiting evidence
+is retained. The planned independent co-author judgment and disagreement
+resolution remain a separate check and are not reported as completed here.
+
+{\scriptsize
+\begin{longtable}{@{}p{.035\linewidth}p{.22\linewidth}p{.23\linewidth}p{.22\linewidth}p{.21\linewidth}@{}}
+\caption{Auditable evidence--deficiency--obligation register for DR1--DR7}\\
+\toprule
+DR & Evidence and exact locator & Support, qualification, or contradiction & Currynomics deficiency and author inference & Requirement and operational test \\
+\midrule
+\endfirsthead
+\multicolumn{5}{@{}l}{\tablename\ \thetable\ (continued)}\\
+\toprule
+DR & Evidence and exact locator & Support, qualification, or contradiction & Currynomics deficiency and author inference & Requirement and operational test \\
+\midrule
+\endhead
+DR1 & Kivilo (2023), pp.~28--30, 34--35, 50--51 (thesis case); van Pelt et al. (2021), pp.~21--41, especially Sec.~3.3 and the six-dimension/three-layer framework (peer-reviewed). & CE1 identifies actors, functions, and goals; CE3 records code-, board-, and Foundation-retained authority. Van Pelt et al. treat governance as direction, control, and coordination across layers. Neither source requires every mechanism to link to a goal or makes retained centralization inherently defective. & Goals and retained authority exist, but mechanism-to-rationale links are incomplete. Author inference: intended decentralization and justified centralization must be inspectable before concentration is assessed. & Link every mechanism and retained authority to a goal, behavior, quality objective, or justified constraint. Pass only when each in-scope item has a unique supported link; record missing or circular links. \\
+DR2 & Kivilo (2023), pp.~47--53; van Pelt et al. (2021), framework; Jungnickel et al. (2026), Table~1 and discussion; Fritsch et al. (2024), pp.~1--2 (peer-reviewed except thesis). & CE2--CE4 distinguish scope, retained authority, forum filtering, formal submission, and voting. Literature establishes layered and multistage authority, but does not establish that the ten enumerated rights are universally exhaustive. & Proposal, deliberation, delegation, veto, execution, accountability, and emergency authority are incompletely allocated. Author inference: material authority must be decomposed beyond the final vote; the enumeration is bounded. & Identify actors for propose, deliberate, vote, delegate, veto, execute, amend, upgrade, emergency, and treasury rights. Each material action records actor, object, stage, status, and implementation owner, or justified inapplicability. \\
+DR3 & Kivilo (2023), pp.~50--51, 58, 66--72; Fritsch et al. (2024), abstract, pp.~1--2 and results; Kitzler et al. (2025), abstract/results; Eisermann et al. (2025), abstract, pp.~2--3 and results (peer-reviewed except thesis). & Sources distinguish holdings, delegated/cast power, contributor influence, actual voting, and cross-protocol holdings. Address-to-entity attribution remains incomplete; no single source supplies the four-part taxonomy. & Legacy records do not separate nominal ownership, effective voting power, authority that could be exercised, and authority exercised. Author synthesis combines these as four non-substitutable dimensions. & Record each dimension separately with evidence and unit. Never infer a dimension solely from another; use unobservable rather than zero or absent. \\
+DR4 & Kivilo (2023), p.~58 and pp.~66--72; Delgado Fernandez et al. (2024), model/method and simulation-results sections; Eisermann et al. (2025), abstract, pp.~2--3 and network/results sections. & Simulation shows that trading can produce later concentration; cross-protocol analysis identifies shared holdings and dependencies. The first is model-dependent; the second establishes network structure, not every causal dependency. & Allocation, transfer, rewards, vesting, locking, and voting were separate records whose combined temporal effect was not traced. Author inference: concentration is a cross-pillar, lifecycle-dependent prospective pathway. & Record source choice, intermediate mechanism, dimension, lifecycle stage, and affected authority/consequence; distinguish evidence, assumptions, and unknown links. \\
+DR5 & Tamai and Kasahara (2024), Secs.~3--6, especially pp.~4 and 7--9; Jungnickel et al. (2026), Table~1 and discussion/limitations (peer-reviewed). & Quadratic voting may reduce whale weight yet remain collusion-vulnerable; combined safeguards depend on model assumptions. Modular roles redistribute rather than eliminate authority. No universal safeguard effectiveness is established. & Legacy choices lack a consistent record of threat, assumptions, trade-offs, and remaining exposure. Author inference: a safeguard is meaningful only when connected to a pathway and residual risk. & Each material pathway has safeguard, owner, assumptions, trade-offs, affected rights, remaining exposure, decision, and trigger. Mitigated is not eliminated. \\
+DR6 & Fritsch et al. (2024), pp.~1--2 and results; Kitzler et al. (2025), abstract/results; Eisermann et al. (2025), abstract, pp.~2--3 and results (peer-reviewed). & Holdings, delegated/cast power, contributor influence, and cross-protocol control require different observations. Entity resolution and off-chain influence remain incomplete; no universal decentralization metric or threshold is validated. & Legacy distribution information lacks identity assumptions, participation measures, interpretation rules, baselines, and triggers. Author inference: evaluation needs prospective reconstructable rules that preserve uncertainty. & Each rule states dimension, population, unit/basis, identity assumption, observation window, data source, reference, logic, interval, trigger, and action; another analyst can reproduce the classification. \\
+DR7 & Avanzo et al. (2024), Sec.~6, Table~1 and Appendix~A.1; Avanzo et al. (2026), pp.~25--37; ET-DM commit \nolinkurl{28af608412de10a17a1c8422a722994e9d122ddf}; DAOMod commit \nolinkurl{9ce3fc44dbb20d6441539f5992929746778bcbcc}. & Publications and schemas provide roles, committees, permissions, areas, goals, tokens, mechanisms, and identifiers. Inspection finds partial native coverage and no generic cross-model trace relation; lossless representation is not demonstrated. & Legacy outputs do not preserve an evidence--decision--risk--model trace. Author inference: a boundary requirement must preserve rationale and gaps without prescribing the RQ3 mapping. & Every accepted choice and residual risk has source, requirement, and destination identifiers; unsupported information remains in a normative external trace or explicit gap. Check both directions and record loss. \\
+\bottomrule
+\end{longtable}
+}
+\end{landscape}
+
+\begin{table}[h]
+\caption{Source version and preservation register}
+\centering
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}p{.14\linewidth}p{.29\linewidth}p{.20\linewidth}Y@{}}
+\toprule
+Source & Fixed identifier or exact URL & Locator and access record & Preservation evidence \\
+\midrule
+Kivilo thesis & DOI \url{https://doi.org/10.13140/RG.2.2.13326.13124}; repository item \url{https://digikogu.taltech.ee/en/Item/ede1405c-28c6-41ed-b06a-aebf0dba55aa} & Pages listed in Table~S10; accessed 26 September 2026. & Institutional repository and DOI. \\
+Uniswap UNI & \url{https://blog.uniswap.org/uni} & ``UNI Allocation,'' ``Community Treasury,'' ``Governance assets,'' and governance parameters; accessed 26 September 2026. & Perma.cc \url{https://perma.cc/N4H3-F5Q7}; access-copy SHA-256 \nolinkurl{1c97d852207c3113e35cd8189b85bb2d9f1b545ffd6bf93c58ddb18732f4ea2b}. \\
+Uniswap v3 Core & \url{https://uniswap.org/whitepaper-v3.pdf} & March 2021, Secs.~3.1 and 4; accessed 26 September 2026. & SHA-256 \nolinkurl{1be05d1134f677dfbce9afa7392a2c200c000f3db74fb8d228e3636a2b624494}. \\
+Curve DAO white paper & \url{https://docs.curve.finance/assets/pdf/whitepaper_curvedao.pdf} & Voting escrow, GaugeController, and governance-vote gauges; accessed 26 September 2026. & SHA-256 \nolinkurl{9fd28dfe759aa5f3730a8c4c2ded10c717d2200087011352a86adc1ed857ce47}. \\
+Curve living documentation & \url{https://docs.curve.finance/user/dao/gauge-weights}; \url{https://docs.curve.finance/protocol/gauge/incentives}; \url{https://docs.curve.finance/protocol/gauge/guides/vote-incentives}; \url{https://docs.curve.finance/user/curve-tokens/vecrv} & Exact pages for gauge voting, incentives, vote incentives, and veCRV; accessed 26 September 2026. & SHA-256 respectively \nolinkurl{f7955617d91c049333fed7b281b70ad3f739a373431a54b6dabfe8d76d0dda74}, \nolinkurl{eef6f88338332d55d958203835d61caddd613d21c1f1243f960789dfa3dba5d6}, \nolinkurl{c574a728cde83ab0ad20d25846ee75a5ac68bfca15ab516c7dfe0f9efb8a01a8}, and \nolinkurl{8b744caa6cacfdb046012c8a4743e8607078738936c623ff4c062e0f123a16a2}. \\
+ET-DM schema & \url{https://github.com/SoweluAvanzo/ETDM/tree/28af608412de10a17a1c8422a722994e9d122ddf} & Full commit \nolinkurl{28af608412de10a17a1c8422a722994e9d122ddf}; accessed 26 September 2026. & Commit existence independently resolved against the official repository. \\
+DAOMod schemas & \url{https://github.com/SoweluAvanzo/DAOMod/tree/9ce3fc44dbb20d6441539f5992929746778bcbcc/DAOMod\%20Schemas\%20and\%20Models} & Full commit \nolinkurl{9ce3fc44dbb20d6441539f5992929746778bcbcc}; accessed 26 September 2026. & Commit existence independently resolved against the official repository. \\
+Avanzo thesis & Sowelu Avanzo, \emph{A Model-Driven Method for Decentralized Autonomous Organization Development}, University of Torino, PhD thesis, 2025 & Ch.~3 for the ontology; Ch.~4, especially Tables~4.3--4.7 and Figures~4.1--4.2, for notation, grammar, relation semantics, XPath constraints, and method steps. & Supplied thesis copy; used for language semantics, not as independent validation of TEDM. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\begin{landscape}
+\section*{Instance-level engineering disposition}
+Table~S12 closes the type-to-instance distinction used in Section~5. Native
+identifiers are candidate aliases instantiated in the supplied first-draft
+DAO-ML and ERD draw.io and semantic XML files. The semantic XML passes the
+pinned XSDs and the thesis-defined reference and hierarchy checks, but the
+drafts are not expert-reviewed or reported as validated case models. Every source identifier has an external record even where a
+native anchor is available. Coverage codes are C (complete), P (partial), and A
+(absent); preservation codes are N (native model) and E (external package).
+Where shown separately, X marks extension status ``candidate,'' a research
+option rather than a preservation location or implemented schema change.
+
+{\scriptsize
+\begin{longtable}{@{}p{.035\linewidth}p{.07\linewidth}p{.245\linewidth}p{.105\linewidth}p{.09\linewidth}p{.31\linewidth}@{}}
+\caption{Currynomics identifier-to-destination disposition matrix}\\
+\toprule
+Source & ER chain & Candidate native destination or anchor & External record & Coverage/location & Verification condition \\
+\midrule
+\endfirsthead
+\multicolumn{6}{@{}l}{\tablename\ \thetable\ (continued)}\\
+\toprule
+Source & ER chain & Candidate native destination or anchor & External record & Coverage/location & Verification condition \\
+\midrule
+\endhead
+CG1 & ER1 & ERD \texttt{OG-CURRYNOMICS}/\texttt{G-CG1}; DAO-ML \texttt{GA-AR1} & \texttt{TR-CG1} & P/N+E & Goal and retained issuance/reserve boundary have reciprocal links. \\
+CG2 & ER2 & ERD \texttt{OG-CURRYNOMICS}/\texttt{G-CG2}; DAO-ML \texttt{GA-AR2} & \texttt{TR-CG2} & P/N+E & Goal links to licensed access and its justified non-community authority. \\
+CG3 & ER3 & ERD \texttt{OG-CURRYNOMICS}/\texttt{G-CG3}; DAO-ML \texttt{GA-AR3}--\texttt{GA-AR5} & \texttt{TR-CG3} & P/N+E & Community goal links to all three governance areas and retained boundaries. \\
+CG4 & ER4 & ERD \texttt{OG-CURRYNOMICS}/\texttt{G-CG4}; DAO-ML \texttt{GA-AR3} & \texttt{TR-CG4} & P/N+E & Participation goal links to allocation, locking, and treasury/parameter voting. \\
+IN1 & ER1--ER2 & ERD \texttt{M-IN1-UTILITY} & \texttt{TR-IN1} & P/N+E & Utility choice, eligible actors, failure mode, and CP4--CP5 links are present. \\
+IN2 & ER3 & ERD \texttt{QG-IN2-PARTICIPATION} & \texttt{TR-IN2} & P/N+E & Participation rationale and CP3 agenda-control risk remain linked. \\
+IN3 & ER4 & ERD \texttt{M-IN3-STAKING} & \texttt{TR-IN3} & P/N+E & Reward mechanism links to TP4, CP1--CP2/CP6, and its assumptions. \\
+AR1 & ER1 & DAO-ML \texttt{GA-AR1}; \texttt{PERM-AR1-PROPOSE}, \texttt{PERM-AR1-DECIDE}, \texttt{PERM-AR1-EXECUTE}, \texttt{PERM-AR1-AUDIT}, \texttt{PERM-AR1-EMERGENCY} & \texttt{TR-AR1} & P/N+E & Propose, decide, execute, audit, and emergency assignments are explicit or gated. \\
+AR2 & ER2 & DAO-ML \texttt{GA-AR2}; \texttt{PERM-AR2-PROPOSE}, \texttt{PERM-AR2-APPROVE}, \texttt{PERM-AR2-DISTRIBUTE}, \texttt{PERM-AR2-MONITOR}, \texttt{PERM-AR2-ESCALATE} & \texttt{TR-AR2} & P/N+E & Eligibility approval, distribution, monitoring, and escalation actors are linked. \\
+AR3 & ER3--ER4 & DAO-ML \texttt{GA-AR3}; \texttt{PERM-AR3-PROPOSE}, \texttt{PERM-AR3-FILTER}, \texttt{PERM-AR3-VOTE}, \texttt{PERM-AR3-EXECUTE}, \texttt{PERM-AR3-VETO}, \texttt{PERM-AR3-AUDIT}, \texttt{PERM-AR3-EMERGENCY}; ERD \texttt{DM-ER3}/\texttt{DM-ER4} & \texttt{TR-AR3} & P/N+E & Treasury/parameter authority is decomposed from proposal through execution and linked to voting weight. \\
+AR4 & ER3 & DAO-ML \texttt{GA-AR4}; \texttt{PERM-AR4-PROPOSE}, \texttt{PERM-AR4-TEMP-CHECK}, \texttt{PERM-AR4-VOTE}, \texttt{PERM-AR4-ENACT}, \texttt{PERM-AR4-APPEAL}, \texttt{PERM-AR4-AUDIT}; ERD \texttt{DM-ER3} & \texttt{TR-AR4} & P/N+E & Temperature check, rule vote, enactment, appeal, and audit responsibilities are linked. \\
+AR5 & ER3 & DAO-ML \texttt{GA-AR5}; \texttt{PERM-AR5-PROPOSE}, \texttt{PERM-AR5-DELIBERATE}, \texttt{PERM-AR5-REVIEW}, \texttt{PERM-AR5-VOTE}, \texttt{PERM-AR5-EXECUTE}, \texttt{PERM-AR5-EMERGENCY}; ERD \texttt{DM-ER3} & \texttt{TR-AR5} & P/N+E & Upgrade/token-policy authorization, execution, and emergency gates are linked. \\
+TP1 & ER1 & ERD \texttt{TK-REDCURRY}, \texttt{M-TP1-ISSUANCE} & \texttt{TR-TP1} & P/N+E & Supply, collateral, reserve, and exceptional-action constraints remain linked. \\
+TP2 & ER2 & ERD \texttt{M-TP2-DISTRIBUTION} & \texttt{TR-TP2} & P/N+E & Licensed distribution and exposure-review conditions remain linked. \\
+TP3 & ER4 & ERD \texttt{TK-DAO}, \texttt{M-TP3-VESTING} & \texttt{TR-TP3} & P/N+E & Cap, allocations, vesting, unlocks, and lifecycle review remain linked. \\
+TP4 & ER3--ER4 & ERD \texttt{DM-ER3}/\texttt{DM-ER4}, \texttt{M-TP4-LOCKING} & \texttt{TR-TP4} & P/N+E & Locking, reward interaction, weighting, decay, and exit assumptions remain linked. \\
+CP1 & ER4 & Anchors \texttt{TK-DAO}/\texttt{M-TP3-VESTING} & \texttt{TR-CP1} & A/E; X & O-to-V pathway, treatment, evidence status, and residual risk are complete. \\
+CP2 & ER4 & Anchors \texttt{M-IN3-STAKING}/\texttt{M-TP4-LOCKING}/\texttt{DM-ER4} & \texttt{TR-CP2} & A/E; X & Compounding O-to-V pathway and M1/M6 review rules are complete. \\
+CP3 & ER3 & Anchors \texttt{GA-AR3}--\texttt{GA-AR5}/\texttt{DM-ER3} & \texttt{TR-CP3} & A/E; X & Agenda-control L-to-X pathway and M2 treatment remain explicit. \\
+CP4 & ER1, ER3 & Anchors \texttt{GA-AR1}/\texttt{M-TP1-ISSUANCE} & \texttt{TR-CP4} & A/E; X & Retained issuance, reserve, execution, and emergency authority are traced. \\
+CP5 & ER2 & Anchors \texttt{GA-AR2}/\texttt{M-TP2-DISTRIBUTION} & \texttt{TR-CP5} & A/E; X & Gateway-concentration pathway, legal constraint, and M4 review remain explicit. \\
+CP6 & ER4 & Anchors \texttt{TK-DAO}/\texttt{M-TP3-VESTING}/\texttt{M-TP4-LOCKING} & \texttt{TR-CP6} & A/E; X & Lifecycle reconcentration pathway and event-specific reviews remain explicit. \\
+M1 & ER4 & ERD quality-goal anchor \texttt{QG-M1} & \texttt{TR-M1} & P/N+E & Population, entity rule, O/V units, reference, trigger, interval, and action exist. \\
+M2 & ER3 & DAO-ML role/permission anchors; ERD \texttt{QG-M2} & \texttt{TR-M2} & P/N+E & Agenda population, affiliation assumption, test, trigger, owner, and action exist. \\
+M3 & ER1, ER3 & DAO-ML role/permission anchors; ERD \texttt{QG-M3} & \texttt{TR-M3} & P/N+E & Independent signer/role coalition test and emergency-action rule are reconstructable. \\
+M4 & ER2 & DAO-ML partner-role anchor; ERD \texttt{QG-M4} & \texttt{TR-M4} & P/N+E & Partner exposure population, unit, reference, trigger, and escalation are reconstructable. \\
+M5 & ER4 & ERD token/mechanism anchors; \texttt{QG-M5} & \texttt{TR-M5} & P/N+E & Unlock/reward event window, entity rule, trigger, and response are reconstructable. \\
+M6 & ER3--ER4 & DAO-ML permission and ERD decision-method anchors; \texttt{QG-M6} & \texttt{TR-M6} & P/N+E & Decisive coalition and authorized-versus-executed tests are reconstructable. \\
+ER1 & ER1 & DAO-ML \texttt{GA-AR1}; ERD \texttt{DM-ER1} and issuance anchors & \texttt{TR-ER1} & A/E & Native destinations exist, but the cross-model relation remains external and reciprocal. \\
+ER2 & ER2 & DAO-ML \texttt{GA-AR2}; ERD \texttt{DM-ER2} and distribution anchors & \texttt{TR-ER2} & A/E & Native destinations exist, but the cross-model relation remains external and reciprocal. \\
+ER3 & ER3 & DAO-ML \texttt{GA-AR3}--\texttt{GA-AR5}; ERD \texttt{DM-ER3} & \texttt{TR-ER3} & A/E & CG3/IN2/AR3--AR5/TP4/CP3--CP4/M2--M3/M6 and all destinations resolve. \\
+ER4 & ER4 & DAO-ML \texttt{GA-AR3}; ERD \texttt{DM-ER4}, token and mechanism anchors & \texttt{TR-ER4} & A/E & CG4/IN3/AR3/TP3--TP4/CP1--CP2/CP6/M1/M5--M6 and all destinations resolve. \\
+\bottomrule
+\end{longtable}
+}
+\end{landscape}
+
+\clearpage
+\section*{Normative external traceability-package specification}
+This package is normative only for the proposed TEDM handoff profile. Its
+machine-readable serialization is a normalized, UTF-8 RFC~4180 CSV bundle:
+\texttt{manifest.csv}, \texttt{records.csv}, \texttt{links.csv},
+\texttt{destinations.csv}, \texttt{changes.csv}, and \texttt{schema.csv}.
+Repeated values and ranges are represented as separate rows rather than packed
+lists: for example, \texttt{AR3--AR5} is expanded to three links. A record
+identifier begins with \texttt{CG}, \texttt{IN}, \texttt{AR}, \texttt{TP},
+\texttt{CP}, \texttt{M}, or \texttt{ER} and ends with a positive decimal number;
+an external wrapper uses \texttt{TR-} followed by one such identifier.
+its immutable primary key is the pair
+\texttt{(record\_id, record\_version)}. Every reference resolves to that key,
+to a fixed evidence locator, or to an element in a named schema commit.
+
+{\footnotesize
+\begin{longtable}{@{}p{.15\linewidth}p{.45\linewidth}p{.32\linewidth}@{}}
+\caption{Normative files and integrity rules for the external traceability package}\\
+\toprule
+File & Required fields & Cardinality and integrity rule \\
+\midrule
+\endfirsthead
+\multicolumn{3}{@{}l}{\tablename\ \thetable\ (continued)}\\
+\toprule
+File & Required fields & Cardinality and integrity rule \\
+\midrule
+\endhead
+\texttt{manifest.csv} & Package/schema versions; issue time and evidence cut-off; status and custodian; target DAO-ML locator, standalone ET-DM commit, DAOMod commit; file checksums; superseded package version & Exactly one current manifest. Commits are forty hexadecimal characters; timestamps use ISO~8601; a superseding package retains its predecessor. \\
+\texttt{records.csv} & Record ID/version and kind; status and evidence status; statement, rationale, choice, assumptions, alternatives; actor, authority, stage, pathway, treatment, monitoring, residual-risk, verification, ownership, and immutable revision metadata fields & One row per record revision. Blank never means absent: a conditional field has a value, \texttt{not\_applicable\_reason}, or \texttt{unknown\_reason}. Kind-specific obligations stated below apply. \\
+\texttt{links.csv} & Link ID; source record ID/version; relation; target kind, ID, and optional revision; support status and rationale & One directed edge per row; no dangling identifiers or ranges. Relations are enumerated; \texttt{monitored\_by} targets M, \texttt{carried\_forward\_by} targets ER, and \texttt{addresses\_dr} targets DR1--DR7. Inferred, assumed, or unknown links require rationale. \\
+\texttt{destinations.csv} & Mapping ID; source record ID/version; target model and schema commit; element type and candidate ID/path; coverage; preservation location; extension status; preserved/external information; mapping and verification rationale; validation-evidence reference & One source-to-destination disposition per row. Coverage is \texttt{complete}, \texttt{partial}, or \texttt{absent}; location is \texttt{native\_model} or \texttt{external\_package}; extension status is \texttt{not\_proposed}, \texttt{candidate}, \texttt{proposed}, or \texttt{adopted}. Partial requires nonempty external-information text and a resolvable \texttt{TR-} wrapper; absent forbids an invented native ID. \\
+\texttt{changes.csv} & Change ID; record and from/to revisions; time, author, reason, impact, approval status, approver and date & One immutable revision transition per row. Approval fields are mandatory for approved or rejected changes; silent overwrite is forbidden. \\
+\texttt{schema.csv} & Table, field, type, minimum/maximum cardinality, enumeration or pattern, applicable kind, conditional requirement, and description & One row per field. This data dictionary is the machine-readable authority for structural validation of the other files. \\
+\bottomrule
+\end{longtable}
+}
+
+The record kinds are goal/boundary, incentive, authority, token policy,
+concentration pathway, monitoring, engineering requirement, and external trace
+wrapper. Goal records
+require goal, scope, affected actors, authority boundary, evidence, and
+rationale. Incentive records additionally require desired behavior, eligible
+actors, assumptions, and failure/concentration implications. Each material
+authority allocation is a separate link carrying actor, object, lifecycle
+stage, formal/off-chain status, accountability, and implementation owner or a
+justified not-applicable value. Token-policy records require the applicable
+supply, allocation, launch, vesting, unlock, circulation, accumulation, and
+exception rules. Pathway records require ordered source choices and intermediate
+mechanisms, dimensions, lifecycle, affected authority, support status,
+treatment, trade-offs, residual risk, owner, and a monitoring link. Monitoring
+records require dimension, population, unit or qualitative basis, identity and
+missingness rule, window, data source, reference condition, interpretation,
+interval, trigger, action, and owner. Engineering requirements require source
+and DR links, requirement text, at least one exact destination or absent/external
+gap disposition, and an observable verification criterion.
+
+Structural conformance requires all schema, enumeration, conditional-field,
+version, and reference-integrity checks to pass. DR7 coverage additionally
+requires one current revision for every CG/IN/AR/TP/CP/M/ER identifier, every
+DR1--DR7 addressed, every pathway linked to treatment, residual risk, and
+monitoring, and a traversable graph from goal to destination and back. Here,
+``complete'' means complete only against the mandatory TEDM fields and cited
+schema commit. CSV conformance does not establish model validity, losslessness,
+usability, implementation correctness, or safeguard effectiveness.
+
+\clearpage
+\begin{landscape}
+\section*{Notation-and-schema crosswalk}
+Table~S14 combines the DAOMod language semantics defined in Avanzo's 2025
+thesis (Chs.~3--4, especially Tables~4.3--4.7 and Figures~4.1--4.2) with the
+two XSD files at DAOMod commit
+\nolinkurl{9ce3fc44dbb20d6441539f5992929746778bcbcc}. The earlier standalone
+ET-DM file \texttt{XSD\_ETDM\_TE.xsd} at commit
+\nolinkurl{28af608412de10a17a1c8422a722994e9d122ddf} was inspected only to
+identify version differences. Paths name XSD declarations, not completed
+Currynomics instances. The standalone schema has specialized
+\texttt{IncentiveType}, \texttt{TokenIssuanceType}, voting, and proposal-
+execution types; the later ERD replaces these with \texttt{MechanismType} and
+\texttt{MechanismTypeEnum}. Consequently, no later-schema classification below
+is credited from an earlier-only type.
+
+{\scriptsize
+\begin{longtable}{@{}p{.13\linewidth}p{.37\linewidth}p{.15\linewidth}p{.27\linewidth}@{}}
+\caption{Notation- and field-level evidence for the Table~6 coverage classifications}\\
+\toprule
+Table~6 source & DAOMod notation rule and exact XSD declaration path & Coverage/location & Classification rationale \\
+\midrule
+\endfirsthead
+\multicolumn{4}{@{}l}{\tablename\ \thetable\ (continued)}\\
+\toprule
+Table~6 source & DAOMod notation rule and exact XSD declaration path & Coverage/location & Classification rationale \\
+\midrule
+\endhead
+DR1 / Activity~1 & \texttt{DAOMod\_XSD\_Decentralized\_Organization.xsd}: \texttt{/DAOMod\_DO\_diagram/DAO}, \texttt{/DAO/Role}, \texttt{/DAO/Committee}, \texttt{/DAO/GovernanceArea}; \texttt{DAOMod\_XSD\_Extended Requirement Diagram.xsd}: \texttt{/diagram/organizationGoal[OrganizationGoalType]}, \texttt{/diagram/goal[GoalType]}, \texttt{/diagram/qualitygoal[QualityGoalType]}, \texttt{/diagram/agent[AgentType]} & P/N+E & Goals, actors, areas, and mission text are native; justification of retained or decentralized authority has no dedicated field. \\
+DR1--DR2 / Activity~2 & Thesis Table~4.3 and Figure~4.1 define association as role/committee assignment to a permission or governance area; Table~4.4 constrains its targets. DAO-ML XSD: \texttt{/DAO/Role/associated\_to}, \texttt{/DAO/Committee/associated\_to}, \texttt{/DAO/Role/is\_controlled\_by}, \texttt{/DAO/Committee/is\_controlled\_by}, \texttt{/DAO/GovernanceArea/@implementation}, \texttt{/DAO/Permission/@allowed\_action}; ERD XSD: \texttt{/diagram/decisionMakingMethod[DecisionMakingMethodType]}, \path{/diagram/proposal[ProposalType]}, \path{/diagram/mechanism[MechanismType]/@execution}, \texttt{/diagram/agent[AgentType]} & P/N+E & Role/committee assignments to permissions and governance areas, generic permissions, control, implementation mode, proposal, mechanism, agent, and execution are native. The XSD stores associations as \texttt{xs:IDREFS}; the thesis's XPath rule supplies the target-type check. The ten TEDM rights, lifecycle/accountability semantics, and informal authority are not dedicated types. \\
+Voting choice & ERD XSD: \texttt{DecisionMakingMethodType/DM\_method}, \texttt{/voting\_requirement}, \texttt{/proposal\_requirement}, \texttt{MechanismType/@mechanism\_type} values \texttt{Voting Right Allocation}, \texttt{Vote Polling}, \texttt{Vote Tallying}, \texttt{Proposal Right Allocation}, \texttt{Proposal Execution}, and \texttt{Decision Making Support}; \texttt{QualityGoalType} & P/N+E & Voting and support mechanisms are native; choice rationale, rejected alternatives, trade-offs, and residual risk are not. \\
+Incentive records & ERD XSD: \texttt{/diagram/token[TokenType]}, \texttt{/tokenManager[TokenManagerType]}, \texttt{/treasury[TreasuryType]}, \texttt{/resource[ResourceType]}, \texttt{/mechanism[MechanismType]} with enum value \texttt{Incentive}, \texttt{/qualitygoal[QualityGoalType]}, \texttt{/agent[AgentType]} & P/N+E & Token, manager, treasury, resource, generic incentive mechanism, quality goal, and actor are native; the later ERD has no specialized \texttt{IncentiveType}, and expected response, eligibility, failure mode, and concentration implication are not dedicated fields. \\
+Token-policy/time axis & ERD XSD: \texttt{TokenType/value}, \texttt{/token\_utility}, \texttt{/transferable}, \texttt{/fungibility}; \texttt{TokenManagerType/tokenomic\_policy\_goal}; \texttt{TreasuryType}; \texttt{MechanismType/trigger}, \texttt{/precondition}, \texttt{/postcondition}, \texttt{/@execution} & P/N+E; X & Policy context and mechanism conditions are native; supply amount/schedule, allocation/distribution, ordered launch--vesting--unlock--circulation--accumulation stages, and exceptional-action semantics are not dedicated fields. \\
+DR3--DR4 pathways & No \texttt{concentration}, \texttt{causalPathway}, ownership/effective-power/latent/exercised-control taxonomy, or cross-protocol-dependency declaration in either cited DAOMod XSD & A/E; X & Native elements can serve only as anchors; pathway order, four dimensions, evidential status, lifecycle interaction, and external dependency remain external. \\
+DR5--DR6 risk/monitoring & ERD XSD: \texttt{/diagram/qualitygoal[QualityGoalType]}, \texttt{MechanismType/trigger}, and \texttt{/diagram/agent[AgentType]}; DAO-ML XSD roles and permissions & P/N+E; X & A goal, trigger, responsible actor, and permissions can be anchored natively; no risk-register, indicator, population, unit, identity, baseline, interval, interpretation, escalation, trade-off, or residual-risk fields exist. \\
+DR7 trace relation & DAO-ML XSD \texttt{xs:ID}/\texttt{xs:IDREFS} declarations for DAO, roles, committees, permissions, and relations; ERD XSD \texttt{@id}, \texttt{@decomposed\_from}, and \texttt{@associated\_to} declarations & A/E & Identifiers and within-document references are native. XSD IDREF(S) resolution is document-local, the schemas have no import/include relation, and neither declares a generic cross-model trace, gap record, evidence reference, or bidirectional coverage test. \\
+\bottomrule
+\end{longtable}
+}
+\end{landscape}
+
+\subsection*{Audit-package use and maintenance}
+
+Tables~S7--S11 form one reproducible audit package. A replication begins with
+the exact queries and stopping decisions in Table~S7, applies the eligibility
+and source-handling rules in Table~S8, and records judgments with the fields and
+decision rules in Table~S9. Table~S10 then permits each documentary premise,
+qualification, author inference, and observable test to be challenged
+separately rather than treating a design requirement as though it were quoted
+directly from a source.
+
+For the Section~5 handoff, Table~S12 is checked against the current identifiers
+in Tables~S1--S6, Table~S13 and the normalized CSV templates define the proposed
+external package, and Table~S14 permits every native-coverage judgment to be
+rechecked against the thesis-defined notation and a pinned XSD declaration.
+Candidate native identifiers remain provisional until expert review corrects
+the assignments and visual notation and independently confirms the semantics.
+
+Before reusing a mutable web source, the reviewer should compare its current
+content with the identifier or SHA-256 value in Table~S11 and record the new
+access date. A changed source is retained as a new version rather than silently
+replacing the audited record; any resulting change to a DR judgment is entered
+with its reason. The co-author derivation check remains intentionally pending:
+its judgments and disagreement resolutions should be appended to the register
+without overwriting the documentary record reported here.
+
+\end{document}
