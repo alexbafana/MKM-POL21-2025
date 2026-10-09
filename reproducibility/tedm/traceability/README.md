@@ -15,7 +15,7 @@ defined in Supplementary Table S13. The package is normative only for the
 proposed TEDM handoff profile.
 
 - `manifest.csv` fixes the package and target-schema versions.
-- `records.csv`, `links.csv`, and `changes.csv` are serialization templates.
+- `records.csv` and `links.csv` are generated documentary serializations; `changes.csv` remains a change-log template. See record-provenance.csv and the package README for adapter limitations.
 - `destinations.csv` contains the candidate identifier dispositions reported in
   Supplementary Table S12. The companion first-draft DAO-ML and ERD files are in
   `../model-drafts/`; their semantic XML passes structural checks, but native

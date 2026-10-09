@@ -1,20 +1,24 @@
 # TEDM replication package
 
-For **Concentration-Aware Token Economy Design for DAO Engineering: Linking Goals, Risks, and Engineering Requirements**.
+For *Concentration-Aware Token Economy Design for DAO Engineering: Linking Goals, Risks, and Engineering Requirements*. This is separate from ../paper-b, whose contract tests evaluate institutional knowledge-graph governance.
 
-This package is distinct from `../paper-b`, which evaluates institutional knowledge-graph governance contracts. Those contract tests are not TEDM evaluation evidence.
+## Reproduce the automated audit
 
-## Current status
+Requires Python 3 and xmllint (libxml2); no Python third-party dependencies.
 
-Author-supplied first-draft models and candidate destination mappings are included. The traceability records and links remain empty serialization templates. No independent practitioner study or engineering reconstruction has been completed. Historical validation claims in the imported model README have not yet been independently reproduced here.
+```sh
+python3 reproducibility/tedm/scripts/prepare_records.py
+python3 reproducibility/tedm/scripts/validate.py
+```
 
-- `models/`: provisional editable diagrams and semantic XML.
-- `traceability/`: original schemas, candidate destinations, and templates.
-- `source/`: supplied supplementary LaTeX source, including populated documentary case tables.
-- `protocol/`: independent reconstruction task and evidence requirements.
+The first script serializes supplied Tables S1-S6 into 32 proposed records and 159 explicit documentary links. Monitoring populations/data requirements are prospective derivations from the source measure and baseline, not observed data. Grouped authority records retain unresolved atomic assignments. The original schema's single-dimension field is serialized using pipe-delimited dimension sets; this adapter is documented rather than claimed to conform to every original normalization rule.
 
-The model semantics require expert review. Layout can evolve without being mistaken for semantic validation. Preserve source identifiers through changes and record both semantic and visual corrections.
+The second script checks XML parsing, both pinned XSDs, duplicate record IDs, link and mapping sources, and candidate destination IDs. It reports profile gaps separately from structural errors. It does not implement the thesis's full XPath suite or assess semantic correctness, complete field-level schema conformance, behavioral effectiveness, or practitioner usability. Exit zero means only the implemented structural checks passed; inspect profile_complete separately.
 
-## Publication
+## Results and remaining work
 
-Cite this directory at a fixed reviewed commit or release from Section 6. A repository link establishes availability, not validity or independent evaluation. Do not claim independent reconstruction until the protocol deliverables exist. The repository-level citation describes the other paper; cite this package by its full TEDM title.
+See results/automated-audit.json and protocol/HUMAN-HANDOFF.md. No independent study or reconstruction has been completed. The candidate mapping QG-IN2-PARTICIPATION is absent from the supplied model. Five grouped authority records need atomic right-level decisions. The models are provisional; layout and semantic review remain distinct.
+
+models/ contains editable diagrams and semantic XML; schemas/ pins the published XSDs; traceability/ contains records, provenance and candidate mappings; source/ preserves the supplied documentary tables; protocol/ contains tasks, rubrics, and blank evidence forms.
+
+Cite a reviewed fixed commit or release. Repository-root citation metadata refers to the other paper. Original third-party artifacts retain their provenance and applicable rights. Publishing this package does not establish independent validation.

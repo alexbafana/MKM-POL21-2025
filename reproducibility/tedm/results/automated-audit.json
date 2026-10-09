@@ -1,0 +1,61 @@
+{
+  "scope": "Automated author-package structural checks; no independent use or semantic validation",
+  "records": 32,
+  "links": 159,
+  "mappings": 36,
+  "schema_validation": {
+    "DAOMod-DAO-ML": {
+      "passed": true,
+      "diagnostic": "models/Currynomics_DAO-ML.model.xml validates"
+    },
+    "DAOMod-ERD": {
+      "passed": true,
+      "diagnostic": "models/Currynomics_ET-DM.model.xml validates"
+    }
+  },
+  "errors": [],
+  "profile_gaps": [
+    {
+      "mapping": "MAP-IN2",
+      "issue": "Candidate target is not an exact XML ID; expert disposition needed",
+      "target": "QG-IN2-PARTICIPATION"
+    },
+    {
+      "record": "AR1",
+      "issue": "Grouped source or unavailable field requires profile completion",
+      "fields": [
+        "authority_right"
+      ]
+    },
+    {
+      "record": "AR2",
+      "issue": "Grouped source or unavailable field requires profile completion",
+      "fields": [
+        "authority_right"
+      ]
+    },
+    {
+      "record": "AR3",
+      "issue": "Grouped source or unavailable field requires profile completion",
+      "fields": [
+        "authority_right"
+      ]
+    },
+    {
+      "record": "AR4",
+      "issue": "Grouped source or unavailable field requires profile completion",
+      "fields": [
+        "authority_right"
+      ]
+    },
+    {
+      "record": "AR5",
+      "issue": "Grouped source or unavailable field requires profile completion",
+      "fields": [
+        "authority_right"
+      ]
+    }
+  ],
+  "profile_complete": false,
+  "independent_reconstruction_completed": false
+}
