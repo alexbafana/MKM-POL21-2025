@@ -1,0 +1,9 @@
+participant_code,first_case,first_method,second_case,second_method,status
+P01,A,original,B,revised,planned; no recruitment or result
+P02,A,revised,B,original,planned; no recruitment or result
+P03,B,original,A,revised,planned; no recruitment or result
+P04,B,revised,A,original,planned; no recruitment or result
+P05,A,original,B,revised,planned; no recruitment or result
+P06,A,revised,B,original,planned; no recruitment or result
+P07,B,original,A,revised,planned; no recruitment or result
+P08,B,revised,A,original,planned; no recruitment or result

@@ -1,0 +1,25 @@
+{
+  "scope": "Completeness inventory only; populated rows still need human adjudication",
+  "forms": {
+    "expert-review.csv": {
+      "submitted_rows": 0,
+      "status": "pending",
+      "blank_cells": 0
+    },
+    "requirement-review.csv": {
+      "submitted_rows": 0,
+      "status": "pending",
+      "blank_cells": 0
+    },
+    "participant-results.csv": {
+      "submitted_rows": 0,
+      "status": "pending",
+      "blank_cells": 0
+    },
+    "reconstruction-results.csv": {
+      "submitted_rows": 0,
+      "status": "pending",
+      "blank_cells": 0
+    }
+  }
+}

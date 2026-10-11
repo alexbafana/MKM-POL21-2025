@@ -14,6 +14,17 @@ for kind,file,schema in [('DAOMod-DAO-ML','Currynomics_DAO-ML.model.xml','DAO-ML
     result=subprocess.run(['xmllint','--noout','--schema',str(Path('schemas')/schema),str(Path('models')/file)],capture_output=True,text=True,cwd=R)
     validation[kind]={'passed':result.returncode==0,'diagnostic':result.stderr.strip()}
     if result.returncode:errors.append(kind+' XSD failure')
+# Additional explicit endpoint checks, not a replacement for the full thesis XPath suite.
+for kind,file in [('DAOMod-DAO-ML','Currynomics_DAO-ML.model.xml'),('DAOMod-ERD','Currynomics_ET-DM.model.xml')]:
+    root=ET.parse(R/'models'/file).getroot()
+    for e in root.iter():
+        for attr in ('associated_to','decomposed_from'):
+            for target in e.get(attr,'').split():
+                if target not in models[kind]:errors.append(kind+' unresolved '+attr+' '+target)
+        if e.tag in ('associated_to','is_controlled_by','member_of'):
+            for target in (e.text or '').split():
+                if target not in models[kind]:errors.append(kind+' unresolved '+e.tag+' '+target)
+
 for p in sorted((R/'models').glob('*.drawio')):ET.parse(p)
 for m in maps:
     if m['source_record_id'] not in ids:errors.append('Unresolved mapping source '+m['mapping_id'])

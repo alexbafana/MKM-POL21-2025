@@ -22,3 +22,14 @@ See results/automated-audit.json and protocol/HUMAN-HANDOFF.md. No independent s
 models/ contains editable diagrams and semantic XML; schemas/ pins the published XSDs; traceability/ contains records, provenance and candidate mappings; source/ preserves the supplied documentary tables; protocol/ contains tasks, rubrics, and blank evidence forms.
 
 Cite a reviewed fixed commit or release. Repository-root citation metadata refers to the other paper. Original third-party artifacts retain their provenance and applicable rights. Publishing this package does not establish independent validation.
+
+## Ready-to-run study kit
+
+Start with protocol/RUN-STUDY.md. Candidate authority assignments and the one model correction proposal are prefilled for expert decisions. Four method/case ZIPs and one independent-reconstruction ZIP are generated under results/packets/. Only distribute the assigned ZIP; assessor reference answers and author model files are deliberately excluded. The constructed cases are artificial exercises requiring pilot confirmation, not operating DAO observations.
+
+```sh
+python3 reproducibility/tedm/scripts/build_packets.py
+python3 reproducibility/tedm/scripts/summarize_human_results.py
+```
+
+The human evidence summary currently records zero submissions and keeps all study components pending. New endpoint checks resolve model relations but do not replace full XPath semantics or expert review.
