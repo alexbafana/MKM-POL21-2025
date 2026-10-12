@@ -1,0 +1,25 @@
+{
+  "paper": "Decentralized Governance of Institutional Knowledge Graph Lifecycles",
+  "source_revision": "a8c3838cf652c65f5c73f20fa05fa9516e362ac8",
+  "baseline_regression": {
+    "tests": 180,
+    "test_files": 8,
+    "crosswalk": {
+      "E": 2,
+      "P": 16,
+      "N": 18
+    },
+    "coverage_percent": {
+      "statements": 80.12,
+      "branches": 64.89,
+      "functions": 73.61,
+      "lines": 79.49
+    }
+  },
+  "supplemental_tests": 22,
+  "receipt_integrity": true,
+  "tampered_receipt_rejected": true,
+  "human_review": "pending",
+  "live_DKG": "not evaluated",
+  "compilation": "Native editor compilation succeeded"
+}
