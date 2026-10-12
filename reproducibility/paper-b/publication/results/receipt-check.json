@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "tests": 22,
+  "receiptHash": "0xd7975af049c16642b48db53c60f76221995e7888bafca8bc70bfe3b1a9a3b54a",
+  "publicationId": "0x7dad5cbf2a708a72a90055433007fd7f12172c3cbc5e0fe1a34df4cfcd843373",
+  "assetId": "0x32d7d5b1ab104570835c74936c48d24a240ad6f27daad5fb4d04c7efe8e4624a",
+  "proposalId": "101332837834965547687832002006929419203626284550041547232515640325648118310128",
+  "confirmationTransaction": "0xd4e94a0f2191c0a228d8b920f95005c309596260d8ea45fb76c2115dfb264281",
+  "limitation": "Offline integrity verification, not independent chain replay or physical-store availability proof"
+}

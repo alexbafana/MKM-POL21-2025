@@ -1,0 +1,8 @@
+design_ids,supplemental_exercised_clause,evidence,remaining_limit
+CR1|ER1,Exact single-call authorization scoped to immutable dataset/version and digest,BoundPublication.authorize; positive and relay tests,No compound transition plan
+CR4|ER3,Both validation flags required and post-validation records locked,validate; validation-failure and rewrite tests,Trusted validator; no general semantic correctness
+ER3,"Expiry, content match, state guards and receipt replay prevention",confirm and adapter; expiry/content/replay tests,No recovery/escalation after expiry
+ER4,RDFC-1.0 canonical N-Quads plus Keccak-256; equivalent blank-node fixture,adapter.canonicalize; canonicalization test,No claim of full canonicalization conformance suite
+ER5|SG2,Read-back checked local result with actor and receipt linked to exact decision,publishAndConfirm; JSON receipt; event assertions,No failure receipt on-chain or live DKG; adapter trusted
+ER6,Atomic on-chain confirmation and replay rejection,confirm; duplicate execution tests,Storage write plus chain confirmation is not atomic
+SG10,Distinct fixed producer/validator/adapter addresses,constructor and self-validation test,"No independent institutions, bounded delegation or governed role changes"

@@ -1,0 +1,2 @@
+<urn:paperb:employment:event1> <urn:paperb:employment:classification> "job-gain" <urn:paperb:employment:graph> .
+<urn:paperb:employment:event1> <urn:paperb:employment:source> <urn:paperb:media:synthetic1> <urn:paperb:employment:graph> .

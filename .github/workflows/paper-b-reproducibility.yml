@@ -28,10 +28,15 @@ jobs:
       - name: Reproduce Section 6 evidence
         run: bash reproducibility/paper-b/scripts/reproduce.sh
 
+      - name: Reproduce supplemental publication episode
+        run: bash reproducibility/paper-b/publication/scripts/reproduce.sh
+
       - name: Upload reviewer evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: paper-b-evaluation-evidence
-          path: reproducibility/paper-b/results/generated/
+          path: |
+            reproducibility/paper-b/results/generated/
+            reproducibility/paper-b/publication/results/
           if-no-files-found: error

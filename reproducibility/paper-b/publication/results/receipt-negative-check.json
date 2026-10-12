@@ -1,0 +1,5 @@
+{
+  "passed": true,
+  "case": "Tampered receipt digest rejected",
+  "diagnostic": "Receipt digest mismatch"
+}

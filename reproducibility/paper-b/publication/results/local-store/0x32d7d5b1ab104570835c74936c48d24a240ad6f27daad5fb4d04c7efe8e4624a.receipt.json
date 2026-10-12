@@ -1,0 +1,15 @@
+{
+  "profile": "PaperB-local-RDFC1.0-keccak256-v1",
+  "chainId": "31337",
+  "registry": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+  "assetId": "0x32d7d5b1ab104570835c74936c48d24a240ad6f27daad5fb4d04c7efe8e4624a",
+  "proposalId": "101332837834965547687832002006929419203626284550041547232515640325648118310128",
+  "approvedHash": "0x7dad5cbf2a708a72a90055433007fd7f12172c3cbc5e0fe1a34df4cfcd843373",
+  "observedHash": "0x7dad5cbf2a708a72a90055433007fd7f12172c3cbc5e0fe1a34df4cfcd843373",
+  "publicationId": "0x7dad5cbf2a708a72a90055433007fd7f12172c3cbc5e0fe1a34df4cfcd843373",
+  "evidenceHash": "0xe6ac72bad9fb557b7bfbb7f0b60f080a5feb2e50377f27fcfebe2de9228a6d3e",
+  "modelHash": "0xf9522504ccd7a0bbdf32a6e9ffc9899cf7eca4857b00a6403d11aedd5414ff3d",
+  "adapter": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  "receiptHash": "0xd7975af049c16642b48db53c60f76221995e7888bafca8bc70bfe3b1a9a3b54a",
+  "confirmationTransaction": "0xd4e94a0f2191c0a228d8b920f95005c309596260d8ea45fb76c2115dfb264281"
+}

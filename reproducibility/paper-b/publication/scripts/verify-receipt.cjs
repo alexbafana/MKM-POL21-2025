@@ -1,0 +1,25 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { keccak256, toUtf8Bytes } = require('ethers');
+const rdf = require('rdf-canonize');
+(async () => {
+  const out = process.env.PAPER_B_VERIFY_RESULTS || path.resolve(__dirname, '../results');
+  const manifestConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+  const testSource = fs.readFileSync(path.resolve(__dirname, '../../../../packages/hardhat/evaluation/publication/BoundPublication.test.ts'), 'utf8');
+  const count = (testSource.match(/\bit\s*\(/g) || []).length;
+  const log = fs.readFileSync(path.join(out, 'test-output.txt'), 'utf8').replace(/\u001b\[[0-9;]*m/g, '');
+  if (count !== manifestConfig.expectedTests || !log.includes(`${count} passing`) || /\b[1-9][0-9]* failing\b/.test(log)) throw new Error('Supplemental test count/result mismatch');
+  if (/\b(?:it|describe)\.(only|skip)\s*\(/.test(testSource)) throw new Error('Focused/skipped supplemental test');
+  const store = path.join(out, 'local-store');
+  const file = fs.readdirSync(store).find(x => x.endsWith('.receipt.json'));
+  if (!file) throw new Error('No receipt produced');
+  const receipt = JSON.parse(fs.readFileSync(path.join(store, file), 'utf8'));
+  const { receiptHash, confirmationTransaction, ...manifest } = receipt;
+  if (keccak256(toUtf8Bytes(JSON.stringify(manifest))) !== receiptHash) throw new Error('Receipt digest mismatch');
+  const canonical = await rdf.canonize(fs.readFileSync(path.join(store, `${manifest.publicationId}.nq`), 'utf8'), { algorithm: 'RDFC-1.0', inputFormat: 'application/n-quads', maxWorkFactor: 1 });
+  const hash = keccak256(toUtf8Bytes(canonical));
+  if (![manifest.approvedHash,manifest.observedHash,manifest.publicationId].every(x => x === hash)) throw new Error('Published content mismatch');
+  const report = { passed: true, tests: count, receiptHash, publicationId: hash, assetId: manifest.assetId, proposalId: manifest.proposalId, confirmationTransaction, limitation: 'Offline integrity verification, not independent chain replay or physical-store availability proof' };
+  fs.writeFileSync(path.join(out, 'receipt-check.json'), JSON.stringify(report,null,2)+'\n');
+  console.log(JSON.stringify(report,null,2));
+})().catch(e => { console.error(e.message); process.exit(1); });

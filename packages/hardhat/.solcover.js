@@ -9,6 +9,7 @@
  */
 module.exports = {
   skipFiles: [
+    "paperb/BoundPublication.sol", // Supplemental episode has its own tests; preserve historical baseline coverage.
     "Dispute_Resolution_Board.sol",
     "_MFSSIA_authentication.sol",
     "_RDF_data_retrieval.sol",

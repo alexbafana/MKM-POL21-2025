@@ -1,0 +1,193 @@
+Warning: Function state mutability can be restricted to view
+  --> contracts/_MFSSIA_authentication.sol:26:1:
+   |
+26 | function Access_Challenge_Set() external{
+   | ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_MFSSIA_authentication.sol:31:9:
+   |
+31 |         function Validate_response() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_MFSSIA_authentication.sol:36:9:
+   |
+36 |         function Access_Challenge_Response() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_MFSSIA_authentication.sol:41:9:
+   |
+41 |         function Green_light_authentication() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_RDF_data_retrieval.sol:24:3:
+   |
+24 |   function Retrieve_Data() external {
+   |   ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_RDF_data_retrieval.sol:32:9:
+   |
+32 |         function Make_Prediction() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_RDF_data_retrieval.sol:38:9:
+   |
+38 |         function Notify_Contradiction() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_data_access.sol:24:5:
+   |
+24 |     function submit_query_to_eliza_agent() external  {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_dispute_resolution.sol:38:9:
+   |
+38 |         function request_revision_of_data() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_dispute_resolution.sol:43:10:
+   |
+43 |          function Propose_Modification_to_revision() external {
+   |          ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_dispute_resolution.sol:48:9:
+   |
+48 |         function Accept_revision() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_dispute_resolution.sol:53:9:
+   |
+53 |         function Accept_modification_to_revision() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_membersip_manager.sol:23:1:
+   |
+23 | function onboard_ordinary_user() external {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_membersip_manager.sol:30:9:
+   |
+30 |         function onboard_institution() external{
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_membersip_manager.sol:37:9:
+   |
+37 |         function remove_ordinary_member() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Warning: Function state mutability can be restricted to view
+  --> contracts/_membersip_manager.sol:44:9:
+   |
+44 |         function remove_institution() external {
+   |         ^ (Relevant source part starts here and spans across multiple lines).
+
+
+Compiled 51 Solidity files successfully (evm target: paris).
+
+
+  Paper B supplemental decision-to-publication episode
+    ✔ publishes canonical RDF, reads it back, and links the exact committee decision to an attributable receipt
+    ✔ rejects direct approval by a producer or other permission holder
+    ✔ rejects a relay-wrapped decision that does not match the exact single-call authorization plan
+    ✔ rejects execution without sufficient committee quorum
+    ✔ rejects publication before a committee authorization
+    ✔ rejects semantic failure even when syntax passes
+    ✔ rejects syntax failure even when a semantic flag passes
+    ✔ rejects producer self-validation
+    ✔ rejects a duplicate immutable asset version
+    ✔ rejects changes to validation evidence after authorization
+    ✔ rejects publication bytes that differ from the approved graph
+    ✔ rejects a corrupted object found on publication read-back
+    ✔ rejects a receipt for another decision
+    ✔ rejects a receipt with a different published-content identifier
+    ✔ rejects an unappointed publisher before writing any object
+    ✔ rejects confirmation by an unappointed adapter
+    ✔ rejects an empty receipt
+    ✔ rejects replay after a confirmed publication
+    ✔ rejects expired authorization before writing and at confirmation
+    ✔ canonicalizes equivalent blank-node identifiers and ordering to the same approved digest
+    ✔ detects a syntactically valid graph outside the fixture semantic rule
+    ✔ rejects invalid N-Quads at the adapter boundary
+
+
+  22 passing (959ms)
+
+·············································································································
+|  [32m[1mSolidity and Network Configuration[22m[39m                                                                       │
+························|·················|···············|·················|································
+|  [36mSolidity: 0.8.20[39m     ·  [36mOptim: true[39m    ·  [36mRuns: 200[39m    ·  [36mviaIR: true[39m    ·     [36mBlock: 30,000,000 gas[39m     │
+························|·················|···············|·················|································
+|  [32m[1mMethods[22m[39m                                                                                                  │
+························|·················|···············|·················|················|···············
+|  [32m[1mContracts / Methods[22m[39m  ·  [1mMin[22m            ·  [1mMax[22m          ·  [1mAvg[22m            ·  [1m# calls[22m       ·  [1musd (avg)[22m   │
+························|·················|···············|·················|················|···············
+|  [1mBoundPublication[22m     ·                                                                                   │
+························|·················|···············|·················|················|···············
+|      confirm          ·         [36m58,013[39m  ·       [31m58,025[39m  ·         58,019  ·             4  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|      submit           ·              [90m-[39m  ·            [90m-[39m  ·         92,032  ·            22  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|      validate         ·         [36m51,771[39m  ·       [31m51,783[39m  ·         51,781  ·            15  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [1mMKMPOL21[22m             ·                                                                                   │
+························|·················|···············|·················|················|···············
+|      assignRole       ·              [90m-[39m  ·            [90m-[39m  ·         50,909  ·            66  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [1mValidationCommittee[22m  ·                                                                                   │
+························|·················|···············|·················|················|···············
+|      castVote         ·         [36m80,514[39m  ·       [31m97,626[39m  ·         89,391  ·            27  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|      execute          ·        [36m123,413[39m  ·      [31m123,425[39m  ·        123,423  ·            11  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|      propose          ·        [36m115,671[39m  ·      [31m118,672[39m  ·        115,895  ·            14  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [1mVotingPowerToken[22m     ·                                                                                   │
+························|·················|···············|·················|················|···············
+|      mint             ·        [36m158,569[39m  ·      [31m190,467[39m  ·        169,202  ·            66  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [32m[1mDeployments[22m[39m                            ·                                 ·  [1m% of limit[22m    ·              │
+························|·················|···············|·················|················|···············
+|  [1mBoundPublication[22m     ·        [36m840,010[39m  ·      [31m840,022[39m  ·        840,020  ·         2.8 %  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [1mMKMPOL21[22m             ·              [90m-[39m  ·            [90m-[39m  ·      1,979,007  ·         6.6 %  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [1mValidationCommittee[22m  ·      [36m3,431,041[39m  ·    [31m3,431,065[39m  ·      3,431,062  ·        11.4 %  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [1mVotingPowerToken[22m     ·              [90m-[39m  ·            [90m-[39m  ·      2,381,874  ·         7.9 %  ·           [32m[90m-[39m[32m[39m  │
+························|·················|···············|·················|················|···············
+|  [32m[1mKey[22m[39m                                                                                                      │
+·············································································································
+|  [35m[1m◯[22m[39m  Execution gas for this method does not include intrinsic gas overhead                                 │
+·············································································································
+|  [35m[1m△[22m[39m  Cost was non-zero but below the precision setting for the currency display (see options)              │
+·············································································································
+|  [35mToolchain:[39m  hardhat                                                                                      │
+·············································································································

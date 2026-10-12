@@ -1,0 +1,6 @@
+question,candidate_evidence,known_limit,reviewer_judgment,reason,reviewer
+Exact decision-to-version binding,BoundPublication.authorize; exact-plan and relay tests,Single-call plan only,,,
+Validation separate from authorization,validateFixture; distinct validator; authorize guarded by governor,Validator trusted; synthetic rule only,,,
+Receipt and result linkage,confirm event; JSON receipt; verify-receipt.cjs,Adapter trusted; no distributed-store proof,,,
+Trust/independence assumptions,publication/README.md,All test principals controlled by one operator,,,
+Unmet design clauses,36-row baseline review; publication/README.md,"Compound failure, restoration, legal policies and institutional legitimacy unevaluated",,,

@@ -97,3 +97,13 @@ and archive that release with Zenodo. Replace the placeholder release and DOI
 in the manuscript only after both exist. The repository includes
 `CITATION.cff` and `.zenodo.json` metadata for that step.
 
+
+## Supplemental local publication episode
+
+The original baseline above remains pinned to commit 3c55c690. A separate
+episode now exercises exact committee authorization, canonical RDF publication
+to a local store, read-back comparison and attributable receipt confirmation.
+See publication/README.md and its separate reproduction command. Its 22 tests
+and bounded claims do not change the baseline crosswalk or coverage figures.
+The revised manuscript is in manuscript/DAO-Governance_Graph_Publishing.tex.
+Independent review worksheets are prepared under publication/review/.

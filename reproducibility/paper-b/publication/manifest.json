@@ -1,0 +1,10 @@
+{
+  "paper": "Decentralized Governance of Institutional Knowledge Graph Lifecycles",
+  "episode": "Supplemental local decision-to-publication",
+  "expectedTests": 22,
+  "canonicalization": "RDFC-1.0 via rdf-canonize 5.0.0",
+  "digest": "Keccak-256 over canonical UTF-8 N-Quads",
+  "baselineRevision": "3c55c6903fe6fb38177889e22adf9639f8b9cda5",
+  "independentReview": "pending",
+  "liveDKG": "not evaluated"
+}
