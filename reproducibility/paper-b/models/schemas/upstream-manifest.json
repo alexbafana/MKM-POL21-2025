@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/SoweluAvanzo/DAOMod",
+  "commit": "9ce3fc44dbb20d6441539f5992929746778bcbcc",
+  "files": {
+    "DAO-ML.xsd": "db98416c1f8e9fcc6844a772ed575edf3332216a8f1b8ce8d4160460c0dfff5e",
+    "ERD.xsd": "f475270d5e093ebf19a99c43f131e2f4062938ed26d1bea936582b409ed51c7e",
+    "DAOMod_Ontology.rdf": "7d1f73a8139b0d8c50c590991b5d2579dbdbb8db391ddb2140287e7b1e8a4132"
+  },
+  "note": "Unmodified repository snapshots. Thesis-submission byte identity has not been established."
+}

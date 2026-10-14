@@ -1,0 +1,161 @@
+{
+  "illustrative": true,
+  "traces": [
+    {
+      "id": "publish-success",
+      "states": [
+        "admitted",
+        "accepted",
+        "authorized",
+        "execution-pending",
+        "technically-confirmed",
+        "institutionally-confirmed"
+      ],
+      "record": {
+        "id": "Receipt-1",
+        "binding": "Binding-1",
+        "attempt": "Attempt-1",
+        "executor": "Institution-A",
+        "status": "success",
+        "failure": null,
+        "result_manifest": [
+          {
+            "version": "v1",
+            "state": "published",
+            "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "publication_id": "urn:woodhive:publication:v1"
+          }
+        ],
+        "commit_id": "Commit-1"
+      }
+    },
+    {
+      "id": "rejected-proposal",
+      "states": [
+        "admitted",
+        "rejected"
+      ],
+      "authorization": null
+    },
+    {
+      "id": "challenged-proposal",
+      "states": [
+        "admitted",
+        "challenged",
+        "suspended"
+      ],
+      "challenge": {
+        "id": "challenge-1",
+        "principal": "Institution-B",
+        "rationale": "Evidence contested",
+        "follow_on": "review"
+      }
+    },
+    {
+      "id": "expired-authorization",
+      "states": [
+        "accepted",
+        "authorized",
+        "execution-failed"
+      ],
+      "failure": "authorization expired",
+      "receipt": {
+        "id": "receipt-expired",
+        "status": "failure",
+        "binding": "Binding-1",
+        "executor": "Institution-A",
+        "result_manifest": [],
+        "commit_id": null,
+        "failure": "authorization-expired"
+      }
+    },
+    {
+      "id": "missing-receipt",
+      "states": [
+        "authorized",
+        "execution-pending",
+        "execution-failed"
+      ],
+      "timeout_blocks": 20,
+      "escalation": "C-Review"
+    },
+    {
+      "id": "compound-restoration",
+      "states": [
+        "admitted",
+        "accepted",
+        "authorized",
+        "execution-pending",
+        "technically-confirmed"
+      ],
+      "plan": {
+        "id": "Plan-Restore-v1",
+        "fresh_authorization_required": true,
+        "preserve_history": true,
+        "atomic_common_commit_required": true,
+        "steps": [
+          {
+            "version": "v1",
+            "operation": "restore",
+            "source": "superseded",
+            "target": "published"
+          },
+          {
+            "version": "v2",
+            "operation": "supersede",
+            "source": "published",
+            "target": "superseded"
+          }
+        ]
+      },
+      "receipt": {
+        "id": "Receipt-Restore",
+        "status": "success",
+        "executor": "Institution-A",
+        "commit_id": "Commit-Restore",
+        "failure": null,
+        "result_manifest": [
+          {
+            "version": "v1",
+            "state": "published"
+          },
+          {
+            "version": "v2",
+            "state": "superseded"
+          }
+        ]
+      },
+      "limit": "Atomic store commit is a model obligation, not implemented by this package"
+    },
+    {
+      "id": "exceptional-suspension",
+      "states": [
+        "admitted",
+        "authorized",
+        "suspended"
+      ],
+      "policy": {
+        "operations": [
+          "suspend"
+        ],
+        "asset_class": "EmploymentGraph",
+        "trigger": "suspected-invalid-publication",
+        "max_blocks": 10,
+        "delegation": false,
+        "notification_required": true,
+        "independent_review_required": true
+      },
+      "notification": {
+        "id": "notice-1",
+        "review_body": "C-Review"
+      },
+      "review": {
+        "id": "review-1",
+        "reviewer_principal": "Institution-B",
+        "intervening_principal": "Institution-A",
+        "outcome": "corrective-proposal-required"
+      },
+      "limit": "Synthetic records; no actual institutional emergency or review"
+    }
+  ]
+}

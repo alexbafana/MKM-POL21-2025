@@ -1,0 +1,412 @@
+{
+  "id": "WoodHiveWorkedCase",
+  "illustrative": true,
+  "asset": {
+    "id": "urn:woodhive:graph:employment",
+    "class": "EmploymentGraph",
+    "versions": [
+      "v1",
+      "v2"
+    ],
+    "immutable": true
+  },
+  "principals": [
+    "Institution-A",
+    "Institution-B",
+    "Institution-C"
+  ],
+  "roles": {
+    "Producer": "Institution-A",
+    "Validator": "Institution-B",
+    "Authorizer": "Institution-C",
+    "Executor": "Institution-A",
+    "Auditor": "Institution-B"
+  },
+  "mandates": [
+    {
+      "principal": "Institution-A",
+      "valid_from": 0,
+      "valid_until": 1000,
+      "reference": "illustrative-mandate-Institution-A",
+      "institution": "Institution-A",
+      "roles": [
+        "Producer",
+        "Executor"
+      ],
+      "scope": "EmploymentGraph",
+      "illustrative": true
+    },
+    {
+      "principal": "Institution-B",
+      "valid_from": 0,
+      "valid_until": 1000,
+      "reference": "illustrative-mandate-Institution-B",
+      "institution": "Institution-B",
+      "roles": [
+        "Validator",
+        "Authorizer",
+        "Auditor"
+      ],
+      "scope": "EmploymentGraph",
+      "illustrative": true
+    },
+    {
+      "principal": "Institution-C",
+      "valid_from": 0,
+      "valid_until": 1000,
+      "reference": "illustrative-mandate-Institution-C",
+      "institution": "Institution-C",
+      "roles": [
+        "Authorizer"
+      ],
+      "scope": "EmploymentGraph",
+      "illustrative": true
+    }
+  ],
+  "lifecycle": {
+    "states": [
+      "candidate",
+      "validated",
+      "published",
+      "superseded",
+      "deprecated",
+      "archived"
+    ],
+    "transitions": [
+      [
+        "validate",
+        "candidate",
+        "validated"
+      ],
+      [
+        "publish",
+        "validated",
+        "published"
+      ],
+      [
+        "supersede",
+        "published",
+        "superseded"
+      ],
+      [
+        "deprecate",
+        "published",
+        "deprecated"
+      ],
+      [
+        "archive",
+        "deprecated",
+        "archived"
+      ],
+      [
+        "restore",
+        "superseded",
+        "published"
+      ]
+    ]
+  },
+  "permissions": [
+    {
+      "subject": "R-Producer",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "propose"
+    },
+    {
+      "subject": "R-Curator",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "prepare"
+    },
+    {
+      "subject": "R-Curator",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "propose"
+    },
+    {
+      "subject": "R-ModelMaintainer",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "prepare"
+    },
+    {
+      "subject": "R-Validator",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "validate"
+    },
+    {
+      "subject": "R-Authorizer",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "authorize"
+    },
+    {
+      "subject": "R-Executor",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "execute"
+    },
+    {
+      "subject": "R-Auditor",
+      "asset": "urn:woodhive:graph:employment",
+      "transition": "publish",
+      "action": "challenge"
+    }
+  ],
+  "policy": {
+    "id": "Policy-Publication",
+    "method": "committee",
+    "quorum": 2,
+    "threshold": 1.0,
+    "voting_blocks": 30,
+    "execution_delay_blocks": 5,
+    "delegation_max_blocks": 30,
+    "min_independent_principals": 2,
+    "evidence": [
+      "provenance",
+      "model-version",
+      "validation",
+      "content-digest"
+    ],
+    "configuration_change_requires_proposal": true
+  },
+  "plan": {
+    "id": "Plan-Publish-v1",
+    "asset": "urn:woodhive:graph:employment",
+    "steps": [
+      {
+        "version": "v1",
+        "operation": "publish",
+        "source": "validated",
+        "target": "published"
+      }
+    ],
+    "evidence": "Evidence-v1"
+  },
+  "evidence": {
+    "id": "Evidence-v1",
+    "validation_passed": true,
+    "validator": "Institution-B",
+    "model_version": "illustrative-estbert-profile-v1",
+    "provenance": "urn:woodhive:processing:1",
+    "canonicalization": "RDFC-1.0",
+    "hash": "SHA-256",
+    "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "synthetic_digest": true
+  },
+  "decision": {
+    "id": "Decision-1",
+    "plan": "Plan-Publish-v1",
+    "outcome": "accepted",
+    "participants": [
+      "Institution-B",
+      "Institution-C"
+    ],
+    "rationale": "Validation evidence accepted; exact publication approved",
+    "challenge_records": [],
+    "process_status": "completed"
+  },
+  "authorization": {
+    "id": "Authorization-1",
+    "decision": "Decision-1",
+    "plan": "Plan-Publish-v1",
+    "executor": "Institution-A",
+    "expires": 100,
+    "nonce": "nonce-1"
+  },
+  "binding": {
+    "id": "Binding-1",
+    "authorization": "Authorization-1",
+    "plan": "Plan-Publish-v1",
+    "expected_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "receipt": {
+    "id": "Receipt-1",
+    "binding": "Binding-1",
+    "attempt": "Attempt-1",
+    "executor": "Institution-A",
+    "status": "success",
+    "failure": null,
+    "result_manifest": [
+      {
+        "version": "v1",
+        "state": "published",
+        "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "publication_id": "urn:woodhive:publication:v1"
+      }
+    ],
+    "commit_id": "Commit-1"
+  },
+  "confirmation": {
+    "id": "Confirmation-1",
+    "receipt": "Receipt-1",
+    "state": "institutionally-confirmed",
+    "atomic_technical_update": true,
+    "idempotence_key": "Binding-1"
+  },
+  "restoration_plan": {
+    "id": "Plan-Restore-v1",
+    "fresh_authorization_required": true,
+    "preserve_history": true,
+    "atomic_common_commit_required": true,
+    "steps": [
+      {
+        "version": "v1",
+        "operation": "restore",
+        "source": "superseded",
+        "target": "published"
+      },
+      {
+        "version": "v2",
+        "operation": "supersede",
+        "source": "published",
+        "target": "superseded"
+      }
+    ]
+  },
+  "safeguards": {
+    "compliance": {
+      "id": "Illustrative-EE-Policy",
+      "jurisdiction": "EE",
+      "mandate_required": true,
+      "competent_approval_required": true,
+      "legal_validity_verified": false
+    },
+    "protected_evidence": {
+      "retention_days": 365,
+      "preservation_hold": true,
+      "disclosure": "restricted",
+      "onchain_content": false
+    },
+    "emergency": {
+      "operations": [
+        "suspend"
+      ],
+      "asset_class": "EmploymentGraph",
+      "trigger": "suspected-invalid-publication",
+      "max_blocks": 10,
+      "delegation": false,
+      "notification_required": true,
+      "independent_review_required": true
+    },
+    "appeal": {
+      "external_reference": "illustrative-appeal-1",
+      "effect": "suspend-and-propose-correction"
+    },
+    "incompatible_roles": [
+      [
+        "Producer",
+        "Validator"
+      ],
+      [
+        "Producer",
+        "Authorizer"
+      ]
+    ],
+    "monitor": {
+      "max_authority_share": 0.5,
+      "min_participation": 2,
+      "watch": [
+        "concentration",
+        "challenges",
+        "emergency-use"
+      ]
+    },
+    "escalation": {
+      "timeout_blocks": 20,
+      "conditions": [
+        "deadlock",
+        "censorship",
+        "executor-timeout",
+        "missing-receipt",
+        "selective-non-execution"
+      ],
+      "state": "execution-failed",
+      "review_body": "C-Review"
+    }
+  },
+  "lineage": [
+    [
+      "Evidence-v1",
+      "Plan-Publish-v1"
+    ],
+    [
+      "Plan-Publish-v1",
+      "Decision-1"
+    ],
+    [
+      "Decision-1",
+      "Authorization-1"
+    ],
+    [
+      "Authorization-1",
+      "Binding-1"
+    ],
+    [
+      "Binding-1",
+      "Receipt-1"
+    ],
+    [
+      "Receipt-1",
+      "v1"
+    ]
+  ],
+  "execution_states": [
+    "authorized",
+    "execution-pending",
+    "execution-failed",
+    "technically-confirmed",
+    "institutionally-confirmed"
+  ],
+  "decision_outcomes": [
+    "accepted",
+    "rejected",
+    "expired"
+  ],
+  "process_states": [
+    "admitted",
+    "challenged",
+    "suspended",
+    "completed"
+  ],
+  "delegation": {
+    "from": "C-Review",
+    "to": "R-Auditor",
+    "permission": "challenge",
+    "asset": "urn:woodhive:graph:employment",
+    "transition": "publish",
+    "expires": 80,
+    "can_redelegate": false,
+    "scope_subset_required": true,
+    "illustrative": true
+  },
+  "role_assignments": {
+    "Producer": [
+      "Institution-A"
+    ],
+    "Validator": [
+      "Institution-B"
+    ],
+    "Authorizer": [
+      "Institution-B",
+      "Institution-C"
+    ],
+    "Executor": [
+      "Institution-A"
+    ],
+    "Auditor": [
+      "Institution-B"
+    ]
+  },
+  "committee_members": {
+    "C-Publication": [
+      "Institution-B",
+      "Institution-C"
+    ],
+    "C-Review": [
+      "Institution-B"
+    ]
+  }
+}
