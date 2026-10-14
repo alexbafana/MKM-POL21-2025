@@ -5,41 +5,59 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="Authorization" value="E | RECORD&#10;&lt;&lt;Authorization&gt;&gt; [ER1]&#10;WoodHive-Authorization&#10;/authorization" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Authorization" requirement="ER1" notationFamily="RECORD">
+        <mxCell id="Authorization" value="IKG:E | E | RECORD&#10;&lt;&lt;Authorization&gt;&gt; [ER1]&#10;WoodHive-Authorization&#10;/authorization" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Authorization" requirement="ER1" notationFamily="RECORD" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="Authorization-glyph" vertex="1" parent="Authorization" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="Authorization-tab-0" vertex="1" parent="Authorization" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="ExecutionStatus" value="E | STATE&#10;&lt;&lt;ExecutionStatus&gt;&gt; [ER2]&#10;WoodHive-ExecutionStatus&#10;/execution_states" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ExecutionStatus" requirement="ER2" notationFamily="STATE">
+        <mxCell id="Authorization-tab-1" vertex="1" parent="Authorization" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="ExecutionStatus" value="IKG:L | E | STATE&#10;&lt;&lt;ExecutionStatus&gt;&gt; [ER2]&#10;WoodHive-ExecutionStatus&#10;/execution_states" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ExecutionStatus" requirement="ER2" notationFamily="STATE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="ExecutionStatus-glyph" vertex="1" parent="ExecutionStatus" style="shape=ellipse;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="ExecutionStatus-tab-0" vertex="1" parent="ExecutionStatus" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="ExecutionGuard" value="E | GATE&#10;&lt;&lt;ExecutionGuard&gt;&gt; [ER3]&#10;WoodHive-ExecutionGuard&#10;/authorization/nonce" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ExecutionGuard" requirement="ER3" notationFamily="GATE">
+        <mxCell id="ExecutionStatus-tab-1" vertex="1" parent="ExecutionStatus" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="ExecutionGuard" value="IKG:G | E | GATE&#10;&lt;&lt;ExecutionGuard&gt;&gt; [ER3]&#10;WoodHive-ExecutionGuard&#10;/authorization/nonce" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ExecutionGuard" requirement="ER3" notationFamily="GATE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="ExecutionGuard-glyph" vertex="1" parent="ExecutionGuard" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="ExecutionGuard-tab-0" vertex="1" parent="ExecutionGuard" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="ContentIdentity" value="E | RECORD&#10;&lt;&lt;ContentIdentity&gt;&gt; [ER4]&#10;WoodHive-ContentIdentity&#10;/evidence/canonicalization" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ContentIdentity" requirement="ER4" notationFamily="RECORD">
+        <mxCell id="ExecutionGuard-tab-1" vertex="1" parent="ExecutionGuard" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="ContentIdentity" value="IKG:E | E | RECORD&#10;&lt;&lt;ContentIdentity&gt;&gt; [ER4]&#10;WoodHive-ContentIdentity&#10;/evidence/canonicalization" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ContentIdentity" requirement="ER4" notationFamily="RECORD" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="ContentIdentity-glyph" vertex="1" parent="ContentIdentity" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="ContentIdentity-tab-0" vertex="1" parent="ContentIdentity" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="AttemptReceipt" value="E | RECORD&#10;&lt;&lt;AttemptReceipt&gt;&gt; [ER5]&#10;WoodHive-AttemptReceipt&#10;/receipt" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:AttemptReceipt" requirement="ER5" notationFamily="RECORD">
+        <mxCell id="ContentIdentity-tab-1" vertex="1" parent="ContentIdentity" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="AttemptReceipt" value="IKG:E | E | RECORD&#10;&lt;&lt;AttemptReceipt&gt;&gt; [ER5]&#10;WoodHive-AttemptReceipt&#10;/receipt" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:AttemptReceipt" requirement="ER5" notationFamily="RECORD" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="AttemptReceipt-glyph" vertex="1" parent="AttemptReceipt" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="AttemptReceipt-tab-0" vertex="1" parent="AttemptReceipt" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="Confirmation" value="E | GATE&#10;&lt;&lt;Confirmation&gt;&gt; [ER6]&#10;WoodHive-Confirmation&#10;/confirmation" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Confirmation" requirement="ER6" notationFamily="GATE">
+        <mxCell id="AttemptReceipt-tab-1" vertex="1" parent="AttemptReceipt" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Confirmation" value="IKG:G | E | GATE&#10;&lt;&lt;Confirmation&gt;&gt; [ER6]&#10;WoodHive-Confirmation&#10;/confirmation" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Confirmation" requirement="ER6" notationFamily="GATE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="Confirmation-glyph" vertex="1" parent="Confirmation" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="Confirmation-tab-0" vertex="1" parent="Confirmation" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Confirmation-tab-1" vertex="1" parent="Confirmation" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
         </mxCell>
       </root>
     </mxGraphModel>

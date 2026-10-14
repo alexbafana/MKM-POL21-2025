@@ -1,12 +1,14 @@
-# Proposed institutional visual notation, version 1.0.0
+# Proposed institutional visual notation, version 1.1.0
 
 The notation adds explicit institutional symbols linked to the new ontology classes. It does not assert that upstream DAO-ML/ET-DM editors understand the additions. The inherited upstream XML models remain unmodified in vocabulary; `InstitutionalModelViews.xsd` defines the proposed institutional-view syntax.
 
 ## Compound node grammar
 
-Every node has a rectangular frame and a small geometric family glyph. Its label includes: (1) layer badge O/C/E/S; (2) family code; (3) exact class stereotype `<<ClassName>>`; (4) stable instance identifier; (5) requirement identifier; (6) concrete values or a resolvable worked-instance field pointer. The family glyph identifies the conceptual role; the class stereotype distinguishes different concepts within a family. Color is optional and carries no independent semantics. Glyphs alone are never sufficient to identify a class.
+Every new extension node has a card frame bearing two protruding right-edge tabs and a reserved `IKG` family marker. Its label includes a layer badge O/C/E/S, family code, exact class stereotype, stable instance identifier, requirement identifier, and concrete values or a resolvable field pointer. Color is optional and carries no independent semantics. A bare upstream shape is never assigned a new extension meaning.
 
-The nine families are ASSET (stacked rectangle), STATE (capsule), SCOPE (bracketed square), ACTOR (circle), PLAN (stacked card), POLICY (folded corner), GATE (diamond), RECORD (document), and MONITOR (hexagon). The authoritative mapping of all 36 classes and requirements is `notation.json`. A RECORD authorization is distinct from a GATE confirmation, a STATE lifecycle is distinct from execution status, and evidence is distinct from authorization even when both use the RECORD family.
+The nine markers are `IKG:A` ASSET, `IKG:L` STATE, `IKG:S` SCOPE, `IKG:R` ACTOR, `IKG:T` PLAN, `IKG:P` POLICY, `IKG:G` GATE, `IKG:E` RECORD, and `IKG:M` MONITOR. The mandatory marker, twin-tab frame and stereotype together define the symbol. Original DAO-ML/ET-DM glyphs keep their original meanings; the new reference/adaptation nodes do not redefine those glyphs.
+
+The version 1.0 draft included ambiguous primitive shapes: notably a MONITOR hexagon resembling ET-DM Treasury, and a STATE capsule resembling execution wrappers. Version 1.1 removes standalone geometric family glyphs. The manual comparison inspected the supplied thesis's Tables 4.1–4.3, 4.5–4.6 and 4.8 (printed pp. 63–65, 70, 72 and 76). The comparison scope and original glyph inventory are recorded in `thesis-notation-comparison.csv`. This is a core-notation collision audit, not a universal visual-novelty or usability claim.
 
 ## DAO-ML institutional notation
 
@@ -20,11 +22,11 @@ Coordination symbols correspond to CR1–CR6; Execution symbols correspond to ER
 
 ## Connection rules
 
-- Solid directed ontology-relation edges use the exact declared property name and declared domain/range: `hasAsset`, `requiresPolicy`, `hasPlan`, `hasReceipt`, `hasMandate`.
-- Dashed directed `baseRef` edges resolve to upstream model element IDs and mean traceability, not OWL relationships.
+- Directed extension edges use tandem arrowheads and a mandatory `IKG:` label. Solid ontology-relation edges use the exact declared property name after that prefix and declared domain/range: `hasAsset`, `requiresPolicy`, `hasPlan`, `hasReceipt`, `hasMandate`.
+- Dashed directed `IKG:baseRef` edges resolve to upstream model element IDs and mean traceability, not OWL relationships.
 - Dotted requirement edges identify requirement mappings, not execution order.
-- Dashed directed `field:<key>` edges represent actual references in worked record values; they do not invent undeclared ontology properties.
-- `next [guard]` edges belong to a separate illustrative process trace. They are not ontology relations, a proof of atomicity or evidence of deployed execution.
+- Dashed directed `IKG:field:<key>` edges represent actual references in worked record values; they do not invent undeclared ontology properties.
+- `IKG:next [guard]` edges belong to a separate illustrative process trace. They are not ontology relations, a proof of atomicity or evidence of deployed execution.
 
 A field-reference or property edge never implies a vote result, verified identity, valid legal mandate or satisfied safeguard. Compound restoration shows two version changes under a complete plan and common commit; it is not depicted as in-place deletion of prior history. Emergency policies display bounded scope, expiry, notification and independent review rather than an unrestricted administrator symbol.
 

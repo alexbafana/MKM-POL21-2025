@@ -5,77 +5,113 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="SemanticAsset" value="O | ASSET&#10;&lt;&lt;SemanticAsset&gt;&gt; [OLR1]&#10;WoodHive-SemanticAsset&#10;/asset" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:SemanticAsset" requirement="OLR1" notationFamily="ASSET">
+        <mxCell id="SemanticAsset" value="IKG:A | O | ASSET&#10;&lt;&lt;SemanticAsset&gt;&gt; [OLR1]&#10;WoodHive-SemanticAsset&#10;/asset" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:SemanticAsset" requirement="OLR1" notationFamily="ASSET" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="SemanticAsset-glyph" vertex="1" parent="SemanticAsset" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="SemanticAsset-tab-0" vertex="1" parent="SemanticAsset" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="Lifecycle" value="O | STATE&#10;&lt;&lt;Lifecycle&gt;&gt; [OLR2]&#10;WoodHive-Lifecycle&#10;/lifecycle" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:Lifecycle" requirement="OLR2" notationFamily="STATE">
+        <mxCell id="SemanticAsset-tab-1" vertex="1" parent="SemanticAsset" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Lifecycle" value="IKG:L | O | STATE&#10;&lt;&lt;Lifecycle&gt;&gt; [OLR2]&#10;WoodHive-Lifecycle&#10;/lifecycle" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:Lifecycle" requirement="OLR2" notationFamily="STATE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="Lifecycle-glyph" vertex="1" parent="Lifecycle" style="shape=ellipse;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="Lifecycle-tab-0" vertex="1" parent="Lifecycle" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="AuthorityScope" value="O | SCOPE&#10;&lt;&lt;AuthorityScope&gt;&gt; [OLR3]&#10;WoodHive-AuthorityScope&#10;/permissions" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:AuthorityScope" requirement="OLR3" notationFamily="SCOPE">
+        <mxCell id="Lifecycle-tab-1" vertex="1" parent="Lifecycle" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="AuthorityScope" value="IKG:S | O | SCOPE&#10;&lt;&lt;AuthorityScope&gt;&gt; [OLR3]&#10;WoodHive-AuthorityScope&#10;/permissions" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:AuthorityScope" requirement="OLR3" notationFamily="SCOPE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="AuthorityScope-glyph" vertex="1" parent="AuthorityScope" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="AuthorityScope-tab-0" vertex="1" parent="AuthorityScope" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="FunctionalRole" value="O | ACTOR&#10;&lt;&lt;FunctionalRole&gt;&gt; [OLR4]&#10;WoodHive-FunctionalRole&#10;/roles" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:FunctionalRole" requirement="OLR4" notationFamily="ACTOR">
+        <mxCell id="AuthorityScope-tab-1" vertex="1" parent="AuthorityScope" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="FunctionalRole" value="IKG:R | O | ACTOR&#10;&lt;&lt;FunctionalRole&gt;&gt; [OLR4]&#10;WoodHive-FunctionalRole&#10;/roles" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:FunctionalRole" requirement="OLR4" notationFamily="ACTOR" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="FunctionalRole-glyph" vertex="1" parent="FunctionalRole" style="shape=ellipse;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="FunctionalRole-tab-0" vertex="1" parent="FunctionalRole" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="CollectiveBody" value="O | ACTOR&#10;&lt;&lt;CollectiveBody&gt;&gt; [OLR5]&#10;WoodHive-CollectiveBody&#10;/decision/participants" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:CollectiveBody" requirement="OLR5" notationFamily="ACTOR">
+        <mxCell id="FunctionalRole-tab-1" vertex="1" parent="FunctionalRole" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="CollectiveBody" value="IKG:R | O | ACTOR&#10;&lt;&lt;CollectiveBody&gt;&gt; [OLR5]&#10;WoodHive-CollectiveBody&#10;/decision/participants" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:CollectiveBody" requirement="OLR5" notationFamily="ACTOR" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="CollectiveBody-glyph" vertex="1" parent="CollectiveBody" style="shape=ellipse;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="CollectiveBody-tab-0" vertex="1" parent="CollectiveBody" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="PermissionVocabulary" value="O | SCOPE&#10;&lt;&lt;PermissionVocabulary&gt;&gt; [OLR6]&#10;WoodHive-PermissionVocabulary&#10;/permissions" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:PermissionVocabulary" requirement="OLR6" notationFamily="SCOPE">
+        <mxCell id="CollectiveBody-tab-1" vertex="1" parent="CollectiveBody" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="PermissionVocabulary" value="IKG:S | O | SCOPE&#10;&lt;&lt;PermissionVocabulary&gt;&gt; [OLR6]&#10;WoodHive-PermissionVocabulary&#10;/permissions" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:PermissionVocabulary" requirement="OLR6" notationFamily="SCOPE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="PermissionVocabulary-glyph" vertex="1" parent="PermissionVocabulary" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="PermissionVocabulary-tab-0" vertex="1" parent="PermissionVocabulary" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="ScopedPermission" value="O | SCOPE&#10;&lt;&lt;ScopedPermission&gt;&gt; [OLR7]&#10;WoodHive-ScopedPermission&#10;/permissions" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:ScopedPermission" requirement="OLR7" notationFamily="SCOPE">
+        <mxCell id="PermissionVocabulary-tab-1" vertex="1" parent="PermissionVocabulary" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="ScopedPermission" value="IKG:S | O | SCOPE&#10;&lt;&lt;ScopedPermission&gt;&gt; [OLR7]&#10;WoodHive-ScopedPermission&#10;/permissions" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:ScopedPermission" requirement="OLR7" notationFamily="SCOPE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="30" y="405" width="360" height="140" />
         </mxCell>
-        <mxCell id="ScopedPermission-glyph" vertex="1" parent="ScopedPermission" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="ScopedPermission-tab-0" vertex="1" parent="ScopedPermission" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="AssignmentConstraint" value="O | GATE&#10;&lt;&lt;AssignmentConstraint&gt;&gt; [OLR8]&#10;WoodHive-AssignmentConstraint&#10;/delegation" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:AssignmentConstraint" requirement="OLR8" notationFamily="GATE">
+        <mxCell id="ScopedPermission-tab-1" vertex="1" parent="ScopedPermission" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="AssignmentConstraint" value="IKG:G | O | GATE&#10;&lt;&lt;AssignmentConstraint&gt;&gt; [OLR8]&#10;WoodHive-AssignmentConstraint&#10;/delegation" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:AssignmentConstraint" requirement="OLR8" notationFamily="GATE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="420" y="405" width="360" height="140" />
         </mxCell>
-        <mxCell id="AssignmentConstraint-glyph" vertex="1" parent="AssignmentConstraint" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="AssignmentConstraint-tab-0" vertex="1" parent="AssignmentConstraint" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="EvidenceCategory" value="O | RECORD&#10;&lt;&lt;EvidenceCategory&gt;&gt; [OLR9]&#10;WoodHive-EvidenceCategory&#10;/policy/evidence" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:EvidenceCategory" requirement="OLR9" notationFamily="RECORD">
+        <mxCell id="AssignmentConstraint-tab-1" vertex="1" parent="AssignmentConstraint" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="EvidenceCategory" value="IKG:E | O | RECORD&#10;&lt;&lt;EvidenceCategory&gt;&gt; [OLR9]&#10;WoodHive-EvidenceCategory&#10;/policy/evidence" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:EvidenceCategory" requirement="OLR9" notationFamily="RECORD" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="810" y="405" width="360" height="140" />
         </mxCell>
-        <mxCell id="EvidenceCategory-glyph" vertex="1" parent="EvidenceCategory" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="EvidenceCategory-tab-0" vertex="1" parent="EvidenceCategory" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="GovernanceChange" value="O | PLAN&#10;&lt;&lt;GovernanceChange&gt;&gt; [OLR10]&#10;WoodHive-GovernanceChange&#10;/policy/configuration_change_requires_proposal" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:GovernanceChange" requirement="OLR10" notationFamily="PLAN">
+        <mxCell id="EvidenceCategory-tab-1" vertex="1" parent="EvidenceCategory" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="GovernanceChange" value="IKG:T | O | PLAN&#10;&lt;&lt;GovernanceChange&gt;&gt; [OLR10]&#10;WoodHive-GovernanceChange&#10;/policy/configuration_change_requires_proposal" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:GovernanceChange" requirement="OLR10" notationFamily="PLAN" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="30" y="575" width="360" height="140" />
         </mxCell>
-        <mxCell id="GovernanceChange-glyph" vertex="1" parent="GovernanceChange" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="GovernanceChange-tab-0" vertex="1" parent="GovernanceChange" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="PolicyLink" value="O | SCOPE&#10;&lt;&lt;PolicyLink&gt;&gt; [OLR11]&#10;WoodHive-PolicyLink&#10;/policy/id" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:PolicyLink" requirement="OLR11" notationFamily="SCOPE">
+        <mxCell id="GovernanceChange-tab-1" vertex="1" parent="GovernanceChange" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="PolicyLink" value="IKG:S | O | SCOPE&#10;&lt;&lt;PolicyLink&gt;&gt; [OLR11]&#10;WoodHive-PolicyLink&#10;/policy/id" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:PolicyLink" requirement="OLR11" notationFamily="SCOPE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="420" y="575" width="360" height="140" />
         </mxCell>
-        <mxCell id="PolicyLink-glyph" vertex="1" parent="PolicyLink" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="PolicyLink-tab-0" vertex="1" parent="PolicyLink" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
         </mxCell>
-        <mxCell id="DistributionConstraint" value="O | GATE&#10;&lt;&lt;DistributionConstraint&gt;&gt; [OLR12]&#10;WoodHive-DistributionConstraint&#10;/policy/min_independent_principals" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:DistributionConstraint" requirement="OLR12" notationFamily="GATE">
+        <mxCell id="PolicyLink-tab-1" vertex="1" parent="PolicyLink" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="DistributionConstraint" value="IKG:G | O | GATE&#10;&lt;&lt;DistributionConstraint&gt;&gt; [OLR12]&#10;WoodHive-DistributionConstraint&#10;/policy/min_independent_principals" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:DistributionConstraint" requirement="OLR12" notationFamily="GATE" notationFrame="IKG-TWIN-TAB">
           <mxGeometry as="geometry" x="810" y="575" width="360" height="140" />
         </mxCell>
-        <mxCell id="DistributionConstraint-glyph" vertex="1" parent="DistributionConstraint" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
-          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        <mxCell id="DistributionConstraint-tab-0" vertex="1" parent="DistributionConstraint" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="DistributionConstraint-tab-1" vertex="1" parent="DistributionConstraint" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="359" y="23" width="10" height="15" />
         </mxCell>
       </root>
     </mxGraphModel>

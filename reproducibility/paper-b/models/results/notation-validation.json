@@ -3,6 +3,9 @@
   "symbols": 36,
   "diagram_symbol_bindings": 36,
   "families": 9,
+  "reserved_markers": 9,
+  "extension_frame": "IKG-TWIN-TAB",
+  "manual_comparison": "Thesis Tables 4.1\u20134.3, 4.5\u20134.6 and 4.8; see notation/thesis-notation-comparison.csv",
   "negative_checks": [
     {
       "case": "missing symbol",

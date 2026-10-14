@@ -1,0 +1,15 @@
+Original construct,Thesis tables,Printed pages,Original appearance,Draft concern,Correction
+Role / Agent,4.1 / 4.2,63 / 64,Stick figure,ACTOR used a circle reminiscent of the actor head; complete glyph was different,Use IKG:R reference card; retain original actor icon for inherited roles
+DAO,4.3,65,White square enclosure,Bare rectangular extension frames could be mistaken for an upstream frame,Require twin tabs and IKG marker; enclosure semantics are not reassigned
+Committee,4.3,65,Ellipse,Rounded STATE marker could be confused with collective-body geometry,Replace bare capsule with IKG:L marker
+Governance Area,4.3,65,Green rectangular band,Plain rectangular scopes provided insufficient distinction,Require IKG:S marker and twin tabs; preserve upstream area symbol
+Permission,4.3,65,Opposite rounded corners,General rectangular markers lacked a namespace distinction,Preserve permission glyph; use IKG:S scoped-permission reference card
+Association / control / aggregation / federation,4.1 / 4.3,63 / 65,"Dashed links, single arrows and diamond terminals",Unmarked extension arrows reused familiar link appearances,Require IKG relation labels and tandem arrowheads; do not use upstream diamond terminals
+Goal / Quality Goal / Emotional Goal,4.2,64,Parallelogram / cloud / heart,No direct full-symbol collision identified,Reserve original shapes and use IKG-coded extension cards
+On-chain / Snapshot,4.2 / 4.6 / 4.8,64 / 72 / 76,Rounded execution wrappers,STATE capsule could resemble a snapshot/on-chain wrapper,Replace capsule with IKG:L; frame does not encode execution location
+Organization Goal,4.5,70,Trapezoid,No direct full-symbol collision identified,Preserve original trapezoid
+Treasury,4.5,70,Hexagon,MONITOR used the same basic hexagon,Remove hexagon; use IKG:M
+Decision-Making Method / Mechanism,4.5,70,Corner-cut blue shape / yellow rectangle,Generic frame or policy silhouettes could be ambiguous,Use reserved twin-tab frame; retain upstream glyphs for inherited elements
+Token / Token Manager,4.5,70,Octagon / notched red bar,No exact full-symbol collision identified,Reserve upstream outlines; paired-tab labeled card is the complete extension symbol
+Proposal / Resource,4.5,70,Corner-cut page / cube,Folded/stacked draft shapes were visually close to page/box concepts,Remove standalone folded/stacked glyphs; use IKG:E and IKG:T cards
+Asset / Transaction / Data Store,4.6,72,Labeled square / lambda / cylinder,Plain extension frames could be confused with asset squares,Preserve upstream square/lambda/cylinder; require IKG marker and twin tabs

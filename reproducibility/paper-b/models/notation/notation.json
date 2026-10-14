@@ -1,10 +1,10 @@
 {
   "name": "Institutional DAO-ML / ET-DM notation",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "Proposed research notation; not an upstream editor extension or independently evaluated language",
   "node_grammar": [
     "layer badge O/C/E/S",
-    "family glyph and family code",
+    "reserved IKG:<family> marker plus mandatory IKG-TWIN-TAB frame",
     "exact ontology-class stereotype",
     "stable model element identifier",
     "requirement identifier",
@@ -12,40 +12,49 @@
   ],
   "families": {
     "ASSET": {
-      "glyph": "stacked rectangle",
-      "meaning": "Identifiable governed semantic resource"
+      "glyph": "IKG:A",
+      "meaning": "Identifiable governed semantic resource",
+      "reserved_marker": "IKG:A"
     },
     "STATE": {
-      "glyph": "capsule",
-      "meaning": "State space; never implicitly an authorization"
+      "glyph": "IKG:L",
+      "meaning": "State space; never implicitly an authorization",
+      "reserved_marker": "IKG:L"
     },
     "SCOPE": {
-      "glyph": "bracketed square",
-      "meaning": "Scope or vocabulary constraining authority"
+      "glyph": "IKG:S",
+      "meaning": "Scope or vocabulary constraining authority",
+      "reserved_marker": "IKG:S"
     },
     "ACTOR": {
-      "glyph": "circle",
-      "meaning": "Reference to responsibility, body or accountable mandate"
+      "glyph": "IKG:R",
+      "meaning": "Reference to responsibility, body or accountable mandate",
+      "reserved_marker": "IKG:R"
     },
     "PLAN": {
-      "glyph": "stacked card",
-      "meaning": "Governed action or complete transition plan"
+      "glyph": "IKG:T",
+      "meaning": "Governed action or complete transition plan",
+      "reserved_marker": "IKG:T"
     },
     "POLICY": {
-      "glyph": "folded corner",
-      "meaning": "Explicit rule or policy reference"
+      "glyph": "IKG:P",
+      "meaning": "Explicit rule or policy reference",
+      "reserved_marker": "IKG:P"
     },
     "GATE": {
-      "glyph": "diamond",
-      "meaning": "Constraint or confirmation gate; not a decision outcome"
+      "glyph": "IKG:G",
+      "meaning": "Constraint or confirmation gate; not a decision outcome",
+      "reserved_marker": "IKG:G"
     },
     "RECORD": {
-      "glyph": "document",
-      "meaning": "Identifiable evidence, authorization or result record"
+      "glyph": "IKG:E",
+      "meaning": "Identifiable evidence, authorization or result record",
+      "reserved_marker": "IKG:E"
     },
     "MONITOR": {
-      "glyph": "hexagon",
-      "meaning": "Observation or escalation specification"
+      "glyph": "IKG:M",
+      "meaning": "Observation or escalation specification",
+      "reserved_marker": "IKG:M"
     }
   },
   "layers": {
@@ -383,33 +392,54 @@
   "edges": [
     {
       "kind": "ontology relation",
-      "style": "solid directed line",
-      "label": "exact ontology property local name",
+      "style": "solid directed line with tandem arrowheads",
+      "label": "IKG:exact ontology property local name",
       "rules": "Source and target must match the declared ontology domain/range."
     },
     {
       "kind": "base-model reference",
-      "style": "dashed directed line",
-      "label": "baseRef",
+      "style": "dashed directed line with tandem arrowheads",
+      "label": "IKG:baseRef",
       "rules": "Target identifier must resolve in the referenced upstream-compatible model. This is a traceability link, not an OWL object property."
     },
     {
       "kind": "requirement trace",
-      "style": "dotted undirected line",
-      "label": "requirement identifier",
+      "style": "dotted undirected line with tandem arrowheads",
+      "label": "IKG:requirement identifier",
       "rules": "Identifier must resolve in requirements.csv. This is evidence traceability, not control flow."
     },
     {
       "kind": "illustrative process order",
-      "style": "solid directed line in a separate trace view",
-      "label": "next [guard]",
+      "style": "solid directed line with tandem arrowheads in a separate trace view",
+      "label": "IKG:next [guard]",
       "rules": "Must identify a worked trace; not interpreted as an ontology property or guarantee of execution."
     },
     {
       "kind": "worked field reference",
-      "style": "dashed directed line",
-      "label": "field:<name>",
+      "style": "dashed directed line with tandem arrowheads",
+      "label": "IKG:field:<name>",
       "rules": "A reference encoded in a concrete worked value must resolve to the target identity. This is not an ontology object property unless declared as one."
     }
-  ]
+  ],
+  "extension_frame": "IKG-TWIN-TAB: labeled card with two protruding right-edge tabs",
+  "collision_audit": {
+    "source": "Sowelu Avanzo PhD thesis, supplied PDF",
+    "printed_pages": [
+      63,
+      64,
+      65,
+      70,
+      72,
+      76
+    ],
+    "tables": [
+      "4.1",
+      "4.2",
+      "4.3",
+      "4.5",
+      "4.6",
+      "4.8"
+    ],
+    "scope": "Manual visual comparison of core DAO-ML/T-DM/ET-DM notation tables; not a claim of universal visual novelty."
+  }
 }

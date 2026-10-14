@@ -18,12 +18,14 @@ This package specifies the paper's institutional knowledge-graph lifecycle speci
 
 ## Proposed visual notation
 
-`notation/SPECIFICATION.md` defines nine compound symbol families, exact class
+`notation/SPECIFICATION.md` defines nine reserved IKG marker families, paired-tab extension frames, exact class
 stereotypes, layer badges and distinct edge semantics. `notation/notation.json`
 maps all 36 classes. The editable legend and regenerated worked diagrams use
 this notation. It is proposed notation, not an upstream editor integration.
 `validate_notation.py` checks catalog and diagram bindings; it does not assess
-usability or graphical-language adequacy. The manuscript's Appendices A–C
+usability or graphical-language adequacy. Version 1.1.0 removes collision-prone
+primitive glyphs after visual comparison with the thesis core notation tables;
+see `notation/thesis-notation-comparison.csv`. The manuscript's Appendices A–C
 separate DAO-ML notation, ET-DM notation and worked WoodHive applications.
 
 ## Explicit institutional model types and modeling walkthrough
