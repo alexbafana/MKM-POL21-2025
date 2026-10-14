@@ -16,6 +16,16 @@ This package specifies the paper's institutional knowledge-graph lifecycle speci
 - `diagrams/`: editable diagrams.net `.drawio` pages and matching SVG overview diagrams. Detailed element semantics and worked values are in the linked model sources.
 - `results/validation.json`: generated checks, negative fixtures, scope limits and SHA-256 file manifest.
 
+## Proposed visual notation
+
+`notation/SPECIFICATION.md` defines nine compound symbol families, exact class
+stereotypes, layer badges and distinct edge semantics. `notation/notation.json`
+maps all 36 classes. The editable legend and regenerated worked diagrams use
+this notation. It is proposed notation, not an upstream editor integration.
+`validate_notation.py` checks catalog and diagram bindings; it does not assess
+usability or graphical-language adequacy. The manuscript's Appendices A–C
+separate DAO-ML notation, ET-DM notation and worked WoodHive applications.
+
 ## Explicit institutional model types and modeling walkthrough
 
 `extended-views/WALKTHROUGH.md` shows how to construct the Organization,

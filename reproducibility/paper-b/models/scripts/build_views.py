@@ -1,3 +1,4 @@
+from notation_renderer import drawio_node, svg_node
 from pathlib import Path
 import json,xml.etree.ElementTree as E,html,textwrap
 r=Path(__file__).resolve().parents[1];p=json.loads((r/'institutional-profile.json').read_text());case=json.loads((r/'WoodHive.institutional.json').read_text());NS='urn:paper-b:institutional-model-view:1.0';ONT='urn:paper-b:institutional-daomod:'
@@ -27,8 +28,8 @@ for layer in layers:
  height=120+((len(items)+2)//3)*170;svg=[f'<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="{height}"><rect width="1200" height="{height}" fill="white"/><text x="30" y="35" font-family="sans-serif" font-size="22">WoodHive institutional {layer} model</text>']
  for i,el in enumerate(items):
   x=30+(i%3)*390;y=65+(i//3)*170;label=f"{el['id']} [{el['requirement']}]\nWoodHive-{el['id']}\n{el['worked_case_pointer']}"
-  n=E.SubElement(rr,'mxCell',id=el['id'],value=label,vertex='1',parent='1',style='rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;');E.SubElement(n,'mxGeometry',x=str(x),y=str(y),width='360',height='140',attrib={'as':'geometry'})
-  svg.append(f'<rect x="{x}" y="{y}" width="360" height="140" rx="8" fill="#e8f0fb" stroke="#334155"/><text x="{x+15}" y="{y+30}" font-family="sans-serif" font-size="15">'+''.join(f'<tspan x="{x+15}" dy="{0 if j==0 else 24}">{html.escape(line)}</tspan>' for j,line in enumerate(label.split('\n')) )+'</text>')
+  drawio_node(rr,el['id'],x,y)
+  svg.append(svg_node(el['id'],x,y))
  svg.append(f'<text x="30" y="{height-15}" font-family="sans-serif" font-size="14">Explicit ontology bindings; values in matching XML. Synthetic design instance, not runtime assurance.</text></svg>')
  E.indent(mx);E.ElementTree(mx).write(r/'extended-views'/(layer+'.drawio'),encoding='utf-8',xml_declaration=True);(r/'extended-views'/(layer+'.svg')).write_text(''.join(svg))
 E.indent(schema);E.ElementTree(schema).write(r/'schemas/InstitutionalModelViews.xsd',encoding='utf-8',xml_declaration=True)

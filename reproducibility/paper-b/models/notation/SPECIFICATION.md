@@ -1,0 +1,33 @@
+# Proposed institutional visual notation, version 1.0.0
+
+The notation adds explicit institutional symbols linked to the new ontology classes. It does not assert that upstream DAO-ML/ET-DM editors understand the additions. The inherited upstream XML models remain unmodified in vocabulary; `InstitutionalModelViews.xsd` defines the proposed institutional-view syntax.
+
+## Compound node grammar
+
+Every node has a rectangular frame and a small geometric family glyph. Its label includes: (1) layer badge O/C/E/S; (2) family code; (3) exact class stereotype `<<ClassName>>`; (4) stable instance identifier; (5) requirement identifier; (6) concrete values or a resolvable worked-instance field pointer. The family glyph identifies the conceptual role; the class stereotype distinguishes different concepts within a family. Color is optional and carries no independent semantics. Glyphs alone are never sufficient to identify a class.
+
+The nine families are ASSET (stacked rectangle), STATE (capsule), SCOPE (bracketed square), ACTOR (circle), PLAN (stacked card), POLICY (folded corner), GATE (diamond), RECORD (document), and MONITOR (hexagon). The authoritative mapping of all 36 classes and requirements is `notation.json`. A RECORD authorization is distinct from a GATE confirmation, a STATE lifecycle is distinct from execution status, and evidence is distinct from authorization even when both use the RECORD family.
+
+## DAO-ML institutional notation
+
+The twelve Organization symbols correspond to OLR1–OLR12 and identify semantic assets, lifecycle, scoped authority, functional responsibilities, collective membership, action vocabulary, jointly scoped permissions, incompatibility/delegation, evidence requirements, governed configuration change, coordination-policy linkage and authority distribution. FunctionalRole and CollectiveBody in these views are explicit references/adaptations to upstream elements, not claims of replacing the original DAO-ML role/committee glyphs.
+
+A permission specification must identify the subject role/body, exact asset or asset class, transition and action. A critical transition must identify accountable principals, its minimum distribution and the absence of sole end-to-end control. A version identifier is not a lifecycle state; a lifecycle state is not a decision result.
+
+## ET-DM institutional notation
+
+Coordination symbols correspond to CR1–CR6; Execution symbols correspond to ER1–ER6. A plan lists all elementary steps, exact versions, expected source/target states and evidence. Coordination specifies admission, participation, mechanism, quorum, threshold, timing, delegation, outcomes and challenges. Authorization identifies the accepted decision, complete plan, executor, expiry and nonce. Receipts identify attempts, result manifests, status and failures. Technical confirmation has a receipt and idempotence key. Institutional safeguards remain separately identifiable as S-badged symbols for SG1–SG12; a technical result does not silently become an institutional or legal approval.
+
+## Connection rules
+
+- Solid directed ontology-relation edges use the exact declared property name and declared domain/range: `hasAsset`, `requiresPolicy`, `hasPlan`, `hasReceipt`, `hasMandate`.
+- Dashed directed `baseRef` edges resolve to upstream model element IDs and mean traceability, not OWL relationships.
+- Dotted requirement edges identify requirement mappings, not execution order.
+- Dashed directed `field:<key>` edges represent actual references in worked record values; they do not invent undeclared ontology properties.
+- `next [guard]` edges belong to a separate illustrative process trace. They are not ontology relations, a proof of atomicity or evidence of deployed execution.
+
+A field-reference or property edge never implies a vote result, verified identity, valid legal mandate or satisfied safeguard. Compound restoration shows two version changes under a complete plan and common commit; it is not depicted as in-place deletion of prior history. Emergency policies display bounded scope, expiry, notification and independent review rather than an unrestricted administrator symbol.
+
+## Validation and status
+
+`validate_notation.py` checks the 36-symbol catalog, exact class/requirement coverage and the exported diagrams' notation metadata and stereotypes. Model and RDF validators separately check values, references, schema compatibility and ontology declarations. These mechanical checks do not establish perceptual clarity, notation usability, semantic completeness or external acceptance. Independent user/modeling evaluation remains required. Appendix A defines the DAO-ML additions, Appendix B defines the ET-DM additions and safeguard interfaces, and Appendix C applies them to WoodHive.

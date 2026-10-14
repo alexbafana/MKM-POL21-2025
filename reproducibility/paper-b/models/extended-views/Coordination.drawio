@@ -5,23 +5,41 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="TransitionPlan" value="TransitionPlan [CR1]&#10;WoodHive-TransitionPlan&#10;/plan" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="TransitionPlan" value="C | PLAN&#10;&lt;&lt;TransitionPlan&gt;&gt; [CR1]&#10;WoodHive-TransitionPlan&#10;/plan" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:TransitionPlan" requirement="CR1" notationFamily="PLAN">
           <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="Admission" value="Admission [CR2]&#10;WoodHive-Admission&#10;/mandates" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="TransitionPlan-glyph" vertex="1" parent="TransitionPlan" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="Admission" value="C | GATE&#10;&lt;&lt;Admission&gt;&gt; [CR2]&#10;WoodHive-Admission&#10;/mandates" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:Admission" requirement="CR2" notationFamily="GATE">
           <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="CoordinationPolicy" value="CoordinationPolicy [CR3]&#10;WoodHive-CoordinationPolicy&#10;/policy" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="Admission-glyph" vertex="1" parent="Admission" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="CoordinationPolicy" value="C | POLICY&#10;&lt;&lt;CoordinationPolicy&gt;&gt; [CR3]&#10;WoodHive-CoordinationPolicy&#10;/policy" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:CoordinationPolicy" requirement="CR3" notationFamily="POLICY">
           <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="ValidationPrerequisite" value="ValidationPrerequisite [CR4]&#10;WoodHive-ValidationPrerequisite&#10;/evidence/validation_passed" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="CoordinationPolicy-glyph" vertex="1" parent="CoordinationPolicy" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="ValidationPrerequisite" value="C | GATE&#10;&lt;&lt;ValidationPrerequisite&gt;&gt; [CR4]&#10;WoodHive-ValidationPrerequisite&#10;/evidence/validation_passed" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:ValidationPrerequisite" requirement="CR4" notationFamily="GATE">
           <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="DecisionOutcome" value="DecisionOutcome [CR5]&#10;WoodHive-DecisionOutcome&#10;/decision_outcomes" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="ValidationPrerequisite-glyph" vertex="1" parent="ValidationPrerequisite" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="DecisionOutcome" value="C | STATE&#10;&lt;&lt;DecisionOutcome&gt;&gt; [CR5]&#10;WoodHive-DecisionOutcome&#10;/decision_outcomes" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:DecisionOutcome" requirement="CR5" notationFamily="STATE">
           <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="ConfigurationProposal" value="ConfigurationProposal [CR6]&#10;WoodHive-ConfigurationProposal&#10;/policy/configuration_change_requires_proposal" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="DecisionOutcome-glyph" vertex="1" parent="DecisionOutcome" style="shape=ellipse;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="ConfigurationProposal" value="C | PLAN&#10;&lt;&lt;ConfigurationProposal&gt;&gt; [CR6]&#10;WoodHive-ConfigurationProposal&#10;/policy/configuration_change_requires_proposal" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:ConfigurationProposal" requirement="CR6" notationFamily="PLAN">
           <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ConfigurationProposal-glyph" vertex="1" parent="ConfigurationProposal" style="shape=rectangle;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
         </mxCell>
       </root>
     </mxGraphModel>

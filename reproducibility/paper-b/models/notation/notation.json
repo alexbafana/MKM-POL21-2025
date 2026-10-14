@@ -1,0 +1,415 @@
+{
+  "name": "Institutional DAO-ML / ET-DM notation",
+  "version": "1.0.0",
+  "status": "Proposed research notation; not an upstream editor extension or independently evaluated language",
+  "node_grammar": [
+    "layer badge O/C/E/S",
+    "family glyph and family code",
+    "exact ontology-class stereotype",
+    "stable model element identifier",
+    "requirement identifier",
+    "concrete value or resolvable worked-instance field pointer"
+  ],
+  "families": {
+    "ASSET": {
+      "glyph": "stacked rectangle",
+      "meaning": "Identifiable governed semantic resource"
+    },
+    "STATE": {
+      "glyph": "capsule",
+      "meaning": "State space; never implicitly an authorization"
+    },
+    "SCOPE": {
+      "glyph": "bracketed square",
+      "meaning": "Scope or vocabulary constraining authority"
+    },
+    "ACTOR": {
+      "glyph": "circle",
+      "meaning": "Reference to responsibility, body or accountable mandate"
+    },
+    "PLAN": {
+      "glyph": "stacked card",
+      "meaning": "Governed action or complete transition plan"
+    },
+    "POLICY": {
+      "glyph": "folded corner",
+      "meaning": "Explicit rule or policy reference"
+    },
+    "GATE": {
+      "glyph": "diamond",
+      "meaning": "Constraint or confirmation gate; not a decision outcome"
+    },
+    "RECORD": {
+      "glyph": "document",
+      "meaning": "Identifiable evidence, authorization or result record"
+    },
+    "MONITOR": {
+      "glyph": "hexagon",
+      "meaning": "Observation or escalation specification"
+    }
+  },
+  "layers": {
+    "Organization": "O",
+    "Coordination": "C",
+    "Execution": "E",
+    "Safeguard": "S"
+  },
+  "symbols": [
+    {
+      "class": "SemanticAsset",
+      "ontology_class": "urn:paper-b:institutional-daomod:SemanticAsset",
+      "requirement": "OLR1",
+      "layer": "Organization",
+      "family": "ASSET",
+      "base_element": "WoodHiveDAO",
+      "worked_case_pointer": "/asset"
+    },
+    {
+      "class": "Lifecycle",
+      "ontology_class": "urn:paper-b:institutional-daomod:Lifecycle",
+      "requirement": "OLR2",
+      "layer": "Organization",
+      "family": "STATE",
+      "base_element": "WoodHiveDAO",
+      "worked_case_pointer": "/lifecycle"
+    },
+    {
+      "class": "AuthorityScope",
+      "ontology_class": "urn:paper-b:institutional-daomod:AuthorityScope",
+      "requirement": "OLR3",
+      "layer": "Organization",
+      "family": "SCOPE",
+      "base_element": "GA-Employment",
+      "worked_case_pointer": "/permissions"
+    },
+    {
+      "class": "FunctionalRole",
+      "ontology_class": "urn:paper-b:institutional-daomod:FunctionalRole",
+      "requirement": "OLR4",
+      "layer": "Organization",
+      "family": "ACTOR",
+      "base_element": "R-Curator",
+      "worked_case_pointer": "/roles"
+    },
+    {
+      "class": "CollectiveBody",
+      "ontology_class": "urn:paper-b:institutional-daomod:CollectiveBody",
+      "requirement": "OLR5",
+      "layer": "Organization",
+      "family": "ACTOR",
+      "base_element": "C-Publication",
+      "worked_case_pointer": "/decision/participants"
+    },
+    {
+      "class": "PermissionVocabulary",
+      "ontology_class": "urn:paper-b:institutional-daomod:PermissionVocabulary",
+      "requirement": "OLR6",
+      "layer": "Organization",
+      "family": "SCOPE",
+      "base_element": "P-authorize",
+      "worked_case_pointer": "/permissions"
+    },
+    {
+      "class": "ScopedPermission",
+      "ontology_class": "urn:paper-b:institutional-daomod:ScopedPermission",
+      "requirement": "OLR7",
+      "layer": "Organization",
+      "family": "SCOPE",
+      "base_element": "P-execute",
+      "worked_case_pointer": "/permissions"
+    },
+    {
+      "class": "AssignmentConstraint",
+      "ontology_class": "urn:paper-b:institutional-daomod:AssignmentConstraint",
+      "requirement": "OLR8",
+      "layer": "Organization",
+      "family": "GATE",
+      "base_element": "R-Producer",
+      "worked_case_pointer": "/delegation"
+    },
+    {
+      "class": "EvidenceCategory",
+      "ontology_class": "urn:paper-b:institutional-daomod:EvidenceCategory",
+      "requirement": "OLR9",
+      "layer": "Organization",
+      "family": "RECORD",
+      "base_element": "WoodHiveDAO",
+      "worked_case_pointer": "/policy/evidence"
+    },
+    {
+      "class": "GovernanceChange",
+      "ontology_class": "urn:paper-b:institutional-daomod:GovernanceChange",
+      "requirement": "OLR10",
+      "layer": "Organization",
+      "family": "PLAN",
+      "base_element": "C-Review",
+      "worked_case_pointer": "/policy/configuration_change_requires_proposal"
+    },
+    {
+      "class": "PolicyLink",
+      "ontology_class": "urn:paper-b:institutional-daomod:PolicyLink",
+      "requirement": "OLR11",
+      "layer": "Organization",
+      "family": "SCOPE",
+      "base_element": "GA-Employment",
+      "worked_case_pointer": "/policy/id"
+    },
+    {
+      "class": "DistributionConstraint",
+      "ontology_class": "urn:paper-b:institutional-daomod:DistributionConstraint",
+      "requirement": "OLR12",
+      "layer": "Organization",
+      "family": "GATE",
+      "base_element": "C-Publication",
+      "worked_case_pointer": "/policy/min_independent_principals"
+    },
+    {
+      "class": "TransitionPlan",
+      "ontology_class": "urn:paper-b:institutional-daomod:TransitionPlan",
+      "requirement": "CR1",
+      "layer": "Coordination",
+      "family": "PLAN",
+      "base_element": "PROP-Publish",
+      "worked_case_pointer": "/plan"
+    },
+    {
+      "class": "Admission",
+      "ontology_class": "urn:paper-b:institutional-daomod:Admission",
+      "requirement": "CR2",
+      "layer": "Coordination",
+      "family": "GATE",
+      "base_element": "MECH-Admission",
+      "worked_case_pointer": "/mandates"
+    },
+    {
+      "class": "CoordinationPolicy",
+      "ontology_class": "urn:paper-b:institutional-daomod:CoordinationPolicy",
+      "requirement": "CR3",
+      "layer": "Coordination",
+      "family": "POLICY",
+      "base_element": "DM-Publication",
+      "worked_case_pointer": "/policy"
+    },
+    {
+      "class": "ValidationPrerequisite",
+      "ontology_class": "urn:paper-b:institutional-daomod:ValidationPrerequisite",
+      "requirement": "CR4",
+      "layer": "Coordination",
+      "family": "GATE",
+      "base_element": "RES-Evidence",
+      "worked_case_pointer": "/evidence/validation_passed"
+    },
+    {
+      "class": "DecisionOutcome",
+      "ontology_class": "urn:paper-b:institutional-daomod:DecisionOutcome",
+      "requirement": "CR5",
+      "layer": "Coordination",
+      "family": "STATE",
+      "base_element": "MECH-Challenge",
+      "worked_case_pointer": "/decision_outcomes"
+    },
+    {
+      "class": "ConfigurationProposal",
+      "ontology_class": "urn:paper-b:institutional-daomod:ConfigurationProposal",
+      "requirement": "CR6",
+      "layer": "Coordination",
+      "family": "PLAN",
+      "base_element": "PROP-Admin",
+      "worked_case_pointer": "/policy/configuration_change_requires_proposal"
+    },
+    {
+      "class": "Authorization",
+      "ontology_class": "urn:paper-b:institutional-daomod:Authorization",
+      "requirement": "ER1",
+      "layer": "Execution",
+      "family": "RECORD",
+      "base_element": "TX-Authorize",
+      "worked_case_pointer": "/authorization"
+    },
+    {
+      "class": "ExecutionStatus",
+      "ontology_class": "urn:paper-b:institutional-daomod:ExecutionStatus",
+      "requirement": "ER2",
+      "layer": "Execution",
+      "family": "STATE",
+      "base_element": "TX-Confirm",
+      "worked_case_pointer": "/execution_states"
+    },
+    {
+      "class": "ExecutionGuard",
+      "ontology_class": "urn:paper-b:institutional-daomod:ExecutionGuard",
+      "requirement": "ER3",
+      "layer": "Execution",
+      "family": "GATE",
+      "base_element": "MECH-Execute",
+      "worked_case_pointer": "/authorization/nonce"
+    },
+    {
+      "class": "ContentIdentity",
+      "ontology_class": "urn:paper-b:institutional-daomod:ContentIdentity",
+      "requirement": "ER4",
+      "layer": "Execution",
+      "family": "RECORD",
+      "base_element": "AS-Employment",
+      "worked_case_pointer": "/evidence/canonicalization"
+    },
+    {
+      "class": "AttemptReceipt",
+      "ontology_class": "urn:paper-b:institutional-daomod:AttemptReceipt",
+      "requirement": "ER5",
+      "layer": "Execution",
+      "family": "RECORD",
+      "base_element": "G-Adapter",
+      "worked_case_pointer": "/receipt"
+    },
+    {
+      "class": "Confirmation",
+      "ontology_class": "urn:paper-b:institutional-daomod:Confirmation",
+      "requirement": "ER6",
+      "layer": "Execution",
+      "family": "GATE",
+      "base_element": "TX-Confirm",
+      "worked_case_pointer": "/confirmation"
+    },
+    {
+      "class": "Mandate",
+      "ontology_class": "urn:paper-b:institutional-daomod:Mandate",
+      "requirement": "SG1",
+      "layer": "Safeguard",
+      "family": "ACTOR",
+      "base_element": "OG-WoodHive",
+      "worked_case_pointer": "/mandates"
+    },
+    {
+      "class": "Lineage",
+      "ontology_class": "urn:paper-b:institutional-daomod:Lineage",
+      "requirement": "SG2",
+      "layer": "Safeguard",
+      "family": "RECORD",
+      "base_element": "RES-Evidence",
+      "worked_case_pointer": "/lineage"
+    },
+    {
+      "class": "AuditRecord",
+      "ontology_class": "urn:paper-b:institutional-daomod:AuditRecord",
+      "requirement": "SG3",
+      "layer": "Safeguard",
+      "family": "RECORD",
+      "base_element": "MECH-Tally",
+      "worked_case_pointer": "/decision/rationale"
+    },
+    {
+      "class": "ForwardRestoration",
+      "ontology_class": "urn:paper-b:institutional-daomod:ForwardRestoration",
+      "requirement": "SG4",
+      "layer": "Safeguard",
+      "family": "PLAN",
+      "base_element": "PROP-Restore",
+      "worked_case_pointer": "/restoration_plan"
+    },
+    {
+      "class": "EmergencyPolicy",
+      "ontology_class": "urn:paper-b:institutional-daomod:EmergencyPolicy",
+      "requirement": "SG5",
+      "layer": "Safeguard",
+      "family": "POLICY",
+      "base_element": "MECH-Challenge",
+      "worked_case_pointer": "/safeguards/emergency"
+    },
+    {
+      "class": "IndependentReview",
+      "ontology_class": "urn:paper-b:institutional-daomod:IndependentReview",
+      "requirement": "SG6",
+      "layer": "Safeguard",
+      "family": "RECORD",
+      "base_element": "MECH-Challenge",
+      "worked_case_pointer": "/safeguards/emergency/independent_review_required"
+    },
+    {
+      "class": "ComplianceProfile",
+      "ontology_class": "urn:paper-b:institutional-daomod:ComplianceProfile",
+      "requirement": "SG7",
+      "layer": "Safeguard",
+      "family": "POLICY",
+      "base_element": "OG-WoodHive",
+      "worked_case_pointer": "/safeguards/compliance"
+    },
+    {
+      "class": "ProtectedEvidence",
+      "ontology_class": "urn:paper-b:institutional-daomod:ProtectedEvidence",
+      "requirement": "SG8",
+      "layer": "Safeguard",
+      "family": "POLICY",
+      "base_element": "STORE-Evidence",
+      "worked_case_pointer": "/safeguards/protected_evidence"
+    },
+    {
+      "class": "ExternalDecision",
+      "ontology_class": "urn:paper-b:institutional-daomod:ExternalDecision",
+      "requirement": "SG9",
+      "layer": "Safeguard",
+      "family": "RECORD",
+      "base_element": "MECH-Challenge",
+      "worked_case_pointer": "/safeguards/appeal"
+    },
+    {
+      "class": "Separation",
+      "ontology_class": "urn:paper-b:institutional-daomod:Separation",
+      "requirement": "SG10",
+      "layer": "Safeguard",
+      "family": "GATE",
+      "base_element": "MECH-Admission",
+      "worked_case_pointer": "/safeguards/incompatible_roles"
+    },
+    {
+      "class": "AuthorityMonitor",
+      "ontology_class": "urn:paper-b:institutional-daomod:AuthorityMonitor",
+      "requirement": "SG11",
+      "layer": "Safeguard",
+      "family": "MONITOR",
+      "base_element": "G-Monitor",
+      "worked_case_pointer": "/safeguards/monitor"
+    },
+    {
+      "class": "Escalation",
+      "ontology_class": "urn:paper-b:institutional-daomod:Escalation",
+      "requirement": "SG12",
+      "layer": "Safeguard",
+      "family": "MONITOR",
+      "base_element": "G-Monitor",
+      "worked_case_pointer": "/safeguards/escalation"
+    }
+  ],
+  "edges": [
+    {
+      "kind": "ontology relation",
+      "style": "solid directed line",
+      "label": "exact ontology property local name",
+      "rules": "Source and target must match the declared ontology domain/range."
+    },
+    {
+      "kind": "base-model reference",
+      "style": "dashed directed line",
+      "label": "baseRef",
+      "rules": "Target identifier must resolve in the referenced upstream-compatible model. This is a traceability link, not an OWL object property."
+    },
+    {
+      "kind": "requirement trace",
+      "style": "dotted undirected line",
+      "label": "requirement identifier",
+      "rules": "Identifier must resolve in requirements.csv. This is evidence traceability, not control flow."
+    },
+    {
+      "kind": "illustrative process order",
+      "style": "solid directed line in a separate trace view",
+      "label": "next [guard]",
+      "rules": "Must identify a worked trace; not interpreted as an ontology property or guarantee of execution."
+    },
+    {
+      "kind": "worked field reference",
+      "style": "dashed directed line",
+      "label": "field:<name>",
+      "rules": "A reference encoded in a concrete worked value must resolve to the target identity. This is not an ontology object property unless declared as one."
+    }
+  ]
+}

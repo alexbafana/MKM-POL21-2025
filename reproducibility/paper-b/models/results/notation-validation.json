@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "symbols": 36,
+  "diagram_symbol_bindings": 36,
+  "families": 9,
+  "negative_checks": [
+    {
+      "case": "missing symbol",
+      "status": "rejected"
+    },
+    {
+      "case": "unknown family",
+      "status": "rejected"
+    }
+  ],
+  "scope": "Catalog completeness and diagram-to-ontology metadata; not perceptual, usability or semantic-adequacy validation."
+}

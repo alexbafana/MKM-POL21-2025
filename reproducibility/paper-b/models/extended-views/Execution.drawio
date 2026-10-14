@@ -5,23 +5,41 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="Authorization" value="Authorization [ER1]&#10;WoodHive-Authorization&#10;/authorization" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="Authorization" value="E | RECORD&#10;&lt;&lt;Authorization&gt;&gt; [ER1]&#10;WoodHive-Authorization&#10;/authorization" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Authorization" requirement="ER1" notationFamily="RECORD">
           <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="ExecutionStatus" value="ExecutionStatus [ER2]&#10;WoodHive-ExecutionStatus&#10;/execution_states" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="Authorization-glyph" vertex="1" parent="Authorization" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="ExecutionStatus" value="E | STATE&#10;&lt;&lt;ExecutionStatus&gt;&gt; [ER2]&#10;WoodHive-ExecutionStatus&#10;/execution_states" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ExecutionStatus" requirement="ER2" notationFamily="STATE">
           <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="ExecutionGuard" value="ExecutionGuard [ER3]&#10;WoodHive-ExecutionGuard&#10;/authorization/nonce" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="ExecutionStatus-glyph" vertex="1" parent="ExecutionStatus" style="shape=ellipse;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="ExecutionGuard" value="E | GATE&#10;&lt;&lt;ExecutionGuard&gt;&gt; [ER3]&#10;WoodHive-ExecutionGuard&#10;/authorization/nonce" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ExecutionGuard" requirement="ER3" notationFamily="GATE">
           <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
         </mxCell>
-        <mxCell id="ContentIdentity" value="ContentIdentity [ER4]&#10;WoodHive-ContentIdentity&#10;/evidence/canonicalization" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="ExecutionGuard-glyph" vertex="1" parent="ExecutionGuard" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="ContentIdentity" value="E | RECORD&#10;&lt;&lt;ContentIdentity&gt;&gt; [ER4]&#10;WoodHive-ContentIdentity&#10;/evidence/canonicalization" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:ContentIdentity" requirement="ER4" notationFamily="RECORD">
           <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="AttemptReceipt" value="AttemptReceipt [ER5]&#10;WoodHive-AttemptReceipt&#10;/receipt" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="ContentIdentity-glyph" vertex="1" parent="ContentIdentity" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="AttemptReceipt" value="E | RECORD&#10;&lt;&lt;AttemptReceipt&gt;&gt; [ER5]&#10;WoodHive-AttemptReceipt&#10;/receipt" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:AttemptReceipt" requirement="ER5" notationFamily="RECORD">
           <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
         </mxCell>
-        <mxCell id="Confirmation" value="Confirmation [ER6]&#10;WoodHive-Confirmation&#10;/confirmation" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+        <mxCell id="AttemptReceipt-glyph" vertex="1" parent="AttemptReceipt" style="shape=note;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
+        </mxCell>
+        <mxCell id="Confirmation" value="E | GATE&#10;&lt;&lt;Confirmation&gt;&gt; [ER6]&#10;WoodHive-Confirmation&#10;/confirmation" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=35;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Confirmation" requirement="ER6" notationFamily="GATE">
           <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="Confirmation-glyph" vertex="1" parent="Confirmation" style="shape=rhombus;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="8" y="10" width="20" height="20" />
         </mxCell>
       </root>
     </mxGraphModel>
