@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ikg:InstitutionalSafeguardModel xmlns:ikg="urn:paper-b:institutional-model-view:1.0" ontology="../DAOMod_Institutional_Integrated.rdf" baseModel="../WoodHive_ET-DM.model.xml" illustrative="true">
+  <ikg:Mandate id="WoodHive-Mandate" ontologyClass="urn:paper-b:institutional-daomod:Mandate" requirement="SG1" baseElement="OG-WoodHive" casePointer="/mandates">
+    <ikg:value>[{"illustrative": true, "institution": "Institution-A", "principal": "Institution-A", "reference": "illustrative-mandate-Institution-A", "roles": ["Producer", "Executor"], "scope": "EmploymentGraph", "valid_from": 0, "valid_until": 1000}, {"illustrative": true, "institution": "Institution-B", "principal": "Institution-B", "reference": "illustrative-mandate-Institution-B", "roles": ["Validator", "Authorizer", "Auditor"], "scope": "EmploymentGraph", "valid_from": 0, "valid_until": 1000}, {"illustrative": true, "institution": "Institution-C", "principal": "Institution-C", "reference": "illustrative-mandate-Institution-C", "roles": ["Authorizer"], "scope": "EmploymentGraph", "valid_from": 0, "valid_until": 1000}]</ikg:value>
+  </ikg:Mandate>
+  <ikg:Lineage id="WoodHive-Lineage" ontologyClass="urn:paper-b:institutional-daomod:Lineage" requirement="SG2" baseElement="RES-Evidence" casePointer="/lineage">
+    <ikg:value>[["Evidence-v1", "Plan-Publish-v1"], ["Plan-Publish-v1", "Decision-1"], ["Decision-1", "Authorization-1"], ["Authorization-1", "Binding-1"], ["Binding-1", "Receipt-1"], ["Receipt-1", "v1"]]</ikg:value>
+  </ikg:Lineage>
+  <ikg:AuditRecord id="WoodHive-AuditRecord" ontologyClass="urn:paper-b:institutional-daomod:AuditRecord" requirement="SG3" baseElement="MECH-Tally" casePointer="/decision/rationale">
+    <ikg:value>"Validation evidence accepted; exact publication approved"</ikg:value>
+  </ikg:AuditRecord>
+  <ikg:ForwardRestoration id="WoodHive-ForwardRestoration" ontologyClass="urn:paper-b:institutional-daomod:ForwardRestoration" requirement="SG4" baseElement="PROP-Restore" casePointer="/restoration_plan">
+    <ikg:value>{"atomic_common_commit_required": true, "fresh_authorization_required": true, "id": "Plan-Restore-v1", "preserve_history": true, "steps": [{"operation": "restore", "source": "superseded", "target": "published", "version": "v1"}, {"operation": "supersede", "source": "published", "target": "superseded", "version": "v2"}]}</ikg:value>
+  </ikg:ForwardRestoration>
+  <ikg:EmergencyPolicy id="WoodHive-EmergencyPolicy" ontologyClass="urn:paper-b:institutional-daomod:EmergencyPolicy" requirement="SG5" baseElement="MECH-Challenge" casePointer="/safeguards/emergency">
+    <ikg:value>{"asset_class": "EmploymentGraph", "delegation": false, "independent_review_required": true, "max_blocks": 10, "notification_required": true, "operations": ["suspend"], "trigger": "suspected-invalid-publication"}</ikg:value>
+  </ikg:EmergencyPolicy>
+  <ikg:IndependentReview id="WoodHive-IndependentReview" ontologyClass="urn:paper-b:institutional-daomod:IndependentReview" requirement="SG6" baseElement="MECH-Challenge" casePointer="/safeguards/emergency/independent_review_required">
+    <ikg:value>true</ikg:value>
+  </ikg:IndependentReview>
+  <ikg:ComplianceProfile id="WoodHive-ComplianceProfile" ontologyClass="urn:paper-b:institutional-daomod:ComplianceProfile" requirement="SG7" baseElement="OG-WoodHive" casePointer="/safeguards/compliance">
+    <ikg:value>{"competent_approval_required": true, "id": "Illustrative-EE-Policy", "jurisdiction": "EE", "legal_validity_verified": false, "mandate_required": true}</ikg:value>
+  </ikg:ComplianceProfile>
+  <ikg:ProtectedEvidence id="WoodHive-ProtectedEvidence" ontologyClass="urn:paper-b:institutional-daomod:ProtectedEvidence" requirement="SG8" baseElement="STORE-Evidence" casePointer="/safeguards/protected_evidence">
+    <ikg:value>{"disclosure": "restricted", "onchain_content": false, "preservation_hold": true, "retention_days": 365}</ikg:value>
+  </ikg:ProtectedEvidence>
+  <ikg:ExternalDecision id="WoodHive-ExternalDecision" ontologyClass="urn:paper-b:institutional-daomod:ExternalDecision" requirement="SG9" baseElement="MECH-Challenge" casePointer="/safeguards/appeal">
+    <ikg:value>{"effect": "suspend-and-propose-correction", "external_reference": "illustrative-appeal-1"}</ikg:value>
+  </ikg:ExternalDecision>
+  <ikg:Separation id="WoodHive-Separation" ontologyClass="urn:paper-b:institutional-daomod:Separation" requirement="SG10" baseElement="MECH-Admission" casePointer="/safeguards/incompatible_roles">
+    <ikg:value>[["Producer", "Validator"], ["Producer", "Authorizer"]]</ikg:value>
+  </ikg:Separation>
+  <ikg:AuthorityMonitor id="WoodHive-AuthorityMonitor" ontologyClass="urn:paper-b:institutional-daomod:AuthorityMonitor" requirement="SG11" baseElement="G-Monitor" casePointer="/safeguards/monitor">
+    <ikg:value>{"max_authority_share": 0.5, "min_participation": 2, "watch": ["concentration", "challenges", "emergency-use"]}</ikg:value>
+  </ikg:AuthorityMonitor>
+  <ikg:Escalation id="WoodHive-Escalation" ontologyClass="urn:paper-b:institutional-daomod:Escalation" requirement="SG12" baseElement="G-Monitor" casePointer="/safeguards/escalation">
+    <ikg:value>{"conditions": ["deadlock", "censorship", "executor-timeout", "missing-receipt", "selective-non-execution"], "review_body": "C-Review", "state": "execution-failed", "timeout_blocks": 20}</ikg:value>
+  </ikg:Escalation>
+</ikg:InstitutionalSafeguardModel>

@@ -6,6 +6,18 @@ Lifecycles**. It isolates the evaluated contracts, tests, requirements
 crosswalk, scenarios, commands, and generated evidence from the rest of the
 development repository.
 
+## Institutional modeling specialization
+
+The new [WoodHive institutional model package](models/README.md) contains the
+proposed DAOMod ontology extension, upstream-compatible DAO-ML and ET-DM XML,
+editable diagrams, a 36-requirement mapping, and reproducible model checks.
+It is separate from the baseline contract evidence below and does not change
+its E/P/N classifications. Run its validator with:
+
+```sh
+python3 reproducibility/paper-b/models/scripts/validate.py
+```
+
 ## What can be reproduced
 
 The package reproduces the contract-level claims only:

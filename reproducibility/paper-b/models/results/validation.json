@@ -1,0 +1,433 @@
+{
+  "status": "pass",
+  "model_checks": [
+    {
+      "check": "WoodHive_DAO-ML.model.xml upstream XSD",
+      "status": "pass"
+    },
+    {
+      "check": "WoodHive_ET-DM.model.xml upstream XSD",
+      "status": "pass"
+    },
+    {
+      "check": "worked publication plus restoration specification",
+      "status": "pass"
+    },
+    {
+      "check": "wrong asset",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "wrong asset"
+    },
+    {
+      "check": "invalid transition",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "invalid transition"
+    },
+    {
+      "check": "validation failure",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "validation prerequisite or separation"
+    },
+    {
+      "check": "self validation",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "validation prerequisite or separation"
+    },
+    {
+      "check": "quorum failure",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "quorum"
+    },
+    {
+      "check": "unknown participant",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "unknown principal"
+    },
+    {
+      "check": "expired mandate",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "invalid mandate"
+    },
+    {
+      "check": "wrong plan",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "wrong authorization or expiry"
+    },
+    {
+      "check": "expiry",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "wrong authorization or expiry"
+    },
+    {
+      "check": "wrong executor",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "wrong executor"
+    },
+    {
+      "check": "wrong content",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "content mismatch"
+    },
+    {
+      "check": "missing common commit",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "missing common commit"
+    },
+    {
+      "check": "missing lineage",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "broken lineage"
+    },
+    {
+      "check": "protected exposure",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "protected evidence exposure"
+    },
+    {
+      "check": "unbounded emergency",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "unbounded exceptional policy"
+    },
+    {
+      "check": "history erasure",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "restoration policy"
+    },
+    {
+      "check": "partial compound restoration",
+      "expected": "reject",
+      "status": "pass",
+      "reason": "incomplete restoration plan"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "OLR1",
+      "model_element": "SemanticAsset",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR2",
+      "model_element": "Lifecycle",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR3",
+      "model_element": "AuthorityScope",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR4",
+      "model_element": "FunctionalRole",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR5",
+      "model_element": "CollectiveBody",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR6",
+      "model_element": "PermissionVocabulary",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR7",
+      "model_element": "ScopedPermission",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR8",
+      "model_element": "AssignmentConstraint",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR9",
+      "model_element": "EvidenceCategory",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR10",
+      "model_element": "GovernanceChange",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR11",
+      "model_element": "PolicyLink",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "OLR12",
+      "model_element": "DistributionConstraint",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "CR1",
+      "model_element": "TransitionPlan",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "CR2",
+      "model_element": "Admission",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "CR3",
+      "model_element": "CoordinationPolicy",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "CR4",
+      "model_element": "ValidationPrerequisite",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "CR5",
+      "model_element": "DecisionOutcome",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "CR6",
+      "model_element": "ConfigurationProposal",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "ER1",
+      "model_element": "Authorization",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "ER2",
+      "model_element": "ExecutionStatus",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "ER3",
+      "model_element": "ExecutionGuard",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "ER4",
+      "model_element": "ContentIdentity",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "ER5",
+      "model_element": "AttemptReceipt",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "ER6",
+      "model_element": "Confirmation",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG1",
+      "model_element": "Mandate",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG2",
+      "model_element": "Lineage",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG3",
+      "model_element": "AuditRecord",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG4",
+      "model_element": "ForwardRestoration",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG5",
+      "model_element": "EmergencyPolicy",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG6",
+      "model_element": "IndependentReview",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG7",
+      "model_element": "ComplianceProfile",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG8",
+      "model_element": "ProtectedEvidence",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG9",
+      "model_element": "ExternalDecision",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG10",
+      "model_element": "Separation",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG11",
+      "model_element": "AuthorityMonitor",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    },
+    {
+      "id": "SG12",
+      "model_element": "Escalation",
+      "check": "presence, reference and applicable worked-case consistency",
+      "status": "pass",
+      "limit": "Not runtime enforcement, independent review, OWL consistency proof, legal adequacy or canonicalization conformance"
+    }
+  ],
+  "scope": "Schema compatibility, ID resolution, 36 model mappings, worked fixture consistency and 17 negative mutations; not full modeling-language semantics or deployed governance assurance",
+  "upstream_commit": "9ce3fc44dbb20d6441539f5992929746778bcbcc",
+  "independent_review": "not completed",
+  "files": {
+    "DAOMod_Institutional_Integrated.rdf": "e0e9382ab9049ec20c17616b3b8f9b0bea302ac553a9e0af26b83a86c4f6083f",
+    "Institutional_DAOMod.rdf": "e4e78b9b198aa6df3514724ff55df317615f2f33024509e91cf785fbb5794b1b",
+    "README.md": "6e6dcdafa18a66805a67d6495ed5c98b59bfb72d4e77f2b7a486ff149cb97305",
+    "WoodHive.institutional.json": "5d97bf2f2f9b5af66e549e4751a4f13982317b54ba5d6d7b4b9f2d241982b41d",
+    "WoodHive_DAO-ML.model.xml": "6098363e7c87ab171f9974a59f00e3ba6f653c1ef4320e5a927cd0228c73aa13",
+    "WoodHive_ET-DM.model.xml": "63a672ecaaf92933af3069a2b2e29abe5cd43c52904d44cd60eb8f61a6cb04f9",
+    "diagrams/Coordination.drawio": "1a39ae45219eec324c041a230ba544b7cbd57451c8db775151ae46feb8610e5d",
+    "diagrams/Coordination.svg": "e36cd9fbff3668fec59cddb7e9e01befa75d334b30ff839bfecea4c971d8d38b",
+    "diagrams/Execution.drawio": "5b6aae51c0fa2050e6ac7dea30942dcebbaba420208173b1282a53e53901d7af",
+    "diagrams/Execution.svg": "5ee6d9033994ca2a60599a184e6531033db05258425fdda2ece564a75bdc2368",
+    "diagrams/Organization.drawio": "900db08451c7bf51b2f532bdf8382a84e27325146b1f412cfb89e642a5a0b00c",
+    "diagrams/Organization.svg": "f1c382e0249efd270ee8995eb3d76166e9b39e84968be445a6e2883261e8cca2",
+    "diagrams/Specialization.drawio": "d1c8e44363354e561010a10438e74040baa3a01b6ec7a3ed2bdcb7515b377b84",
+    "diagrams/Specialization.svg": "dbdb20ea5d1e7085bfc7faf20e9eba8f2a9b0bdfe60a9498368c43e3fdd502c7",
+    "extended-views/Coordination.drawio": "12fe6787ecf5a54d6b2f21c5cbf985cdc5249d94cc03c7789640e40e8efc1359",
+    "extended-views/Coordination.svg": "5ba31ae4b8a0023e3ea85b00862add9d8009dacc50a6e3a6ce124ca0ac308e19",
+    "extended-views/Execution.drawio": "0880160d1efa2232621a5f68a5c347ea9a82ec377089d74f35395201c5acd275",
+    "extended-views/Execution.svg": "8985a8d15b7f82a82f60d6f491c7aac2d331e4a7ed4b98155ef87617cf58ca82",
+    "extended-views/OntologyBindings.drawio": "c9a3987c62dfc05c1e6370f921f1398d4ad8683b9708d1b71107131b43ba6d35",
+    "extended-views/OntologyBindings.svg": "d3952b79d4f2eb0f6a9edfa308f2c198793ba47af42cbb49aaca2127737f8741",
+    "extended-views/Organization.drawio": "7f3a7fc0dbca3bf2c878a19092fa25237e65866afba0d5dbda440104e3c3405d",
+    "extended-views/Organization.svg": "c6faaaeffb5fe94e4016030c51368210e28efacb6050dc75207ffe227e104f54",
+    "extended-views/Safeguard.drawio": "e7880c4192a47f8c9dbcaff337eafee310fcfd09b929c1a4e1f73a9981ec1171",
+    "extended-views/Safeguard.svg": "92cedff7099f18c807acc0d439b010d4f7c78a21727bfa66b97be5036575b273",
+    "extended-views/WALKTHROUGH.md": "89eb58d3c2b2f63cb8024eedad097a7a46735c6f6140def5b681a09fa78ad2df",
+    "extended-views/WoodHive_Coordination.xml": "fff5b7af6a165b09f85c46263d9e4b1b64667138ba73442e6bcd3e2df0fdc561",
+    "extended-views/WoodHive_Execution.xml": "c8c39e900139b141921124b20ae7fdc3c64bb776969fda704fc7209b580ef6bf",
+    "extended-views/WoodHive_Organization.xml": "9f4cbf349e1a86fc9378f2730b789c103b580c855c3525675e053fba7c9f0b68",
+    "extended-views/WoodHive_Safeguard.xml": "a91c306d7c235cdcdb1bd200f20b9f769727bbc43ea9ca948fbc6b0b55e1dd9a",
+    "extended-views/relations.json": "b9a6f832190dec44da18017c629bd7afb8f3be911ee8d03fc307ddb06645dbf9",
+    "institutional-profile.json": "243d8434749982b357123e29377acd45bcba608409350661269a2c2a0d941a49",
+    "notation/Legend.drawio": "6e06e86749f513afb0767a690a6e269973d38403fb11f40219afa6a17479e70f",
+    "notation/Legend.svg": "7821ee61991ef9d2ea93bc3275f697b0b11042b4187fe3687fc7568363400857",
+    "notation/SPECIFICATION.md": "f62b1ec0fe6062fd7df7fc5a614cc8a710861e8751bd695c0d363a6ec1d8b3f9",
+    "notation/notation.json": "7d6693e37ab3c32393b6af6dc6e785090199ee60d3bdb52212c9ba733b079928",
+    "notation/thesis-notation-comparison.csv": "4d59366855fd9683c6d4586d5e98f8c4a082507681f4015f1f35bc07a1f16dae",
+    "requirements.csv": "b7f32f23626a59786208c56d5120092f1d72aabe0a5a3a666721ac16db75a41d",
+    "schemas/DAO-ML.xsd": "db98416c1f8e9fcc6844a772ed575edf3332216a8f1b8ce8d4160460c0dfff5e",
+    "schemas/DAOMod_Ontology.rdf": "7d1f73a8139b0d8c50c590991b5d2579dbdbb8db391ddb2140287e7b1e8a4132",
+    "schemas/ERD.xsd": "f475270d5e093ebf19a99c43f131e2f4062938ed26d1bea936582b409ed51c7e",
+    "schemas/InstitutionalModelViews.xsd": "ec2e93a93669a784a7221c70665e1007bbd904cc13301eb2906762cb001c9524",
+    "schemas/PROVENANCE.md": "fef278567dd0256544a01acfd1dc4e7efdb39e258389e2b3cf16f4a6b6f7738e",
+    "schemas/upstream-manifest.json": "93fc87e904d77f50c5222653e0cdcbf9a1f6e6b65004bf9d77eaddd2e89ab71a",
+    "scripts/.gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+    "scripts/build_binding_diagram.py": "69fd234d455783ccdf68659e3e6200cc7872f9b4f44a428f9dc13e95490a11ae",
+    "scripts/build_integrated.py": "1f7576150404c23b3057b9740985c4b636c2253f0d9cc742c9bd547823295047",
+    "scripts/build_legend.py": "6a56a80646ae11bf0c8e6eb9a3c494c973fa76edbdefeab0863c27511a624844",
+    "scripts/build_views.py": "f2538402d0ccfe04639fd794c3e99db0539a70362ce3d14aab652f83e4be59b3",
+    "scripts/notation_renderer.py": "6a92b683bc422ac7723382498f4fa37152a474f8efe0c9e3bd1ec89136c8e902",
+    "scripts/ontology-requirements.txt": "50c7e5e766688b0051d3fba07d994153496106a0eddd138299439d504524c78e",
+    "scripts/validate.py": "0142052a384efa8549bdd83b6aba153ff7ba32ca3830fb594e7699c0ff6dae15",
+    "scripts/validate_integrated.py": "dbfb3601ab5edad42fde556e7285331b5294da0ab534b9a4ac31bc1ec3d6eb85",
+    "scripts/validate_notation.py": "d01b5552270b9e8bf9586310ae57f731c39a310b0f82a42be71c38fc07d49786",
+    "scripts/validate_views.py": "1235dee319bf821313728c54194fbf51f369c4491f24db55fc17574dd850ea33",
+    "worked-traces.json": "dd27757e7b7d32e25f6e69d2e89a846289eeb97e4e0b304966099b9d096f9459"
+  }
+}

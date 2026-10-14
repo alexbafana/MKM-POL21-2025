@@ -1,0 +1,36 @@
+name: Paper B institutional model validation
+on:
+  pull_request:
+    paths:
+      - 'reproducibility/paper-b/models/**'
+      - '.github/workflows/paper-b-model-validation.yml'
+  push:
+    paths:
+      - 'reproducibility/paper-b/models/**'
+      - '.github/workflows/paper-b-model-validation.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install XML schema validator
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+      - name: Validate linked models and negative fixtures
+        run: python3 reproducibility/paper-b/models/scripts/validate.py
+      - name: Install pinned RDF validator
+        run: python -m pip install -r reproducibility/paper-b/models/scripts/ontology-requirements.txt
+      - name: Validate committed integrated ontology and original preservation
+        run: python reproducibility/paper-b/models/scripts/validate_integrated.py
+      - name: Validate explicit institutional model views
+        run: python reproducibility/paper-b/models/scripts/validate_views.py
+      - name: Validate proposed visual notation
+        run: python reproducibility/paper-b/models/scripts/validate_notation.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: institutional-model-validation
+          path: reproducibility/paper-b/models/results/*.json

@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<diagram id="WoodHiveETDM">
+  <diagram_name>WoodHive ET-DM Coordination and Execution</diagram_name>
+  <organizationGoal id="OG-WoodHive">
+    <refinement_level>0</refinement_level>
+    <DAO_name>WoodHiveDAO</DAO_name>
+    <mission_statement>Govern exact versioned employment-event graph transitions</mission_statement>
+  </organizationGoal>
+  <decisionMakingMethod id="DM-Publication" decomposed_from="OG-WoodHive" execution="onchain">
+    <refinement_level>1</refinement_level>
+    <DM_goal>Collective authorization after validation</DM_goal>
+    <DM_scope>GA-Employment; see extension transition and permission references</DM_scope>
+    <DM_method>Illustrative committee vote: two eligible independent principals, unanimous approval, 30 blocks; 5 block delay</DM_method>
+    <voting_requirement>Current mandate; permission; distribution and incompatibility checks</voting_requirement>
+    <proposal_requirement>Exact plan, expected states, evidence and policy</proposal_requirement>
+  </decisionMakingMethod>
+  <resource id="RES-Evidence" associated_to="OG-WoodHive" material="false">
+    <resource_name>Protected evidence manifest</resource_name>
+  </resource>
+  <proposal id="PROP-Publish" associated_to="DM-Publication">
+    <value>Publish graph v1</value>
+    <parameter>Complete transition plan reference in institutional extension</parameter>
+    <allowed_state>admitted</allowed_state>
+  </proposal>
+  <proposal id="PROP-Restore" associated_to="DM-Publication">
+    <value>Restore retained v1 and supersede v2 atomically</value>
+    <parameter>Complete transition plan reference in institutional extension</parameter>
+    <allowed_state>admitted</allowed_state>
+  </proposal>
+  <proposal id="PROP-Admin" associated_to="DM-Publication">
+    <value>Govern permission or committee changes</value>
+    <parameter>Complete transition plan reference in institutional extension</parameter>
+    <allowed_state>admitted</allowed_state>
+  </proposal>
+  <mechanism id="MECH-Admission" decomposed_from="DM-Publication" execution="onchain" mechanism_type="Proposal Right Allocation">
+    <refinement_level>2</refinement_level>
+    <value>MECH-Admission</value>
+    <trigger>proposal submitted</trigger>
+    <precondition>Linked institutional guards</precondition>
+    <postcondition>Explicit outcome and lineage</postcondition>
+  </mechanism>
+  <mechanism id="MECH-Vote" decomposed_from="DM-Publication" execution="onchain" mechanism_type="Vote Polling">
+    <refinement_level>2</refinement_level>
+    <value>MECH-Vote</value>
+    <trigger>admitted proposal</trigger>
+    <precondition>Linked institutional guards</precondition>
+    <postcondition>Explicit outcome and lineage</postcondition>
+  </mechanism>
+  <mechanism id="MECH-Tally" decomposed_from="DM-Publication" execution="onchain" mechanism_type="Vote Tallying">
+    <refinement_level>2</refinement_level>
+    <value>MECH-Tally</value>
+    <trigger>voting deadline</trigger>
+    <precondition>Linked institutional guards</precondition>
+    <postcondition>Explicit outcome and lineage</postcondition>
+  </mechanism>
+  <mechanism id="MECH-Execute" decomposed_from="DM-Publication" execution="onchain" mechanism_type="Proposal Execution">
+    <refinement_level>2</refinement_level>
+    <value>MECH-Execute</value>
+    <trigger>accepted and guards satisfied</trigger>
+    <precondition>Linked institutional guards</precondition>
+    <postcondition>Explicit outcome and lineage</postcondition>
+  </mechanism>
+  <mechanism id="MECH-Challenge" decomposed_from="DM-Publication" execution="onchain" mechanism_type="Dispute Resolution">
+    <refinement_level>2</refinement_level>
+    <value>MECH-Challenge</value>
+    <trigger>attributable challenge</trigger>
+    <precondition>Linked institutional guards</precondition>
+    <postcondition>Explicit outcome and lineage</postcondition>
+  </mechanism>
+  <asset id="AS-Employment" decomposed_from="OG-WoodHive">
+    <refinement_level>1</refinement_level>
+    <value>Versioned employment-event RDF graph</value>
+    <parameter>urn:woodhive:graph:employment</parameter>
+  </asset>
+  <transaction id="TX-Authorize" decomposed_from="MECH-Execute">
+    <refinement_level>3</refinement_level>
+    <function_name>authorizeExactPlan</function_name>
+    <operation>Guarded operation specified by institutional extension; not generated deployed code</operation>
+  </transaction>
+  <transaction id="TX-Confirm" decomposed_from="MECH-Execute">
+    <refinement_level>3</refinement_level>
+    <function_name>confirmReceiptAndSafeguards</function_name>
+    <operation>Guarded operation specified by institutional extension; not generated deployed code</operation>
+  </transaction>
+  <dataStore id="STORE-Graph" decomposed_from="OG-WoodHive">
+    <refinement_level>2</refinement_level>
+    <data_stored>Canonical RDF and authoritative version manifest</data_stored>
+    <public>false</public>
+  </dataStore>
+  <dataStore id="STORE-Evidence" decomposed_from="OG-WoodHive">
+    <refinement_level>2</refinement_level>
+    <data_stored>Restricted identity, mandates and review evidence</data_stored>
+    <public>false</public>
+  </dataStore>
+  <goal id="G-Adapter" decomposed_from="MECH-Execute" execution="offchain">
+    <refinement_level>3</refinement_level>
+    <value>Publish, read back and produce status/failure receipt</value>
+  </goal>
+  <goal id="G-Monitor" decomposed_from="MECH-Execute" execution="offchain">
+    <refinement_level>3</refinement_level>
+    <value>Escalate missing receipt and execution timeout</value>
+  </goal>
+  <agent id="AG-Adapter" agent_name="Appointed publication adapter" associated_to="G-Adapter" autonomous="true"/>
+</diagram>

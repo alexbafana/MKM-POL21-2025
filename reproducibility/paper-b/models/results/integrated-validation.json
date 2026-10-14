@@ -1,0 +1,35 @@
+{
+  "status": "pass",
+  "original_sha256": "7d1f73a8139b0d8c50c590991b5d2579dbdbb8db391ddb2140287e7b1e8a4132",
+  "original_file_unchanged": true,
+  "original_triples": 3017,
+  "modular_extension_triples": 146,
+  "integrated_triples": 3162,
+  "complete_graph_union_isomorphic": true,
+  "self_contained_no_imports": true,
+  "institutional_classes": 36,
+  "institutional_object_properties": 5,
+  "institutional_existential_restrictions": 3,
+  "upstream_subclass_targets_resolve": true,
+  "rdfxml_roundtrip_isomorphic": true,
+  "negative_checks": [
+    {
+      "case": "deleted original axiom",
+      "status": "rejected",
+      "reason": "integrated graph differs from complete original-plus-extension union"
+    },
+    {
+      "case": "missing institutional class",
+      "status": "rejected",
+      "reason": "integrated graph differs from complete original-plus-extension union"
+    },
+    {
+      "case": "unresolved import",
+      "status": "rejected",
+      "reason": "integrated graph differs from complete original-plus-extension union"
+    }
+  ],
+  "parser": "rdflib 7.1.4",
+  "scope": "RDF syntax, exact graph preservation/union, identifiers, declarations, requirement links and selected axiom structure. No OWL-DL consistency, conservative-extension, satisfiability, runtime, or legal proof.",
+  "integrated_sha256": "e0e9382ab9049ec20c17616b3b8f9b0bea302ac553a9e0af26b83a86c4f6083f"
+}

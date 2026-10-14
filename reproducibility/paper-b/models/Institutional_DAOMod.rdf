@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <owl:Ontology rdf:about="urn:paper-b:institutional-daomod:">
+    <owl:versionInfo>1.0.0 proposed institutional specialization</owl:versionInfo>
+    <rdfs:comment>Research extension linked to pinned DAOMod ontology. Closed-world institutional checks are performed by validate.py, not inferred by OWL. No upstream ontology changes, reasoner consistency proof or legal sufficiency is asserted.</rdfs:comment>
+    <rdfs:seeAlso rdf:resource="https://github.com/SoweluAvanzo/DAOMod/blob/9ce3fc44dbb20d6441539f5992929746778bcbcc/DAOMod%20Ontology/DAOMod_Ontology.rdf" />
+    <owl:imports rdf:resource="schemas/DAOMod_Ontology.rdf" />
+  </owl:Ontology>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:SemanticAsset">
+    <rdfs:label>SemanticAsset</rdfs:label>
+    <rdfs:comment>Asset with stable identity, class and immutable version references [OLR1]</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sowel/ontologies/2024/4/DAOMod_Ontology#asset" />
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Lifecycle">
+    <rdfs:label>Lifecycle</rdfs:label>
+    <rdfs:comment>Asset states and transition relations separate from decision and execution status [OLR2]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:AuthorityScope">
+    <rdfs:label>AuthorityScope</rdfs:label>
+    <rdfs:comment>Governance area bounded by asset class and operation [OLR3]</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sowel/ontologies/2024/4/DAOMod_Ontology#Governance_Area" />
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:FunctionalRole">
+    <rdfs:label>FunctionalRole</rdfs:label>
+    <rdfs:comment>Lifecycle responsibility independently of job title [OLR4]</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/alex/ontologies/2015/0/eSourcing_Ontology#Role" />
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:CollectiveBody">
+    <rdfs:label>CollectiveBody</rdfs:label>
+    <rdfs:comment>Committee membership and independent principals [OLR5]</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sowel/ontologies/2024/4/DAOMod_Ontology#Committee" />
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:PermissionVocabulary">
+    <rdfs:label>PermissionVocabulary</rdfs:label>
+    <rdfs:comment>Eight distinct actions [OLR6]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ScopedPermission">
+    <rdfs:label>ScopedPermission</rdfs:label>
+    <rdfs:comment>Subject, asset and transition jointly constrain permission [OLR7]</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sowel/ontologies/2024/4/DAOMod_Ontology#Permission_Assignment" />
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:AssignmentConstraint">
+    <rdfs:label>AssignmentConstraint</rdfs:label>
+    <rdfs:comment>Incompatibility and delegation no broader than original grant [OLR8]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:EvidenceCategory">
+    <rdfs:label>EvidenceCategory</rdfs:label>
+    <rdfs:comment>Transition-specific evidence without authorization equivalence [OLR9]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:GovernanceChange">
+    <rdfs:label>GovernanceChange</rdfs:label>
+    <rdfs:comment>Recorded proposal for organizational configuration change [OLR10]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:PolicyLink">
+    <rdfs:label>PolicyLink</rdfs:label>
+    <rdfs:comment>Transition references Coordination policy [OLR11]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:DistributionConstraint">
+    <rdfs:label>DistributionConstraint</rdfs:label>
+    <rdfs:comment>Two independent principals and no sole end-to-end control [OLR12]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:TransitionPlan">
+    <rdfs:label>TransitionPlan</rdfs:label>
+    <rdfs:comment>Exact asset versions, source/target states and evidence for all steps [CR1]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Admission">
+    <rdfs:label>Admission</rdfs:label>
+    <rdfs:comment>Current scoped eligibility, mandate and distribution checks [CR2]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:CoordinationPolicy">
+    <rdfs:label>CoordinationPolicy</rdfs:label>
+    <rdfs:comment>Mechanism, quorum, threshold, time, delegation [CR3]</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sowel/ontologies/2024/4/DAOMod_Ontology#decision_making_policy" />
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ValidationPrerequisite">
+    <rdfs:label>ValidationPrerequisite</rdfs:label>
+    <rdfs:comment>Evidence prerequisite separate from authorization [CR4]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:DecisionOutcome">
+    <rdfs:label>DecisionOutcome</rdfs:label>
+    <rdfs:comment>Accepted/rejected/expired separate from suspended/challenged status [CR5]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ConfigurationProposal">
+    <rdfs:label>ConfigurationProposal</rdfs:label>
+    <rdfs:comment>Governable changes to roles, committees and permissions [CR6]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Authorization">
+    <rdfs:label>Authorization</rdfs:label>
+    <rdfs:comment>Accepted decision binds entire plan, executor and expiry [ER1]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ExecutionStatus">
+    <rdfs:label>ExecutionStatus</rdfs:label>
+    <rdfs:comment>Authorized, pending, failed, technically confirmed, institutionally confirmed [ER2]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ExecutionGuard">
+    <rdfs:label>ExecutionGuard</rdfs:label>
+    <rdfs:comment>Validity, evidence integrity, source state, nonce and replay [ER3]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ContentIdentity">
+    <rdfs:label>ContentIdentity</rdfs:label>
+    <rdfs:comment>Explicit RDF canonicalization profile and hash [ER4]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:AttemptReceipt">
+    <rdfs:label>AttemptReceipt</rdfs:label>
+    <rdfs:comment>Attributable success/failure, authoritative result manifest and common commit for compound plan [ER5]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Confirmation">
+    <rdfs:label>Confirmation</rdfs:label>
+    <rdfs:comment>Atomic idempotent technical confirmation and bidirectional lineage [ER6]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Mandate">
+    <rdfs:label>Mandate</rdfs:label>
+    <rdfs:comment>Principal, role, institution and validity [SG1]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Lineage">
+    <rdfs:label>Lineage</rdfs:label>
+    <rdfs:comment>Resolvable forward and reverse graph across all records [SG2]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:AuditRecord">
+    <rdfs:label>AuditRecord</rdfs:label>
+    <rdfs:comment>Rationale, challenges, delegation and readable export [SG3]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ForwardRestoration">
+    <rdfs:label>ForwardRestoration</rdfs:label>
+    <rdfs:comment>Fresh proposal and receipt preserve all prior versions [SG4]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:EmergencyPolicy">
+    <rdfs:label>EmergencyPolicy</rdfs:label>
+    <rdfs:comment>Bound scope, trigger, duration, delegation and expiry [SG5]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:IndependentReview">
+    <rdfs:label>IndependentReview</rdfs:label>
+    <rdfs:comment>Notification, independent review and corrective proposal [SG6]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ComplianceProfile">
+    <rdfs:label>ComplianceProfile</rdfs:label>
+    <rdfs:comment>Jurisdiction and mandate-specific approved policy [SG7]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ProtectedEvidence">
+    <rdfs:label>ProtectedEvidence</rdfs:label>
+    <rdfs:comment>Retention, hold, disclosure and controlled access [SG8]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:ExternalDecision">
+    <rdfs:label>ExternalDecision</rdfs:label>
+    <rdfs:comment>Appeal linked to suspension or correction [SG9]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Separation">
+    <rdfs:label>Separation</rdfs:label>
+    <rdfs:comment>Duty conflicts and bounded delegation checked [SG10]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:AuthorityMonitor">
+    <rdfs:label>AuthorityMonitor</rdfs:label>
+    <rdfs:comment>Deployment-specific concentration, participation and exceptional-power indicators [SG11]</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Escalation">
+    <rdfs:label>Escalation</rdfs:label>
+    <rdfs:comment>Deadlock, censorship, timeout and missing receipt records [SG12]</rdfs:comment>
+  </owl:Class>
+  <owl:ObjectProperty rdf:about="urn:paper-b:institutional-daomod:hasAsset">
+    <rdfs:domain rdf:resource="urn:paper-b:institutional-daomod:TransitionPlan" />
+    <rdfs:range rdf:resource="urn:paper-b:institutional-daomod:SemanticAsset" />
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="urn:paper-b:institutional-daomod:hasPlan">
+    <rdfs:domain rdf:resource="urn:paper-b:institutional-daomod:Authorization" />
+    <rdfs:range rdf:resource="urn:paper-b:institutional-daomod:TransitionPlan" />
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="urn:paper-b:institutional-daomod:hasReceipt">
+    <rdfs:domain rdf:resource="urn:paper-b:institutional-daomod:Confirmation" />
+    <rdfs:range rdf:resource="urn:paper-b:institutional-daomod:AttemptReceipt" />
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="urn:paper-b:institutional-daomod:hasMandate">
+    <rdfs:domain rdf:resource="urn:paper-b:institutional-daomod:Admission" />
+    <rdfs:range rdf:resource="urn:paper-b:institutional-daomod:Mandate" />
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="urn:paper-b:institutional-daomod:requiresPolicy">
+    <rdfs:domain rdf:resource="urn:paper-b:institutional-daomod:TransitionPlan" />
+    <rdfs:range rdf:resource="urn:paper-b:institutional-daomod:CoordinationPolicy" />
+  </owl:ObjectProperty>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:TransitionPlan">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="urn:paper-b:institutional-daomod:hasAsset" />
+        <owl:someValuesFrom rdf:resource="urn:paper-b:institutional-daomod:SemanticAsset" />
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Authorization">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="urn:paper-b:institutional-daomod:hasPlan" />
+        <owl:someValuesFrom rdf:resource="urn:paper-b:institutional-daomod:TransitionPlan" />
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="urn:paper-b:institutional-daomod:Confirmation">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="urn:paper-b:institutional-daomod:hasReceipt" />
+        <owl:someValuesFrom rdf:resource="urn:paper-b:institutional-daomod:AttemptReceipt" />
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+</rdf:RDF>
