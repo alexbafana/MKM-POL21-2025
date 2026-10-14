@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile>
+  <diagram name="Institutional Coordination" id="Coordination">
+    <mxGraphModel>
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="TransitionPlan" value="TransitionPlan [CR1]&#10;WoodHive-TransitionPlan&#10;/plan" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="Admission" value="Admission [CR2]&#10;WoodHive-Admission&#10;/mandates" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="CoordinationPolicy" value="CoordinationPolicy [CR3]&#10;WoodHive-CoordinationPolicy&#10;/policy" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ValidationPrerequisite" value="ValidationPrerequisite [CR4]&#10;WoodHive-ValidationPrerequisite&#10;/evidence/validation_passed" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="DecisionOutcome" value="DecisionOutcome [CR5]&#10;WoodHive-DecisionOutcome&#10;/decision_outcomes" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ConfigurationProposal" value="ConfigurationProposal [CR6]&#10;WoodHive-ConfigurationProposal&#10;/policy/configuration_change_requires_proposal" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile>
+  <diagram name="Institutional Execution" id="Execution">
+    <mxGraphModel>
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Authorization" value="Authorization [ER1]&#10;WoodHive-Authorization&#10;/authorization" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ExecutionStatus" value="ExecutionStatus [ER2]&#10;WoodHive-ExecutionStatus&#10;/execution_states" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ExecutionGuard" value="ExecutionGuard [ER3]&#10;WoodHive-ExecutionGuard&#10;/authorization/nonce" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ContentIdentity" value="ContentIdentity [ER4]&#10;WoodHive-ContentIdentity&#10;/evidence/canonicalization" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="AttemptReceipt" value="AttemptReceipt [ER5]&#10;WoodHive-AttemptReceipt&#10;/receipt" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="Confirmation" value="Confirmation [ER6]&#10;WoodHive-Confirmation&#10;/confirmation" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

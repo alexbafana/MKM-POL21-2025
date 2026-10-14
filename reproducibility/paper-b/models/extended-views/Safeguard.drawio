@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile>
+  <diagram name="Institutional Safeguard" id="Safeguard">
+    <mxGraphModel>
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Mandate" value="Mandate [SG1]&#10;WoodHive-Mandate&#10;/mandates" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="Lineage" value="Lineage [SG2]&#10;WoodHive-Lineage&#10;/lineage" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="AuditRecord" value="AuditRecord [SG3]&#10;WoodHive-AuditRecord&#10;/decision/rationale" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ForwardRestoration" value="ForwardRestoration [SG4]&#10;WoodHive-ForwardRestoration&#10;/restoration_plan" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="EmergencyPolicy" value="EmergencyPolicy [SG5]&#10;WoodHive-EmergencyPolicy&#10;/safeguards/emergency" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="IndependentReview" value="IndependentReview [SG6]&#10;WoodHive-IndependentReview&#10;/safeguards/emergency/independent_review_required" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ComplianceProfile" value="ComplianceProfile [SG7]&#10;WoodHive-ComplianceProfile&#10;/safeguards/compliance" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="405" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ProtectedEvidence" value="ProtectedEvidence [SG8]&#10;WoodHive-ProtectedEvidence&#10;/safeguards/protected_evidence" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="405" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ExternalDecision" value="ExternalDecision [SG9]&#10;WoodHive-ExternalDecision&#10;/safeguards/appeal" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="405" width="360" height="140" />
+        </mxCell>
+        <mxCell id="Separation" value="Separation [SG10]&#10;WoodHive-Separation&#10;/safeguards/incompatible_roles" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="575" width="360" height="140" />
+        </mxCell>
+        <mxCell id="AuthorityMonitor" value="AuthorityMonitor [SG11]&#10;WoodHive-AuthorityMonitor&#10;/safeguards/monitor" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="575" width="360" height="140" />
+        </mxCell>
+        <mxCell id="Escalation" value="Escalation [SG12]&#10;WoodHive-Escalation&#10;/safeguards/escalation" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="575" width="360" height="140" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

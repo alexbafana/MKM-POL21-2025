@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile>
+  <diagram name="Institutional Organization" id="Organization">
+    <mxGraphModel>
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SemanticAsset" value="SemanticAsset [OLR1]&#10;WoodHive-SemanticAsset&#10;/asset" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="Lifecycle" value="Lifecycle [OLR2]&#10;WoodHive-Lifecycle&#10;/lifecycle" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="AuthorityScope" value="AuthorityScope [OLR3]&#10;WoodHive-AuthorityScope&#10;/permissions" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="65" width="360" height="140" />
+        </mxCell>
+        <mxCell id="FunctionalRole" value="FunctionalRole [OLR4]&#10;WoodHive-FunctionalRole&#10;/roles" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="CollectiveBody" value="CollectiveBody [OLR5]&#10;WoodHive-CollectiveBody&#10;/decision/participants" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="PermissionVocabulary" value="PermissionVocabulary [OLR6]&#10;WoodHive-PermissionVocabulary&#10;/permissions" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="235" width="360" height="140" />
+        </mxCell>
+        <mxCell id="ScopedPermission" value="ScopedPermission [OLR7]&#10;WoodHive-ScopedPermission&#10;/permissions" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="405" width="360" height="140" />
+        </mxCell>
+        <mxCell id="AssignmentConstraint" value="AssignmentConstraint [OLR8]&#10;WoodHive-AssignmentConstraint&#10;/delegation" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="405" width="360" height="140" />
+        </mxCell>
+        <mxCell id="EvidenceCategory" value="EvidenceCategory [OLR9]&#10;WoodHive-EvidenceCategory&#10;/policy/evidence" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="405" width="360" height="140" />
+        </mxCell>
+        <mxCell id="GovernanceChange" value="GovernanceChange [OLR10]&#10;WoodHive-GovernanceChange&#10;/policy/configuration_change_requires_proposal" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="575" width="360" height="140" />
+        </mxCell>
+        <mxCell id="PolicyLink" value="PolicyLink [OLR11]&#10;WoodHive-PolicyLink&#10;/policy/id" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="420" y="575" width="360" height="140" />
+        </mxCell>
+        <mxCell id="DistributionConstraint" value="DistributionConstraint [OLR12]&#10;WoodHive-DistributionConstraint&#10;/policy/min_independent_principals" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="810" y="575" width="360" height="140" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

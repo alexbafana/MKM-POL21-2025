@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile>
+  <diagram id="Binding" name="WoodHive ontology property bindings">
+    <mxGraphModel>
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="TransitionPlan-SemanticAsset" edge="1" parent="1" source="TransitionPlan" target="SemanticAsset" value="hasAsset" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="Authorization-TransitionPlan" edge="1" parent="1" source="Authorization" target="TransitionPlan" value="hasPlan" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="Confirmation-AttemptReceipt" edge="1" parent="1" source="Confirmation" target="AttemptReceipt" value="hasReceipt" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="Admission-Mandate" edge="1" parent="1" source="Admission" target="Mandate" value="hasMandate" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="TransitionPlan-CoordinationPolicy" edge="1" parent="1" source="TransitionPlan" target="CoordinationPolicy" value="requiresPolicy" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="SemanticAsset" value="SemanticAsset&#10;WoodHive-SemanticAsset&#10;employment graph / v1, v2" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="270" width="280" height="110" />
+        </mxCell>
+        <mxCell id="TransitionPlan" value="TransitionPlan&#10;WoodHive-TransitionPlan&#10;Plan-Publish-v1" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="340" y="270" width="280" height="110" />
+        </mxCell>
+        <mxCell id="Authorization" value="Authorization&#10;WoodHive-Authorization&#10;Authorization-1 / expiry, nonce" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="650" y="270" width="280" height="110" />
+        </mxCell>
+        <mxCell id="Confirmation" value="Confirmation&#10;WoodHive-Confirmation&#10;Confirmation-1 / idempotence" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="960" y="270" width="280" height="110" />
+        </mxCell>
+        <mxCell id="AttemptReceipt" value="AttemptReceipt&#10;WoodHive-AttemptReceipt&#10;Receipt-1 / result manifest" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="960" y="500" width="280" height="110" />
+        </mxCell>
+        <mxCell id="Admission" value="Admission&#10;WoodHive-Admission&#10;current eligible principals" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="340" y="40" width="280" height="110" />
+        </mxCell>
+        <mxCell id="Mandate" value="Mandate&#10;WoodHive-Mandate&#10;validity and institutional scope" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="30" y="40" width="280" height="110" />
+        </mxCell>
+        <mxCell id="CoordinationPolicy" value="CoordinationPolicy&#10;WoodHive-CoordinationPolicy&#10;Policy-Publication / quorum, timing" vertex="1" parent="1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f0fb;">
+          <mxGeometry as="geometry" x="650" y="40" width="280" height="110" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

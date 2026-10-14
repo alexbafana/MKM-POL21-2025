@@ -16,6 +16,28 @@ This package specifies the paper's institutional knowledge-graph lifecycle speci
 - `diagrams/`: editable diagrams.net `.drawio` pages and matching SVG overview diagrams. Detailed element semantics and worked values are in the linked model sources.
 - `results/validation.json`: generated checks, negative fixtures, scope limits and SHA-256 file manifest.
 
+## Explicit institutional model types and modeling walkthrough
+
+`extended-views/WALKTHROUGH.md` shows how to construct the Organization,
+Coordination, Execution and Safeguard views using the actual new ontology
+classes. Each view has editable XML and diagrams.net/SVG diagrams. Across the
+four views, 36 explicit concept instances carry concrete worked values,
+requirement IDs, upstream element links and instance field pointers. Five
+ontology-property links connect the views. Their new institutional-view syntax
+is defined by `schemas/InstitutionalModelViews.xsd`; it is not claimed to be
+accepted by the original DAO-ML or ET-DM editors.
+
+With the pinned RDF dependencies installed, run:
+
+```sh
+python reproducibility/paper-b/models/scripts/validate_views.py
+```
+
+`results/extended-view-validation.json` records four schema-valid views,
+36 concrete ontology bindings, five domain/range-checked links and six rejected
+invalid variants. The walkthrough separates automated consistency from
+independent modeling evaluation and runtime governance assurance.
+
 ## Integrated ontology validation
 
 `DAOMod_Institutional_Integrated.rdf` contains 3,162 RDF triples, including all
