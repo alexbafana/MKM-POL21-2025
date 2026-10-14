@@ -4,6 +4,7 @@ This package specifies the paper's institutional knowledge-graph lifecycle speci
 
 ## Reviewer entry points
 
+- `DAOMod_Institutional_Integrated.rdf`: self-contained integrated ontology containing the unchanged upstream definition graph plus all institutional additions. It embeds the original definitions rather than depending on an import. It is a new research version; the original snapshot remains untouched.
 - `Institutional_DAOMod.rdf`: editable OWL/RDF extension. Imports the local upstream snapshot; adds 36 named institutional design concepts, selected verified upstream subclass links, and plan/asset, authorization/plan and confirmation/receipt relations. Existential OWL restrictions express semantic requirements under open-world semantics. Missing fields are checked separately by the closed-world validator. No OWL reasoner consistency or conservative-extension proof is claimed.
 - `schemas/DAOMod_Ontology.rdf`: original upstream ontology, unchanged. The source uses both 2024/4 and 2024/5 ontology IRIs; the extension uses class IRIs actually declared by that source.
 - `WoodHive_DAO-ML.model.xml`: upstream-compatible organization with seven functional roles, publication and independent-review committees, governance area and eight distinct permissions.
@@ -14,6 +15,37 @@ This package specifies the paper's institutional knowledge-graph lifecycle speci
 - `worked-traces.json`: success, rejection, challenge/suspension, expiry, missing-receipt, compound restoration and exceptional-suspension design traces. These are synthetic worked examples, not empirical outcomes.
 - `diagrams/`: editable diagrams.net `.drawio` pages and matching SVG overview diagrams. Detailed element semantics and worked values are in the linked model sources.
 - `results/validation.json`: generated checks, negative fixtures, scope limits and SHA-256 file manifest.
+
+## Integrated ontology validation
+
+`DAOMod_Institutional_Integrated.rdf` contains 3,162 RDF triples, including all
+3,017 original triples. The original ontology declaration is retained; the
+integrated research version has its own version identifier. Its institutional
+class IRIs stay identical to the modular extension, so the requirement mapping
+applies to both forms. Removing the modular import/header does not remove its
+class or property axioms. The integrated graph requires no imports.
+
+Additional validator dependencies are pinned in `scripts/ontology-requirements.txt`:
+
+```sh
+python3 -m venv /tmp/paper-b-ontology
+/tmp/paper-b-ontology/bin/pip install -r reproducibility/paper-b/models/scripts/ontology-requirements.txt
+/tmp/paper-b-ontology/bin/python reproducibility/paper-b/models/scripts/validate_integrated.py
+```
+
+`results/integrated-validation.json` records RDF parsing, exact graph-union
+isomorphism (including blank-node axioms), unchanged original checksum, 36
+institutional class/requirement links, five property declarations, three
+institutional existential restrictions, upstream subclass references and an
+RDF/XML round trip. Three altered graphs are rejected. These checks do not
+establish OWL-DL consistency, class satisfiability or conservative extension.
+The upstream graph is preserved even where it uses legacy namespace variants.
+
+To rebuild the integrated file from the unchanged original and modular extension:
+
+```sh
+python3 reproducibility/paper-b/models/scripts/build_integrated.py
+```
 
 ## Institutional additions and worked flow
 

@@ -374,8 +374,9 @@
   "upstream_commit": "9ce3fc44dbb20d6441539f5992929746778bcbcc",
   "independent_review": "not completed",
   "files": {
+    "DAOMod_Institutional_Integrated.rdf": "e0e9382ab9049ec20c17616b3b8f9b0bea302ac553a9e0af26b83a86c4f6083f",
     "Institutional_DAOMod.rdf": "e4e78b9b198aa6df3514724ff55df317615f2f33024509e91cf785fbb5794b1b",
-    "README.md": "3ff274b0a25693c07df4efa5455a0ec3254ca89c3068889ec3b19a708bb68d39",
+    "README.md": "83bce1d5fdc7cff491ba04621b94939c7a7824fd8c30bd14519c60dee7dfa18d",
     "WoodHive.institutional.json": "5d97bf2f2f9b5af66e549e4751a4f13982317b54ba5d6d7b4b9f2d241982b41d",
     "WoodHive_DAO-ML.model.xml": "6098363e7c87ab171f9974a59f00e3ba6f653c1ef4320e5a927cd0228c73aa13",
     "WoodHive_ET-DM.model.xml": "63a672ecaaf92933af3069a2b2e29abe5cd43c52904d44cd60eb8f61a6cb04f9",
@@ -394,7 +395,11 @@
     "schemas/ERD.xsd": "f475270d5e093ebf19a99c43f131e2f4062938ed26d1bea936582b409ed51c7e",
     "schemas/PROVENANCE.md": "fef278567dd0256544a01acfd1dc4e7efdb39e258389e2b3cf16f4a6b6f7738e",
     "schemas/upstream-manifest.json": "93fc87e904d77f50c5222653e0cdcbf9a1f6e6b65004bf9d77eaddd2e89ab71a",
+    "scripts/.gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+    "scripts/build_integrated.py": "1f7576150404c23b3057b9740985c4b636c2253f0d9cc742c9bd547823295047",
+    "scripts/ontology-requirements.txt": "50c7e5e766688b0051d3fba07d994153496106a0eddd138299439d504524c78e",
     "scripts/validate.py": "0142052a384efa8549bdd83b6aba153ff7ba32ca3830fb594e7699c0ff6dae15",
+    "scripts/validate_integrated.py": "dbfb3601ab5edad42fde556e7285331b5294da0ab534b9a4ac31bc1ec3d6eb85",
     "worked-traces.json": "dd27757e7b7d32e25f6e69d2e89a846289eeb97e4e0b304966099b9d096f9459"
   }
 }
