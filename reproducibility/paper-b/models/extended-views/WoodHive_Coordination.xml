@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ikg:InstitutionalCoordinationModel xmlns:ikg="urn:paper-b:institutional-model-view:1.0" ontology="../DAOMod_Institutional_Integrated.rdf" baseModel="../WoodHive_ET-DM.model.xml" illustrative="true">
+  <ikg:TransitionPlan id="WoodHive-TransitionPlan" ontologyClass="urn:paper-b:institutional-daomod:TransitionPlan" requirement="CR1" baseElement="PROP-Publish" casePointer="/plan">
+    <ikg:value>{"asset": "urn:woodhive:graph:employment", "evidence": "Evidence-v1", "id": "Plan-Publish-v1", "steps": [{"operation": "publish", "source": "validated", "target": "published", "version": "v1"}]}</ikg:value>
+  </ikg:TransitionPlan>
+  <ikg:Admission id="WoodHive-Admission" ontologyClass="urn:paper-b:institutional-daomod:Admission" requirement="CR2" baseElement="MECH-Admission" casePointer="/mandates">
+    <ikg:value>[{"illustrative": true, "institution": "Institution-A", "principal": "Institution-A", "reference": "illustrative-mandate-Institution-A", "roles": ["Producer", "Executor"], "scope": "EmploymentGraph", "valid_from": 0, "valid_until": 1000}, {"illustrative": true, "institution": "Institution-B", "principal": "Institution-B", "reference": "illustrative-mandate-Institution-B", "roles": ["Validator", "Authorizer", "Auditor"], "scope": "EmploymentGraph", "valid_from": 0, "valid_until": 1000}, {"illustrative": true, "institution": "Institution-C", "principal": "Institution-C", "reference": "illustrative-mandate-Institution-C", "roles": ["Authorizer"], "scope": "EmploymentGraph", "valid_from": 0, "valid_until": 1000}]</ikg:value>
+  </ikg:Admission>
+  <ikg:CoordinationPolicy id="WoodHive-CoordinationPolicy" ontologyClass="urn:paper-b:institutional-daomod:CoordinationPolicy" requirement="CR3" baseElement="DM-Publication" casePointer="/policy">
+    <ikg:value>{"configuration_change_requires_proposal": true, "delegation_max_blocks": 30, "evidence": ["provenance", "model-version", "validation", "content-digest"], "execution_delay_blocks": 5, "id": "Policy-Publication", "method": "committee", "min_independent_principals": 2, "quorum": 2, "threshold": 1.0, "voting_blocks": 30}</ikg:value>
+  </ikg:CoordinationPolicy>
+  <ikg:ValidationPrerequisite id="WoodHive-ValidationPrerequisite" ontologyClass="urn:paper-b:institutional-daomod:ValidationPrerequisite" requirement="CR4" baseElement="RES-Evidence" casePointer="/evidence/validation_passed">
+    <ikg:value>true</ikg:value>
+  </ikg:ValidationPrerequisite>
+  <ikg:DecisionOutcome id="WoodHive-DecisionOutcome" ontologyClass="urn:paper-b:institutional-daomod:DecisionOutcome" requirement="CR5" baseElement="MECH-Challenge" casePointer="/decision_outcomes">
+    <ikg:value>["accepted", "rejected", "expired"]</ikg:value>
+  </ikg:DecisionOutcome>
+  <ikg:ConfigurationProposal id="WoodHive-ConfigurationProposal" ontologyClass="urn:paper-b:institutional-daomod:ConfigurationProposal" requirement="CR6" baseElement="PROP-Admin" casePointer="/policy/configuration_change_requires_proposal">
+    <ikg:value>true</ikg:value>
+  </ikg:ConfigurationProposal>
+</ikg:InstitutionalCoordinationModel>

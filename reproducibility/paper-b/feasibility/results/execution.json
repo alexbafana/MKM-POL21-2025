@@ -1,0 +1,139 @@
+{
+  "state": "technically-confirmed",
+  "institutionalConfirmation": false,
+  "decisionId": "13148588972998574924044427543523424834554181447760404827602939068783622379668",
+  "assetId": "0xaeb65fc93debba7b04d2cceb383b115e076603edad6d250090fbcfa3faede084",
+  "receiptHash": "0x734502a4ed65674de230db68f676011e84ae9d373548c5c244dc8e828ddada8e",
+  "contentHash": "0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b",
+  "validationEvidence": {
+    "profile": "WoodHive-narrow-fixture-validation-v1",
+    "canonicalization": "RDFC-1.0",
+    "hashMethod": "SHA-256",
+    "contentHash": "0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b",
+    "modelHash": "0xe7b26fc43727b2c5d0b16f7821846f50806e82055bacbf9e2e54b04cbb6a3d19",
+    "syntaxValid": true,
+    "semanticValid": true,
+    "evidenceHash": "0xe1b71af00f3ce0333e25744db5040514324d19f3df72875bd7dbeb3087e7bbf4",
+    "canonical": "<urn:woodhive:event:1> <urn:paperb:employment:classification> \"job-gain\" <urn:woodhive:graph:employment:v1> .\n<urn:woodhive:event:1> <urn:paperb:employment:source> <urn:woodhive:synthetic-article:1> <urn:woodhive:graph:employment:v1> .\n<urn:woodhive:event:1> <urn:woodhive:employer> <urn:woodhive:company> <urn:woodhive:graph:employment:v1> .\n<urn:woodhive:event:1> <urn:woodhive:jobCount> \"120\"^^<http://www.w3.org/2001/XMLSchema#integer> <urn:woodhive:graph:employment:v1> .\n<urn:woodhive:event:1> <urn:woodhive:location> <urn:woodhive:Parnu> <urn:woodhive:graph:employment:v1> .\n"
+  },
+  "confirmedEvent": {
+    "decisionId": "13148588972998574924044427543523424834554181447760404827602939068783622379668",
+    "contentHash": "0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b",
+    "receiptHash": "0x734502a4ed65674de230db68f676011e84ae9d373548c5c244dc8e828ddada8e",
+    "executor": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+  },
+  "selectedRequirementBindings": [
+    {
+      "requirement": "OLR1",
+      "ontologyClass": "urn:paper-b:institutional-daomod:SemanticAsset",
+      "baseModel": "WoodHive_DAO-ML.model.xml",
+      "baseElement": "WoodHiveDAO",
+      "casePointer": "/asset",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "OLR5",
+      "ontologyClass": "urn:paper-b:institutional-daomod:CollectiveBody",
+      "baseModel": "WoodHive_DAO-ML.model.xml",
+      "baseElement": "C-Publication",
+      "casePointer": "/decision/participants",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "OLR7",
+      "ontologyClass": "urn:paper-b:institutional-daomod:ScopedPermission",
+      "baseModel": "WoodHive_DAO-ML.model.xml",
+      "baseElement": "P-execute",
+      "casePointer": "/permissions",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "CR1",
+      "ontologyClass": "urn:paper-b:institutional-daomod:TransitionPlan",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "PROP-Publish",
+      "casePointer": "/plan",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "CR2",
+      "ontologyClass": "urn:paper-b:institutional-daomod:Admission",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "MECH-Admission",
+      "casePointer": "/mandates",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "CR3",
+      "ontologyClass": "urn:paper-b:institutional-daomod:CoordinationPolicy",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "DM-Publication",
+      "casePointer": "/policy",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "CR4",
+      "ontologyClass": "urn:paper-b:institutional-daomod:ValidationPrerequisite",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "RES-Evidence",
+      "casePointer": "/evidence/validation_passed",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "ER1",
+      "ontologyClass": "urn:paper-b:institutional-daomod:Authorization",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "TX-Authorize",
+      "casePointer": "/authorization",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "ER2",
+      "ontologyClass": "urn:paper-b:institutional-daomod:ExecutionStatus",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "TX-Confirm",
+      "casePointer": "/execution_states",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "ER3",
+      "ontologyClass": "urn:paper-b:institutional-daomod:ExecutionGuard",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "MECH-Execute",
+      "casePointer": "/authorization/nonce",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "ER4",
+      "ontologyClass": "urn:paper-b:institutional-daomod:ContentIdentity",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "AS-Employment",
+      "casePointer": "/evidence/canonicalization",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "ER5",
+      "ontologyClass": "urn:paper-b:institutional-daomod:AttemptReceipt",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "G-Adapter",
+      "casePointer": "/receipt",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "ER6",
+      "ontologyClass": "urn:paper-b:institutional-daomod:Confirmation",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "TX-Confirm",
+      "casePointer": "/confirmation",
+      "scope": "selected clauses only"
+    },
+    {
+      "requirement": "SG1",
+      "ontologyClass": "urn:paper-b:institutional-daomod:Mandate",
+      "baseModel": "WoodHive_ET-DM.model.xml",
+      "baseElement": "OG-WoodHive",
+      "casePointer": "/mandates",
+      "scope": "selected clauses only"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+requirement,selected_clause,implementation,test_or_check,residual_gap
+OLR1,asset/version identity,assetKey and immutable submit,rejects a duplicate version via fixed Missing-state guard,No full lifecycle; bounded v1 only
+OLR5,model committee membership,compileModel and two configured voters,single-voter and split-decision failures,Trusted token/permission administration
+OLR7,selected asset-scoped actions,compileModel permission checks and fixed function callers,missing execution permission; unappointed executor,Not a general dynamic scoped-role engine
+CR1,exact single-step plan,planHash and exact Governor call,substituted plan rejected,No compound proposal
+CR2,selected eligibility/mandates,compileModel; contract mandateValid,expired authorizer mandate at authorization,Mandates not enforced at each legacy Governor vote
+CR3,two-voter policy and timing,Governor 30-block period; contract delay,"single-voter, split decision, delay",No arbitrary voting policy or delegated participation
+CR4,validation prerequisite/evidence,validate and evidenceHash,semantic failure; substituted evidence,"Trusted narrow fixture validator, not general semantics"
+ER1,scoped authorization,authorize and model/plan/policy commitments,direct authorization rejected,Not complete formal authorization schema
+ER2,separate technical execution states,Authorized/Pending/Confirmed,post-write chain failure leaves Pending,No institutionally-confirmed state or full failure taxonomy
+ER3,"expiry, mandates, reservation",admit and confirm,expired authorization; second admission; expired executor,No automated retries or recovery
+ER4,actual content identity,RDFC-1.0/SHA-256 adapter,changed job count; reordered RDF,Not a canonicalization conformance suite
+ER5,receipt/result correspondence,publish and confirm,wrong decision; corrupted read-back,Trusted adapter; no distributed storage guarantee
+ER6,selected lineage/replay guards,model/decision/content/receipt links,positive event assertions; replay rejection,Not compound atomicity or complete idempotent retry
+SG1,recorded mandate scope/interval,compileModel and mandateValid,expired mandate rejection,No verification of institutional/legal mandate truth

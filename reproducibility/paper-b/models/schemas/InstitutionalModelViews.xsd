@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='utf-8'?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ikg="urn:paper-b:institutional-model-view:1.0" targetNamespace="urn:paper-b:institutional-model-view:1.0" elementFormDefault="qualified">
+  <xs:complexType name="ConcreteBindingType">
+    <xs:sequence>
+      <xs:element name="value" type="xs:string" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required" />
+    <xs:attribute name="ontologyClass" type="xs:anyURI" use="required" />
+    <xs:attribute name="requirement" type="xs:string" use="required" />
+    <xs:attribute name="baseElement" type="xs:string" use="required" />
+    <xs:attribute name="casePointer" type="xs:string" use="required" />
+  </xs:complexType>
+  <xs:element name="InstitutionalOrganizationModel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="SemanticAsset" type="ikg:ConcreteBindingType" />
+        <xs:element name="Lifecycle" type="ikg:ConcreteBindingType" />
+        <xs:element name="AuthorityScope" type="ikg:ConcreteBindingType" />
+        <xs:element name="FunctionalRole" type="ikg:ConcreteBindingType" />
+        <xs:element name="CollectiveBody" type="ikg:ConcreteBindingType" />
+        <xs:element name="PermissionVocabulary" type="ikg:ConcreteBindingType" />
+        <xs:element name="ScopedPermission" type="ikg:ConcreteBindingType" />
+        <xs:element name="AssignmentConstraint" type="ikg:ConcreteBindingType" />
+        <xs:element name="EvidenceCategory" type="ikg:ConcreteBindingType" />
+        <xs:element name="GovernanceChange" type="ikg:ConcreteBindingType" />
+        <xs:element name="PolicyLink" type="ikg:ConcreteBindingType" />
+        <xs:element name="DistributionConstraint" type="ikg:ConcreteBindingType" />
+      </xs:sequence>
+      <xs:attribute name="ontology" type="xs:string" use="required" />
+      <xs:attribute name="baseModel" type="xs:string" use="required" />
+      <xs:attribute name="illustrative" type="xs:boolean" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="InstitutionalCoordinationModel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="TransitionPlan" type="ikg:ConcreteBindingType" />
+        <xs:element name="Admission" type="ikg:ConcreteBindingType" />
+        <xs:element name="CoordinationPolicy" type="ikg:ConcreteBindingType" />
+        <xs:element name="ValidationPrerequisite" type="ikg:ConcreteBindingType" />
+        <xs:element name="DecisionOutcome" type="ikg:ConcreteBindingType" />
+        <xs:element name="ConfigurationProposal" type="ikg:ConcreteBindingType" />
+      </xs:sequence>
+      <xs:attribute name="ontology" type="xs:string" use="required" />
+      <xs:attribute name="baseModel" type="xs:string" use="required" />
+      <xs:attribute name="illustrative" type="xs:boolean" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="InstitutionalExecutionModel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Authorization" type="ikg:ConcreteBindingType" />
+        <xs:element name="ExecutionStatus" type="ikg:ConcreteBindingType" />
+        <xs:element name="ExecutionGuard" type="ikg:ConcreteBindingType" />
+        <xs:element name="ContentIdentity" type="ikg:ConcreteBindingType" />
+        <xs:element name="AttemptReceipt" type="ikg:ConcreteBindingType" />
+        <xs:element name="Confirmation" type="ikg:ConcreteBindingType" />
+      </xs:sequence>
+      <xs:attribute name="ontology" type="xs:string" use="required" />
+      <xs:attribute name="baseModel" type="xs:string" use="required" />
+      <xs:attribute name="illustrative" type="xs:boolean" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="InstitutionalSafeguardModel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Mandate" type="ikg:ConcreteBindingType" />
+        <xs:element name="Lineage" type="ikg:ConcreteBindingType" />
+        <xs:element name="AuditRecord" type="ikg:ConcreteBindingType" />
+        <xs:element name="ForwardRestoration" type="ikg:ConcreteBindingType" />
+        <xs:element name="EmergencyPolicy" type="ikg:ConcreteBindingType" />
+        <xs:element name="IndependentReview" type="ikg:ConcreteBindingType" />
+        <xs:element name="ComplianceProfile" type="ikg:ConcreteBindingType" />
+        <xs:element name="ProtectedEvidence" type="ikg:ConcreteBindingType" />
+        <xs:element name="ExternalDecision" type="ikg:ConcreteBindingType" />
+        <xs:element name="Separation" type="ikg:ConcreteBindingType" />
+        <xs:element name="AuthorityMonitor" type="ikg:ConcreteBindingType" />
+        <xs:element name="Escalation" type="ikg:ConcreteBindingType" />
+      </xs:sequence>
+      <xs:attribute name="ontology" type="xs:string" use="required" />
+      <xs:attribute name="baseModel" type="xs:string" use="required" />
+      <xs:attribute name="illustrative" type="xs:boolean" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

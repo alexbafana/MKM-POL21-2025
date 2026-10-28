@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "modelBindings": 14,
+  "contentHash": "0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b",
+  "modelHash": "0xe7b26fc43727b2c5d0b16f7821846f50806e82055bacbf9e2e54b04cbb6a3d19",
+  "receiptHash": "0x734502a4ed65674de230db68f676011e84ae9d373548c5c244dc8e828ddada8e",
+  "scope": "Offline artifact-integrity check; chain state/event assertions are executed by the integration test, not replayed here."
+}

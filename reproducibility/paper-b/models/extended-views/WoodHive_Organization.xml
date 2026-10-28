@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ikg:InstitutionalOrganizationModel xmlns:ikg="urn:paper-b:institutional-model-view:1.0" ontology="../DAOMod_Institutional_Integrated.rdf" baseModel="../WoodHive_DAO-ML.model.xml" illustrative="true">
+  <ikg:SemanticAsset id="WoodHive-SemanticAsset" ontologyClass="urn:paper-b:institutional-daomod:SemanticAsset" requirement="OLR1" baseElement="WoodHiveDAO" casePointer="/asset">
+    <ikg:value>{"class": "EmploymentGraph", "id": "urn:woodhive:graph:employment", "immutable": true, "versions": ["v1", "v2"]}</ikg:value>
+  </ikg:SemanticAsset>
+  <ikg:Lifecycle id="WoodHive-Lifecycle" ontologyClass="urn:paper-b:institutional-daomod:Lifecycle" requirement="OLR2" baseElement="WoodHiveDAO" casePointer="/lifecycle">
+    <ikg:value>{"states": ["candidate", "validated", "published", "superseded", "deprecated", "archived"], "transitions": [["validate", "candidate", "validated"], ["publish", "validated", "published"], ["supersede", "published", "superseded"], ["deprecate", "published", "deprecated"], ["archive", "deprecated", "archived"], ["restore", "superseded", "published"]]}</ikg:value>
+  </ikg:Lifecycle>
+  <ikg:AuthorityScope id="WoodHive-AuthorityScope" ontologyClass="urn:paper-b:institutional-daomod:AuthorityScope" requirement="OLR3" baseElement="GA-Employment" casePointer="/permissions">
+    <ikg:value>[{"action": "propose", "asset": "urn:woodhive:graph:employment", "subject": "R-Producer", "transition": "publish"}, {"action": "prepare", "asset": "urn:woodhive:graph:employment", "subject": "R-Curator", "transition": "publish"}, {"action": "propose", "asset": "urn:woodhive:graph:employment", "subject": "R-Curator", "transition": "publish"}, {"action": "prepare", "asset": "urn:woodhive:graph:employment", "subject": "R-ModelMaintainer", "transition": "publish"}, {"action": "validate", "asset": "urn:woodhive:graph:employment", "subject": "R-Validator", "transition": "publish"}, {"action": "authorize", "asset": "urn:woodhive:graph:employment", "subject": "R-Authorizer", "transition": "publish"}, {"action": "execute", "asset": "urn:woodhive:graph:employment", "subject": "R-Executor", "transition": "publish"}, {"action": "challenge", "asset": "urn:woodhive:graph:employment", "subject": "R-Auditor", "transition": "publish"}]</ikg:value>
+  </ikg:AuthorityScope>
+  <ikg:FunctionalRole id="WoodHive-FunctionalRole" ontologyClass="urn:paper-b:institutional-daomod:FunctionalRole" requirement="OLR4" baseElement="R-Curator" casePointer="/roles">
+    <ikg:value>{"Auditor": "Institution-B", "Authorizer": "Institution-C", "Executor": "Institution-A", "Producer": "Institution-A", "Validator": "Institution-B"}</ikg:value>
+  </ikg:FunctionalRole>
+  <ikg:CollectiveBody id="WoodHive-CollectiveBody" ontologyClass="urn:paper-b:institutional-daomod:CollectiveBody" requirement="OLR5" baseElement="C-Publication" casePointer="/decision/participants">
+    <ikg:value>["Institution-B", "Institution-C"]</ikg:value>
+  </ikg:CollectiveBody>
+  <ikg:PermissionVocabulary id="WoodHive-PermissionVocabulary" ontologyClass="urn:paper-b:institutional-daomod:PermissionVocabulary" requirement="OLR6" baseElement="P-authorize" casePointer="/permissions">
+    <ikg:value>[{"action": "propose", "asset": "urn:woodhive:graph:employment", "subject": "R-Producer", "transition": "publish"}, {"action": "prepare", "asset": "urn:woodhive:graph:employment", "subject": "R-Curator", "transition": "publish"}, {"action": "propose", "asset": "urn:woodhive:graph:employment", "subject": "R-Curator", "transition": "publish"}, {"action": "prepare", "asset": "urn:woodhive:graph:employment", "subject": "R-ModelMaintainer", "transition": "publish"}, {"action": "validate", "asset": "urn:woodhive:graph:employment", "subject": "R-Validator", "transition": "publish"}, {"action": "authorize", "asset": "urn:woodhive:graph:employment", "subject": "R-Authorizer", "transition": "publish"}, {"action": "execute", "asset": "urn:woodhive:graph:employment", "subject": "R-Executor", "transition": "publish"}, {"action": "challenge", "asset": "urn:woodhive:graph:employment", "subject": "R-Auditor", "transition": "publish"}]</ikg:value>
+  </ikg:PermissionVocabulary>
+  <ikg:ScopedPermission id="WoodHive-ScopedPermission" ontologyClass="urn:paper-b:institutional-daomod:ScopedPermission" requirement="OLR7" baseElement="P-execute" casePointer="/permissions">
+    <ikg:value>[{"action": "propose", "asset": "urn:woodhive:graph:employment", "subject": "R-Producer", "transition": "publish"}, {"action": "prepare", "asset": "urn:woodhive:graph:employment", "subject": "R-Curator", "transition": "publish"}, {"action": "propose", "asset": "urn:woodhive:graph:employment", "subject": "R-Curator", "transition": "publish"}, {"action": "prepare", "asset": "urn:woodhive:graph:employment", "subject": "R-ModelMaintainer", "transition": "publish"}, {"action": "validate", "asset": "urn:woodhive:graph:employment", "subject": "R-Validator", "transition": "publish"}, {"action": "authorize", "asset": "urn:woodhive:graph:employment", "subject": "R-Authorizer", "transition": "publish"}, {"action": "execute", "asset": "urn:woodhive:graph:employment", "subject": "R-Executor", "transition": "publish"}, {"action": "challenge", "asset": "urn:woodhive:graph:employment", "subject": "R-Auditor", "transition": "publish"}]</ikg:value>
+  </ikg:ScopedPermission>
+  <ikg:AssignmentConstraint id="WoodHive-AssignmentConstraint" ontologyClass="urn:paper-b:institutional-daomod:AssignmentConstraint" requirement="OLR8" baseElement="R-Producer" casePointer="/delegation">
+    <ikg:value>{"asset": "urn:woodhive:graph:employment", "can_redelegate": false, "expires": 80, "from": "C-Review", "illustrative": true, "permission": "challenge", "scope_subset_required": true, "to": "R-Auditor", "transition": "publish"}</ikg:value>
+  </ikg:AssignmentConstraint>
+  <ikg:EvidenceCategory id="WoodHive-EvidenceCategory" ontologyClass="urn:paper-b:institutional-daomod:EvidenceCategory" requirement="OLR9" baseElement="WoodHiveDAO" casePointer="/policy/evidence">
+    <ikg:value>["provenance", "model-version", "validation", "content-digest"]</ikg:value>
+  </ikg:EvidenceCategory>
+  <ikg:GovernanceChange id="WoodHive-GovernanceChange" ontologyClass="urn:paper-b:institutional-daomod:GovernanceChange" requirement="OLR10" baseElement="C-Review" casePointer="/policy/configuration_change_requires_proposal">
+    <ikg:value>true</ikg:value>
+  </ikg:GovernanceChange>
+  <ikg:PolicyLink id="WoodHive-PolicyLink" ontologyClass="urn:paper-b:institutional-daomod:PolicyLink" requirement="OLR11" baseElement="GA-Employment" casePointer="/policy/id">
+    <ikg:value>"Policy-Publication"</ikg:value>
+  </ikg:PolicyLink>
+  <ikg:DistributionConstraint id="WoodHive-DistributionConstraint" ontologyClass="urn:paper-b:institutional-daomod:DistributionConstraint" requirement="OLR12" baseElement="C-Publication" casePointer="/policy/min_independent_principals">
+    <ikg:value>2</ikg:value>
+  </ikg:DistributionConstraint>
+</ikg:InstitutionalOrganizationModel>

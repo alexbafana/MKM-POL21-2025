@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DAOMod_DO_diagram name="WoodHive institutional Organization model" uniqueID="WoodHiveOrganization">
+  <DAO DAO_ID="WoodHiveDAO" DAO_name="WoodHive lifecycle governance" mission_statement="Govern employment-event semantic assets with accountable institutional authority." hierarchical_inheritance="false">
+    <Role id="R-Producer" role_name="Producer" assignment_method="Illustrative mandate registry; verify before deployment" agent_type="human" federation_level="0" aggregation_level="0">
+      <associated_to>GA-Employment P-propose</associated_to>
+    </Role>
+    <Role id="R-Curator" role_name="Curator" assignment_method="Illustrative mandate registry; verify before deployment" agent_type="human" federation_level="0" aggregation_level="0">
+      <associated_to>GA-Employment P-prepare P-propose</associated_to>
+    </Role>
+    <Role id="R-ModelMaintainer" role_name="ModelMaintainer" assignment_method="Illustrative mandate registry; verify before deployment" agent_type="human" federation_level="0" aggregation_level="0">
+      <associated_to>GA-Employment P-prepare</associated_to>
+    </Role>
+    <Role id="R-Validator" role_name="Validator" assignment_method="Illustrative mandate registry; verify before deployment" agent_type="human" federation_level="0" aggregation_level="0">
+      <associated_to>GA-Employment P-validate</associated_to>
+    </Role>
+    <Role id="R-Authorizer" role_name="Authorizer" assignment_method="Illustrative mandate registry; verify before deployment" agent_type="human" federation_level="0" aggregation_level="0">
+      <associated_to>GA-Employment P-authorize</associated_to>
+      <member_of condition="Current mandate and independent principal">C-Publication</member_of>
+    </Role>
+    <Role id="R-Executor" role_name="Executor" assignment_method="Illustrative mandate registry; verify before deployment" agent_type="autonomous_agent" federation_level="0" aggregation_level="0">
+      <associated_to>GA-Employment P-execute</associated_to>
+    </Role>
+    <Role id="R-Auditor" role_name="Auditor" assignment_method="Illustrative mandate registry; verify before deployment" agent_type="human" federation_level="0" aggregation_level="0">
+      <associated_to>GA-Employment P-challenge</associated_to>
+    </Role>
+    <Committee id="C-Publication" committee_name="Publication committee" n_agent_min="2" appointment_method="Illustrative institutional appointment" federation_level="1" aggregation_level="0">
+      <associated_to>GA-Employment P-authorize</associated_to>
+    </Committee>
+    <Committee id="C-Review" committee_name="Independent safeguard review" n_agent_min="2" appointment_method="Illustrative institutional appointment" federation_level="1" aggregation_level="0">
+      <associated_to>GA-Employment P-challenge P-administer P-delegate</associated_to>
+    </Committee>
+    <GovernanceArea implementation="hybrid" gov_area_ID="GA-Employment" gov_area_description="See linked institutional specialization for asset and transition scope"/>
+    <Permission permission_ID="P-propose" allowed_action="propose" permission_type="operational"/>
+    <Permission permission_ID="P-prepare" allowed_action="prepare" permission_type="operational"/>
+    <Permission permission_ID="P-validate" allowed_action="validate" permission_type="operational"/>
+    <Permission permission_ID="P-authorize" allowed_action="authorize" permission_type="operational"/>
+    <Permission permission_ID="P-execute" allowed_action="execute" permission_type="operational"/>
+    <Permission permission_ID="P-challenge" allowed_action="challenge" permission_type="operational"/>
+    <Permission permission_ID="P-delegate" allowed_action="delegate" permission_type="structural"/>
+    <Permission permission_ID="P-administer" allowed_action="administer" permission_type="structural"/>
+  </DAO>
+</DAOMod_DO_diagram>

@@ -1,0 +1,5 @@
+<urn:woodhive:event:1> <urn:paperb:employment:classification> "job-gain" <urn:woodhive:graph:employment:v1> .
+<urn:woodhive:event:1> <urn:paperb:employment:source> <urn:woodhive:synthetic-article:1> <urn:woodhive:graph:employment:v1> .
+<urn:woodhive:event:1> <urn:woodhive:employer> <urn:woodhive:company> <urn:woodhive:graph:employment:v1> .
+<urn:woodhive:event:1> <urn:woodhive:jobCount> "120"^^<http://www.w3.org/2001/XMLSchema#integer> <urn:woodhive:graph:employment:v1> .
+<urn:woodhive:event:1> <urn:woodhive:location> <urn:woodhive:Parnu> <urn:woodhive:graph:employment:v1> .

@@ -1,0 +1,368 @@
+{
+  "profile": "Institutional DAOMod specialization",
+  "version": "1.0.0",
+  "status": "Proposed research extension; not an upstream release or independently reviewed deployment",
+  "upstream_commit": "9ce3fc44dbb20d6441539f5992929746778bcbcc",
+  "elements": [
+    {
+      "id": "SemanticAsset",
+      "requirement": "OLR1",
+      "layer": "Organization",
+      "semantics": "Asset with stable identity, class and immutable version references",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "WoodHiveDAO",
+      "treatment": "Extended",
+      "worked_case_pointer": "/asset"
+    },
+    {
+      "id": "Lifecycle",
+      "requirement": "OLR2",
+      "layer": "Organization",
+      "semantics": "Asset states and transition relations separate from decision and execution status",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "WoodHiveDAO",
+      "treatment": "Extended",
+      "worked_case_pointer": "/lifecycle"
+    },
+    {
+      "id": "AuthorityScope",
+      "requirement": "OLR3",
+      "layer": "Organization",
+      "semantics": "Governance area bounded by asset class and operation",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "GA-Employment",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/permissions"
+    },
+    {
+      "id": "FunctionalRole",
+      "requirement": "OLR4",
+      "layer": "Organization",
+      "semantics": "Lifecycle responsibility independently of job title",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "R-Curator",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/roles"
+    },
+    {
+      "id": "CollectiveBody",
+      "requirement": "OLR5",
+      "layer": "Organization",
+      "semantics": "Committee membership and independent principals",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "C-Publication",
+      "treatment": "Inherited and adapted",
+      "worked_case_pointer": "/decision/participants"
+    },
+    {
+      "id": "PermissionVocabulary",
+      "requirement": "OLR6",
+      "layer": "Organization",
+      "semantics": "Eight distinct actions",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "P-authorize",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/permissions"
+    },
+    {
+      "id": "ScopedPermission",
+      "requirement": "OLR7",
+      "layer": "Organization",
+      "semantics": "Subject, asset and transition jointly constrain permission",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "P-execute",
+      "treatment": "Extended",
+      "worked_case_pointer": "/permissions"
+    },
+    {
+      "id": "AssignmentConstraint",
+      "requirement": "OLR8",
+      "layer": "Organization",
+      "semantics": "Incompatibility and delegation no broader than original grant",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "R-Producer",
+      "treatment": "Adapted plus constraints",
+      "worked_case_pointer": "/delegation"
+    },
+    {
+      "id": "EvidenceCategory",
+      "requirement": "OLR9",
+      "layer": "Organization",
+      "semantics": "Transition-specific evidence without authorization equivalence",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "WoodHiveDAO",
+      "treatment": "Extended",
+      "worked_case_pointer": "/policy/evidence"
+    },
+    {
+      "id": "GovernanceChange",
+      "requirement": "OLR10",
+      "layer": "Organization",
+      "semantics": "Recorded proposal for organizational configuration change",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "C-Review",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/policy/configuration_change_requires_proposal"
+    },
+    {
+      "id": "PolicyLink",
+      "requirement": "OLR11",
+      "layer": "Organization",
+      "semantics": "Transition references Coordination policy",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "GA-Employment",
+      "treatment": "Extended",
+      "worked_case_pointer": "/policy/id"
+    },
+    {
+      "id": "DistributionConstraint",
+      "requirement": "OLR12",
+      "layer": "Organization",
+      "semantics": "Two independent principals and no sole end-to-end control",
+      "base_model": "WoodHive_DAO-ML.model.xml",
+      "base_element": "C-Publication",
+      "treatment": "Extended",
+      "worked_case_pointer": "/policy/min_independent_principals"
+    },
+    {
+      "id": "TransitionPlan",
+      "requirement": "CR1",
+      "layer": "Coordination",
+      "semantics": "Exact asset versions, source/target states and evidence for all steps",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "PROP-Publish",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/plan"
+    },
+    {
+      "id": "Admission",
+      "requirement": "CR2",
+      "layer": "Coordination",
+      "semantics": "Current scoped eligibility, mandate and distribution checks",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Admission",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/mandates"
+    },
+    {
+      "id": "CoordinationPolicy",
+      "requirement": "CR3",
+      "layer": "Coordination",
+      "semantics": "Mechanism, quorum, threshold, time, delegation",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "DM-Publication",
+      "treatment": "Inherited and adapted",
+      "worked_case_pointer": "/policy"
+    },
+    {
+      "id": "ValidationPrerequisite",
+      "requirement": "CR4",
+      "layer": "Coordination",
+      "semantics": "Evidence prerequisite separate from authorization",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "RES-Evidence",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/evidence/validation_passed"
+    },
+    {
+      "id": "DecisionOutcome",
+      "requirement": "CR5",
+      "layer": "Coordination",
+      "semantics": "Accepted/rejected/expired separate from suspended/challenged status",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Challenge",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/decision_outcomes"
+    },
+    {
+      "id": "ConfigurationProposal",
+      "requirement": "CR6",
+      "layer": "Coordination",
+      "semantics": "Governable changes to roles, committees and permissions",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "PROP-Admin",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/policy/configuration_change_requires_proposal"
+    },
+    {
+      "id": "Authorization",
+      "requirement": "ER1",
+      "layer": "Execution",
+      "semantics": "Accepted decision binds entire plan, executor and expiry",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "TX-Authorize",
+      "treatment": "Extended",
+      "worked_case_pointer": "/authorization"
+    },
+    {
+      "id": "ExecutionStatus",
+      "requirement": "ER2",
+      "layer": "Execution",
+      "semantics": "Authorized, pending, failed, technically confirmed, institutionally confirmed",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "TX-Confirm",
+      "treatment": "Extended",
+      "worked_case_pointer": "/execution_states"
+    },
+    {
+      "id": "ExecutionGuard",
+      "requirement": "ER3",
+      "layer": "Execution",
+      "semantics": "Validity, evidence integrity, source state, nonce and replay",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Execute",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/authorization/nonce"
+    },
+    {
+      "id": "ContentIdentity",
+      "requirement": "ER4",
+      "layer": "Execution",
+      "semantics": "Explicit RDF canonicalization profile and hash",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "AS-Employment",
+      "treatment": "Extended",
+      "worked_case_pointer": "/evidence/canonicalization"
+    },
+    {
+      "id": "AttemptReceipt",
+      "requirement": "ER5",
+      "layer": "Execution",
+      "semantics": "Attributable success/failure, authoritative result manifest and common commit for compound plan",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "G-Adapter",
+      "treatment": "Extended",
+      "worked_case_pointer": "/receipt"
+    },
+    {
+      "id": "Confirmation",
+      "requirement": "ER6",
+      "layer": "Execution",
+      "semantics": "Atomic idempotent technical confirmation and bidirectional lineage",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "TX-Confirm",
+      "treatment": "Extended",
+      "worked_case_pointer": "/confirmation"
+    },
+    {
+      "id": "Mandate",
+      "requirement": "SG1",
+      "layer": "Safeguard",
+      "semantics": "Principal, role, institution and validity",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "OG-WoodHive",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/mandates"
+    },
+    {
+      "id": "Lineage",
+      "requirement": "SG2",
+      "layer": "Safeguard",
+      "semantics": "Resolvable forward and reverse graph across all records",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "RES-Evidence",
+      "treatment": "Extended",
+      "worked_case_pointer": "/lineage"
+    },
+    {
+      "id": "AuditRecord",
+      "requirement": "SG3",
+      "layer": "Safeguard",
+      "semantics": "Rationale, challenges, delegation and readable export",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Tally",
+      "treatment": "Extended",
+      "worked_case_pointer": "/decision/rationale"
+    },
+    {
+      "id": "ForwardRestoration",
+      "requirement": "SG4",
+      "layer": "Safeguard",
+      "semantics": "Fresh proposal and receipt preserve all prior versions",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "PROP-Restore",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/restoration_plan"
+    },
+    {
+      "id": "EmergencyPolicy",
+      "requirement": "SG5",
+      "layer": "Safeguard",
+      "semantics": "Bound scope, trigger, duration, delegation and expiry",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Challenge",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/safeguards/emergency"
+    },
+    {
+      "id": "IndependentReview",
+      "requirement": "SG6",
+      "layer": "Safeguard",
+      "semantics": "Notification, independent review and corrective proposal",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Challenge",
+      "treatment": "Extended",
+      "worked_case_pointer": "/safeguards/emergency/independent_review_required"
+    },
+    {
+      "id": "ComplianceProfile",
+      "requirement": "SG7",
+      "layer": "Safeguard",
+      "semantics": "Jurisdiction and mandate-specific approved policy",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "OG-WoodHive",
+      "treatment": "Extended",
+      "worked_case_pointer": "/safeguards/compliance"
+    },
+    {
+      "id": "ProtectedEvidence",
+      "requirement": "SG8",
+      "layer": "Safeguard",
+      "semantics": "Retention, hold, disclosure and controlled access",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "STORE-Evidence",
+      "treatment": "Extended",
+      "worked_case_pointer": "/safeguards/protected_evidence"
+    },
+    {
+      "id": "ExternalDecision",
+      "requirement": "SG9",
+      "layer": "Safeguard",
+      "semantics": "Appeal linked to suspension or correction",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Challenge",
+      "treatment": "Extended",
+      "worked_case_pointer": "/safeguards/appeal"
+    },
+    {
+      "id": "Separation",
+      "requirement": "SG10",
+      "layer": "Safeguard",
+      "semantics": "Duty conflicts and bounded delegation checked",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "MECH-Admission",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/safeguards/incompatible_roles"
+    },
+    {
+      "id": "AuthorityMonitor",
+      "requirement": "SG11",
+      "layer": "Safeguard",
+      "semantics": "Deployment-specific concentration, participation and exceptional-power indicators",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "G-Monitor",
+      "treatment": "Adapted",
+      "worked_case_pointer": "/safeguards/monitor"
+    },
+    {
+      "id": "Escalation",
+      "requirement": "SG12",
+      "layer": "Safeguard",
+      "semantics": "Deadlock, censorship, timeout and missing receipt records",
+      "base_model": "WoodHive_ET-DM.model.xml",
+      "base_element": "G-Monitor",
+      "treatment": "Extended",
+      "worked_case_pointer": "/safeguards/escalation"
+    }
+  ]
+}

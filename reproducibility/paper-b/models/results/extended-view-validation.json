@@ -1,0 +1,257 @@
+{
+  "status": "pass",
+  "typed_model_views": 4,
+  "requirement_bound_instances": 36,
+  "ontology_property_links": 5,
+  "negative_checks": [
+    {
+      "case": "missing concept",
+      "status": "rejected",
+      "reason": "incomplete layer concepts"
+    },
+    {
+      "case": "unknown ontology class",
+      "status": "rejected",
+      "reason": "unknown ontology class"
+    },
+    {
+      "case": "divergent worked value",
+      "status": "rejected",
+      "reason": "worked value diverges from authoritative instance"
+    },
+    {
+      "case": "wrong requirement",
+      "status": "rejected",
+      "reason": "wrong requirement/base binding"
+    },
+    {
+      "case": "missing relationship",
+      "status": "rejected",
+      "reason": "incomplete/altered cross-view relationships"
+    },
+    {
+      "case": "dangling target",
+      "status": "rejected",
+      "reason": "incomplete/altered cross-view relationships"
+    }
+  ],
+  "bindings": [
+    {
+      "requirement": "OLR1",
+      "class": "urn:paper-b:institutional-daomod:SemanticAsset",
+      "instance": "WoodHive-SemanticAsset",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR2",
+      "class": "urn:paper-b:institutional-daomod:Lifecycle",
+      "instance": "WoodHive-Lifecycle",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR3",
+      "class": "urn:paper-b:institutional-daomod:AuthorityScope",
+      "instance": "WoodHive-AuthorityScope",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR4",
+      "class": "urn:paper-b:institutional-daomod:FunctionalRole",
+      "instance": "WoodHive-FunctionalRole",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR5",
+      "class": "urn:paper-b:institutional-daomod:CollectiveBody",
+      "instance": "WoodHive-CollectiveBody",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR6",
+      "class": "urn:paper-b:institutional-daomod:PermissionVocabulary",
+      "instance": "WoodHive-PermissionVocabulary",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR7",
+      "class": "urn:paper-b:institutional-daomod:ScopedPermission",
+      "instance": "WoodHive-ScopedPermission",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR8",
+      "class": "urn:paper-b:institutional-daomod:AssignmentConstraint",
+      "instance": "WoodHive-AssignmentConstraint",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR9",
+      "class": "urn:paper-b:institutional-daomod:EvidenceCategory",
+      "instance": "WoodHive-EvidenceCategory",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR10",
+      "class": "urn:paper-b:institutional-daomod:GovernanceChange",
+      "instance": "WoodHive-GovernanceChange",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR11",
+      "class": "urn:paper-b:institutional-daomod:PolicyLink",
+      "instance": "WoodHive-PolicyLink",
+      "status": "pass"
+    },
+    {
+      "requirement": "OLR12",
+      "class": "urn:paper-b:institutional-daomod:DistributionConstraint",
+      "instance": "WoodHive-DistributionConstraint",
+      "status": "pass"
+    },
+    {
+      "requirement": "CR1",
+      "class": "urn:paper-b:institutional-daomod:TransitionPlan",
+      "instance": "WoodHive-TransitionPlan",
+      "status": "pass"
+    },
+    {
+      "requirement": "CR2",
+      "class": "urn:paper-b:institutional-daomod:Admission",
+      "instance": "WoodHive-Admission",
+      "status": "pass"
+    },
+    {
+      "requirement": "CR3",
+      "class": "urn:paper-b:institutional-daomod:CoordinationPolicy",
+      "instance": "WoodHive-CoordinationPolicy",
+      "status": "pass"
+    },
+    {
+      "requirement": "CR4",
+      "class": "urn:paper-b:institutional-daomod:ValidationPrerequisite",
+      "instance": "WoodHive-ValidationPrerequisite",
+      "status": "pass"
+    },
+    {
+      "requirement": "CR5",
+      "class": "urn:paper-b:institutional-daomod:DecisionOutcome",
+      "instance": "WoodHive-DecisionOutcome",
+      "status": "pass"
+    },
+    {
+      "requirement": "CR6",
+      "class": "urn:paper-b:institutional-daomod:ConfigurationProposal",
+      "instance": "WoodHive-ConfigurationProposal",
+      "status": "pass"
+    },
+    {
+      "requirement": "ER1",
+      "class": "urn:paper-b:institutional-daomod:Authorization",
+      "instance": "WoodHive-Authorization",
+      "status": "pass"
+    },
+    {
+      "requirement": "ER2",
+      "class": "urn:paper-b:institutional-daomod:ExecutionStatus",
+      "instance": "WoodHive-ExecutionStatus",
+      "status": "pass"
+    },
+    {
+      "requirement": "ER3",
+      "class": "urn:paper-b:institutional-daomod:ExecutionGuard",
+      "instance": "WoodHive-ExecutionGuard",
+      "status": "pass"
+    },
+    {
+      "requirement": "ER4",
+      "class": "urn:paper-b:institutional-daomod:ContentIdentity",
+      "instance": "WoodHive-ContentIdentity",
+      "status": "pass"
+    },
+    {
+      "requirement": "ER5",
+      "class": "urn:paper-b:institutional-daomod:AttemptReceipt",
+      "instance": "WoodHive-AttemptReceipt",
+      "status": "pass"
+    },
+    {
+      "requirement": "ER6",
+      "class": "urn:paper-b:institutional-daomod:Confirmation",
+      "instance": "WoodHive-Confirmation",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG1",
+      "class": "urn:paper-b:institutional-daomod:Mandate",
+      "instance": "WoodHive-Mandate",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG2",
+      "class": "urn:paper-b:institutional-daomod:Lineage",
+      "instance": "WoodHive-Lineage",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG3",
+      "class": "urn:paper-b:institutional-daomod:AuditRecord",
+      "instance": "WoodHive-AuditRecord",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG4",
+      "class": "urn:paper-b:institutional-daomod:ForwardRestoration",
+      "instance": "WoodHive-ForwardRestoration",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG5",
+      "class": "urn:paper-b:institutional-daomod:EmergencyPolicy",
+      "instance": "WoodHive-EmergencyPolicy",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG6",
+      "class": "urn:paper-b:institutional-daomod:IndependentReview",
+      "instance": "WoodHive-IndependentReview",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG7",
+      "class": "urn:paper-b:institutional-daomod:ComplianceProfile",
+      "instance": "WoodHive-ComplianceProfile",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG8",
+      "class": "urn:paper-b:institutional-daomod:ProtectedEvidence",
+      "instance": "WoodHive-ProtectedEvidence",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG9",
+      "class": "urn:paper-b:institutional-daomod:ExternalDecision",
+      "instance": "WoodHive-ExternalDecision",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG10",
+      "class": "urn:paper-b:institutional-daomod:Separation",
+      "instance": "WoodHive-Separation",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG11",
+      "class": "urn:paper-b:institutional-daomod:AuthorityMonitor",
+      "instance": "WoodHive-AuthorityMonitor",
+      "status": "pass"
+    },
+    {
+      "requirement": "SG12",
+      "class": "urn:paper-b:institutional-daomod:Escalation",
+      "instance": "WoodHive-Escalation",
+      "status": "pass"
+    }
+  ],
+  "scope": "Proposed institutional view XSD, exact class/requirement/base bindings, worked-value equality and declared relation domain/range. Not official upstream model syntax, independent usability, deployed enforcement or OWL-DL consistency."
+}

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ikg:InstitutionalExecutionModel xmlns:ikg="urn:paper-b:institutional-model-view:1.0" ontology="../DAOMod_Institutional_Integrated.rdf" baseModel="../WoodHive_ET-DM.model.xml" illustrative="true">
+  <ikg:Authorization id="WoodHive-Authorization" ontologyClass="urn:paper-b:institutional-daomod:Authorization" requirement="ER1" baseElement="TX-Authorize" casePointer="/authorization">
+    <ikg:value>{"decision": "Decision-1", "executor": "Institution-A", "expires": 100, "id": "Authorization-1", "nonce": "nonce-1", "plan": "Plan-Publish-v1"}</ikg:value>
+  </ikg:Authorization>
+  <ikg:ExecutionStatus id="WoodHive-ExecutionStatus" ontologyClass="urn:paper-b:institutional-daomod:ExecutionStatus" requirement="ER2" baseElement="TX-Confirm" casePointer="/execution_states">
+    <ikg:value>["authorized", "execution-pending", "execution-failed", "technically-confirmed", "institutionally-confirmed"]</ikg:value>
+  </ikg:ExecutionStatus>
+  <ikg:ExecutionGuard id="WoodHive-ExecutionGuard" ontologyClass="urn:paper-b:institutional-daomod:ExecutionGuard" requirement="ER3" baseElement="MECH-Execute" casePointer="/authorization/nonce">
+    <ikg:value>"nonce-1"</ikg:value>
+  </ikg:ExecutionGuard>
+  <ikg:ContentIdentity id="WoodHive-ContentIdentity" ontologyClass="urn:paper-b:institutional-daomod:ContentIdentity" requirement="ER4" baseElement="AS-Employment" casePointer="/evidence/canonicalization">
+    <ikg:value>"RDFC-1.0"</ikg:value>
+  </ikg:ContentIdentity>
+  <ikg:AttemptReceipt id="WoodHive-AttemptReceipt" ontologyClass="urn:paper-b:institutional-daomod:AttemptReceipt" requirement="ER5" baseElement="G-Adapter" casePointer="/receipt">
+    <ikg:value>{"attempt": "Attempt-1", "binding": "Binding-1", "commit_id": "Commit-1", "executor": "Institution-A", "failure": null, "id": "Receipt-1", "result_manifest": [{"digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "publication_id": "urn:woodhive:publication:v1", "state": "published", "version": "v1"}], "status": "success"}</ikg:value>
+  </ikg:AttemptReceipt>
+  <ikg:Confirmation id="WoodHive-Confirmation" ontologyClass="urn:paper-b:institutional-daomod:Confirmation" requirement="ER6" baseElement="TX-Confirm" casePointer="/confirmation">
+    <ikg:value>{"atomic_technical_update": true, "id": "Confirmation-1", "idempotence_key": "Binding-1", "receipt": "Receipt-1", "state": "institutionally-confirmed"}</ikg:value>
+  </ikg:Confirmation>
+</ikg:InstitutionalExecutionModel>

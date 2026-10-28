@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile>
+  <diagram id="Binding" name="WoodHive reserved ontology property bindings">
+    <mxGraphModel>
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="TransitionPlan-SemanticAsset" edge="1" parent="1" source="TransitionPlan" target="SemanticAsset" value="IKG:hasAsset" style="edgeStyle=orthogonalEdgeStyle;endArrow=doubleBlock;" ontologyProperty="urn:paper-b:institutional-daomod:hasAsset">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="Authorization-TransitionPlan" edge="1" parent="1" source="Authorization" target="TransitionPlan" value="IKG:hasPlan" style="edgeStyle=orthogonalEdgeStyle;endArrow=doubleBlock;" ontologyProperty="urn:paper-b:institutional-daomod:hasPlan">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="Confirmation-AttemptReceipt" edge="1" parent="1" source="Confirmation" target="AttemptReceipt" value="IKG:hasReceipt" style="edgeStyle=orthogonalEdgeStyle;endArrow=doubleBlock;" ontologyProperty="urn:paper-b:institutional-daomod:hasReceipt">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="Admission-Mandate" edge="1" parent="1" source="Admission" target="Mandate" value="IKG:hasMandate" style="edgeStyle=orthogonalEdgeStyle;endArrow=doubleBlock;" ontologyProperty="urn:paper-b:institutional-daomod:hasMandate">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="TransitionPlan-CoordinationPolicy" edge="1" parent="1" source="TransitionPlan" target="CoordinationPolicy" value="IKG:requiresPolicy" style="edgeStyle=orthogonalEdgeStyle;endArrow=doubleBlock;" ontologyProperty="urn:paper-b:institutional-daomod:requiresPolicy">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="SemanticAsset" value="IKG:A | O | ASSET&#10;&lt;&lt;SemanticAsset&gt;&gt; [OLR1]&#10;WoodHive-SemanticAsset&#10;employment graph / v1, v2" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f0fb;" ontologyClass="urn:paper-b:institutional-daomod:SemanticAsset" requirement="OLR1" notationFamily="ASSET" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="30" y="270" width="280" height="140" />
+        </mxCell>
+        <mxCell id="SemanticAsset-tab-0" vertex="1" parent="SemanticAsset" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="SemanticAsset-tab-1" vertex="1" parent="SemanticAsset" style="shape=triangle;direction=east;fillColor=#e8f0fb;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="TransitionPlan" value="IKG:T | C | PLAN&#10;&lt;&lt;TransitionPlan&gt;&gt; [CR1]&#10;WoodHive-TransitionPlan&#10;Plan-Publish-v1" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:TransitionPlan" requirement="CR1" notationFamily="PLAN" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="340" y="270" width="280" height="140" />
+        </mxCell>
+        <mxCell id="TransitionPlan-tab-0" vertex="1" parent="TransitionPlan" style="shape=triangle;direction=east;fillColor=#e8f5e9;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="TransitionPlan-tab-1" vertex="1" parent="TransitionPlan" style="shape=triangle;direction=east;fillColor=#e8f5e9;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Authorization" value="IKG:E | E | RECORD&#10;&lt;&lt;Authorization&gt;&gt; [ER1]&#10;WoodHive-Authorization&#10;Authorization-1 / expiry, nonce" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Authorization" requirement="ER1" notationFamily="RECORD" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="650" y="270" width="280" height="140" />
+        </mxCell>
+        <mxCell id="Authorization-tab-0" vertex="1" parent="Authorization" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Authorization-tab-1" vertex="1" parent="Authorization" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Confirmation" value="IKG:G | E | GATE&#10;&lt;&lt;Confirmation&gt;&gt; [ER6]&#10;WoodHive-Confirmation&#10;Confirmation-1 / idempotence" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:Confirmation" requirement="ER6" notationFamily="GATE" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="960" y="270" width="280" height="140" />
+        </mxCell>
+        <mxCell id="Confirmation-tab-0" vertex="1" parent="Confirmation" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Confirmation-tab-1" vertex="1" parent="Confirmation" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="AttemptReceipt" value="IKG:E | E | RECORD&#10;&lt;&lt;AttemptReceipt&gt;&gt; [ER5]&#10;WoodHive-AttemptReceipt&#10;Receipt-1 / result manifest" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#fff3df;" ontologyClass="urn:paper-b:institutional-daomod:AttemptReceipt" requirement="ER5" notationFamily="RECORD" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="960" y="500" width="280" height="140" />
+        </mxCell>
+        <mxCell id="AttemptReceipt-tab-0" vertex="1" parent="AttemptReceipt" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="AttemptReceipt-tab-1" vertex="1" parent="AttemptReceipt" style="shape=triangle;direction=east;fillColor=#fff3df;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Admission" value="IKG:G | C | GATE&#10;&lt;&lt;Admission&gt;&gt; [CR2]&#10;WoodHive-Admission&#10;current eligible principals" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:Admission" requirement="CR2" notationFamily="GATE" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="340" y="40" width="280" height="140" />
+        </mxCell>
+        <mxCell id="Admission-tab-0" vertex="1" parent="Admission" style="shape=triangle;direction=east;fillColor=#e8f5e9;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Admission-tab-1" vertex="1" parent="Admission" style="shape=triangle;direction=east;fillColor=#e8f5e9;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Mandate" value="IKG:R | S | ACTOR&#10;&lt;&lt;Mandate&gt;&gt; [SG1]&#10;WoodHive-Mandate&#10;validity and institutional scope" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#f4e9fa;" ontologyClass="urn:paper-b:institutional-daomod:Mandate" requirement="SG1" notationFamily="ACTOR" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="30" y="40" width="280" height="140" />
+        </mxCell>
+        <mxCell id="Mandate-tab-0" vertex="1" parent="Mandate" style="shape=triangle;direction=east;fillColor=#f4e9fa;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="Mandate-tab-1" vertex="1" parent="Mandate" style="shape=triangle;direction=east;fillColor=#f4e9fa;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+        <mxCell id="CoordinationPolicy" value="IKG:P | C | POLICY&#10;&lt;&lt;CoordinationPolicy&gt;&gt; [CR3]&#10;WoodHive-CoordinationPolicy&#10;Policy-Publication / quorum, timing" vertex="1" parent="1" style="rounded=0;whiteSpace=wrap;html=0;align=left;spacingLeft=10;fillColor=#e8f5e9;" ontologyClass="urn:paper-b:institutional-daomod:CoordinationPolicy" requirement="CR3" notationFamily="POLICY" notationFrame="IKG-TWIN-TAB">
+          <mxGeometry as="geometry" x="650" y="40" width="280" height="140" />
+        </mxCell>
+        <mxCell id="CoordinationPolicy-tab-0" vertex="1" parent="CoordinationPolicy" style="shape=triangle;direction=east;fillColor=#e8f5e9;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="8" width="10" height="15" />
+        </mxCell>
+        <mxCell id="CoordinationPolicy-tab-1" vertex="1" parent="CoordinationPolicy" style="shape=triangle;direction=east;fillColor=#e8f5e9;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="279" y="23" width="10" height="15" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

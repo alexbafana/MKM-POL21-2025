@@ -1,0 +1,27 @@
+[
+  {
+    "source": "WoodHive-TransitionPlan",
+    "property": "urn:paper-b:institutional-daomod:hasAsset",
+    "target": "WoodHive-SemanticAsset"
+  },
+  {
+    "source": "WoodHive-Authorization",
+    "property": "urn:paper-b:institutional-daomod:hasPlan",
+    "target": "WoodHive-TransitionPlan"
+  },
+  {
+    "source": "WoodHive-Confirmation",
+    "property": "urn:paper-b:institutional-daomod:hasReceipt",
+    "target": "WoodHive-AttemptReceipt"
+  },
+  {
+    "source": "WoodHive-Admission",
+    "property": "urn:paper-b:institutional-daomod:hasMandate",
+    "target": "WoodHive-Mandate"
+  },
+  {
+    "source": "WoodHive-TransitionPlan",
+    "property": "urn:paper-b:institutional-daomod:requiresPolicy",
+    "target": "WoodHive-CoordinationPolicy"
+  }
+]

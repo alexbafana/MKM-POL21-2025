@@ -1,0 +1,7 @@
+from pathlib import Path
+import json,xml.etree.ElementTree as E,sys
+r=Path(__file__).resolve().parents[1];sys.path.insert(0,str((r/'scripts').resolve()));from notation_renderer import drawio_node,svg_node,NOTATION
+mx=E.Element('mxfile');d=E.SubElement(mx,'diagram',name='Institutional notation legend',id='legend');gm=E.SubElement(d,'mxGraphModel');root=E.SubElement(gm,'root');E.SubElement(root,'mxCell',id='0');E.SubElement(root,'mxCell',id='1',parent='0');svg=['<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650"><rect width="1200" height="650" fill="white"/><text x="30" y="35" font-family="sans-serif" font-size="22">Institutional DAO-ML / ET-DM notation: compound symbol legend</text>']
+for i,family in enumerate(NOTATION['families']):
+ sym=next(x for x in NOTATION['symbols'] if x['family']==family);x=30+(i%3)*390;y=70+(i//3)*180;drawio_node(root,sym['class'],x,y,instance='stable-instance-id',pointer='concrete fields / resolvable pointer');svg.append(svg_node(sym['class'],x,y,instance='stable-instance-id',pointer='concrete fields / resolvable pointer'))
+svg.append('<text x="30" y="635" font-family="sans-serif" font-size="14">O Organization | C Coordination | E Execution | S Safeguard. Text and glyphs remain readable without color.</text></svg>');E.indent(mx);E.ElementTree(mx).write(r/'notation/Legend.drawio',encoding='utf-8',xml_declaration=True);(r/'notation/Legend.svg').write_text(''.join(svg))
