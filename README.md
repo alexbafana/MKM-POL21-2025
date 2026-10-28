@@ -152,3 +152,7 @@ To know more about its features, check out our [website](https://scaffoldeth.io)
 We welcome contributions to Scaffold-ETH 2!
 
 Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+
+### WoodHive model-linked feasibility prototype
+
+The bounded proof of concept in [reproducibility/paper-b/feasibility](reproducibility/paper-b/feasibility/README.md) connects selected institutional ontology/model bindings to an executed committee decision, admission guards, canonical RDF publication and receipt confirmation. Its 30 tests and three negative artifact-integrity checks are separate from the historical baseline and supplemental episode. It demonstrates local technical feasibility, not institutional effectiveness or full requirement satisfaction.

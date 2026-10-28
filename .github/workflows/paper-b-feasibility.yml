@@ -1,0 +1,35 @@
+name: Paper B WoodHive feasibility proof of concept
+on:
+  push:
+    paths:
+      - 'packages/hardhat/contracts/paperb/ModelBoundPublication.sol'
+      - 'packages/hardhat/evaluation/feasibility/**'
+      - 'reproducibility/paper-b/feasibility/**'
+      - '.github/workflows/paper-b-feasibility.yml'
+  pull_request:
+    paths:
+      - 'packages/hardhat/contracts/paperb/ModelBoundPublication.sol'
+      - 'packages/hardhat/evaluation/feasibility/**'
+      - 'reproducibility/paper-b/feasibility/**'
+      - '.github/workflows/paper-b-feasibility.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  feasibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+      - run: npm install --global corepack@0.31.0
+      - run: corepack enable
+      - run: corepack yarn install --immutable
+      - run: bash reproducibility/paper-b/feasibility/scripts/reproduce.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: woodhive-model-linked-feasibility
+          path: reproducibility/paper-b/feasibility/results/
