@@ -38,8 +38,8 @@ describe("Paper B model-linked WoodHive feasibility prototype", function () {
       await ethers.getContractFactory("VotingPowerToken")
     ).deploy("Model publication votes", "MPV", a.address);
     committee = await (
-      await ethers.getContractFactory("ValidationCommittee")
-    ).deploy(await token.getAddress(), await permission.getAddress(), 0, m.policy.voting_blocks, 100);
+      await ethers.getContractFactory("ModelPublicationCommittee")
+    ).deploy(await token.getAddress(), await permission.getAddress(), m.policy.voting_blocks);
     for (const voter of [b, d]) {
       await permission.assignRole(voter.address, 1156);
       await token.mint(voter.address, ethers.parseEther("1"));
@@ -378,5 +378,13 @@ describe("Paper B model-linked WoodHive feasibility prototype", function () {
     await expect(
       registry.confirm(id, decision, ethers.id("wrong-content"), evidence.contentHash, ethers.id("receipt")),
     ).to.be.revertedWith("Content mismatch");
+  });
+  it("rejects one yes plus one abstention under the unanimous model policy", async () => {
+    await validate();
+    await vote([b, d], [1, 2]);
+    expect(await committee.state(decision)).to.equal(3);
+    await expect(committee.execute(targets, [0], calls, descriptionHash)).to.be.revertedWith(
+      "Governor: proposal not successful",
+    );
   });
 });

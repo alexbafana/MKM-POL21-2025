@@ -7,11 +7,11 @@ const dir = path.resolve(__dirname, "../results"),
     .replace(/\x1b\[[0-9;]*m/g, "");
 const match = log.match(/\b(\d+) passing/);
 assert(match);
-assert.equal(Number(match[1]), 30);
+assert.equal(Number(match[1]), 31);
 assert(!/\b[1-9]\d* failing/.test(log));
 const report = {
   passed: true,
-  integrationTests: 30,
+  integrationTests: 31,
   artifactIntegrityNegativeCases: 3,
   selectedRequirementBindings: 14,
   institutionalConfirmation: false,

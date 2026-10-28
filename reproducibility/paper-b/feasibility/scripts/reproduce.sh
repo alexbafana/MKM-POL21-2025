@@ -6,7 +6,7 @@ cd "$ROOT"
 mkdir -p "$OUT"
 {
  git rev-parse HEAD
- git status --short -- packages/hardhat/contracts/paperb/ModelBoundPublication.sol packages/hardhat/evaluation/feasibility reproducibility/paper-b/feasibility/scripts
+ git status --short -- packages/hardhat/contracts/paperb/ModelBoundPublication.sol packages/hardhat/contracts/paperb/ModelPublicationCommittee.sol packages/hardhat/evaluation/feasibility reproducibility/paper-b/feasibility/scripts
  node --version
  corepack yarn --version
  uname -srm
