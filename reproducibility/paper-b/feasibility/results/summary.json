@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "integrationTests": 30,
+  "integrationTests": 31,
   "artifactIntegrityNegativeCases": 3,
   "selectedRequirementBindings": 14,
   "institutionalConfirmation": false,

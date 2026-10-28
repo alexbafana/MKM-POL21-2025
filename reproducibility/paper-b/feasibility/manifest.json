@@ -1,7 +1,7 @@
 {
   "profile": "WoodHive-model-linked-feasibility-v1",
-  "implementation_revision": "8a22eb896823641729edf01fa211d71622f839f5",
-  "tests": 30,
+  "implementation_revision": "cd046a9d492353b39e33526eb45e095d05dce8f9",
+  "tests": 31,
   "negative_artifact_integrity_cases": 3,
   "selected_requirement_bindings": 14,
   "fixture": "fixtures/woodhive.nq",
