@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "receipt",
+      "passed": true,
+      "diagnostic": "Receipt digest mismatch\n+ actual - expected\n\n+ '0xb5e492be9f9c071b974701df0b9b6a9140c635856e798855a531b3c093f6a8eb'\n- '0x734502a4ed65674de230db68f676011e84ae9d373548c5c244dc8e828ddada8e'"
+    },
+    {
+      "case": "content",
+      "passed": true,
+      "diagnostic": "Published content mismatch\n+ actual - expected\n\n+ '0xf8ad550116d0d40411f534462b0f1e5f1e3e04ed68b3c5950c49da896cc8b347'\n- '0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b'"
+    },
+    {
+      "case": "model",
+      "passed": true,
+      "diagnostic": "Model manifest hash mismatch\n+ actual - expected\n\n+ '0x312af1b116e2ebe5cc9f67f06be221a0161055652d8415d6658da8ff0deaa7a4'\n- '0xe7b26fc43727b2c5d0b16f7821846f50806e82055bacbf9e2e54b04cbb6a3d19'"
+    }
+  ]
+}

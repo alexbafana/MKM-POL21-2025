@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "integrationTests": 30,
+  "artifactIntegrityNegativeCases": 3,
+  "selectedRequirementBindings": 14,
+  "institutionalConfirmation": false,
+  "baselineReclassified": false,
+  "scope": "Model-linked single-version local publication; selected clauses only"
+}

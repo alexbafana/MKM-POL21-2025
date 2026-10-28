@@ -1,0 +1,17 @@
+{
+  "profile": "WoodHive-single-publication-receipt-v1",
+  "chainId": "31337",
+  "registry": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+  "assetId": "0xaeb65fc93debba7b04d2cceb383b115e076603edad6d250090fbcfa3faede084",
+  "proposalId": "13148588972998574924044427543523424834554181447760404827602939068783622379668",
+  "modelHash": "0xe7b26fc43727b2c5d0b16f7821846f50806e82055bacbf9e2e54b04cbb6a3d19",
+  "planHash": "0x9fc9f5a55a0a2cb1221a769ba1ea30477497b6d2ea2e9d2f95d308dd988d69a3",
+  "policyHash": "0xbce2e3f6720711cfd86e582929f3c1040cc11cc63371c63eee125863ac5ee381",
+  "evidenceHash": "0xe1b71af00f3ce0333e25744db5040514324d19f3df72875bd7dbeb3087e7bbf4",
+  "contentHash": "0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b",
+  "observedHash": "0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b",
+  "publicationId": "0x5e01e8100a28c429a9c7841378c1c5aa141a750dc9ac18ecfddd59bebe31fe5b",
+  "executor": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "receiptHash": "0x734502a4ed65674de230db68f676011e84ae9d373548c5c244dc8e828ddada8e",
+  "confirmationTransaction": "0x58159dc1d63390707be134647d90046b4478a9b72817d64ae6f0c86db81dadf6"
+}

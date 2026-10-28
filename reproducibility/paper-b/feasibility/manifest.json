@@ -1,0 +1,18 @@
+{
+  "profile": "WoodHive-model-linked-feasibility-v1",
+  "implementation_revision": "8a22eb896823641729edf01fa211d71622f839f5",
+  "tests": 30,
+  "negative_artifact_integrity_cases": 3,
+  "selected_requirement_bindings": 14,
+  "fixture": "fixtures/woodhive.nq",
+  "runtime_manifest": "results/model-runtime.json",
+  "execution": "results/execution.json",
+  "receipt": "results/local-store/receipt.json",
+  "scope": "Single-version local publication; selected clauses only; institutionalConfirmation=false",
+  "reproduce": "bash reproducibility/paper-b/feasibility/scripts/reproduce.sh",
+  "baseline_statuses_unchanged": {
+    "E": 2,
+    "P": 16,
+    "N": 18
+  }
+}
